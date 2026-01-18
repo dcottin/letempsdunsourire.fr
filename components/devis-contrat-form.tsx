@@ -878,22 +878,26 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                                 const availableMachines = statusSettings?.materiels?.filter((m: any) => !unavailableIds.includes(m.id)) || []
                                 const allReserved = totalMachines > 0 && availableMachines.length === 0
 
-                                // Check if current value is a preference from reservation form
+                                // Check if there's a preference from reservation form in the INITIAL data
+                                // This makes the badge persistent even if we select a specific machine unit.
                                 const preferences: Record<string, string> = {
                                     'bois': 'Modèle en bois',
                                     'blanc': 'Modèle blanc',
                                     'noir': 'Modèle noir',
                                     'import': 'Sans importance'
                                 }
-                                const isPreference = preferences[field.value]
+
+                                // We check initialData for choice_client (permanent) or equipment_id (original lead)
+                                const initialChoice = initialData?.data?.choix_client || initialData?.data?.equipment_id || initialData?.equipment_id
+                                const clientWish = preferences[initialChoice] || preferences[field.value]
 
                                 return (
                                     <FormItem>
                                         <div className="flex items-center justify-between">
                                             <FormLabel className="uppercase text-xs font-bold text-muted-foreground text-indigo-600">Matériel (Disponibilité auto)</FormLabel>
-                                            {isPreference && (
+                                            {clientWish && (
                                                 <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200 text-[10px] animate-pulse">
-                                                    Souhait client : {preferences[field.value]}
+                                                    Souhait client : {clientWish}
                                                 </Badge>
                                             )}
                                         </div>

@@ -135,10 +135,7 @@ export default function DevisContratsPage() {
     }
 
     // Resolve Equipment Name Helper
-    const getEquipmentName = (id: string) => {
-        if (!id || id === 'none') return <span className="text-muted-foreground italic text-xs">-</span>
-
-        // Handle preferences from reservation form
+    const getEquipmentName = (id: string, preference?: string) => {
         const preferences: Record<string, string> = {
             'bois': 'Modèle en bois',
             'blanc': 'Modèle blanc',
@@ -146,12 +143,30 @@ export default function DevisContratsPage() {
             'import': 'Sans importance'
         }
 
-        if (preferences[id]) {
-            return <Badge variant="secondary" className="text-[10px] font-bold bg-amber-50 text-amber-700 border-amber-200">{preferences[id]}</Badge>
+        const prefLabel = preferences[preference || ''] || preferences[id]
+        const badgePreference = prefLabel ? (
+            <Badge variant="secondary" className="text-[10px] font-bold bg-amber-50 text-amber-700 border-amber-200">
+                {prefLabel}
+            </Badge>
+        ) : null
+
+        if (!id || id === 'none' || preferences[id]) {
+            return badgePreference || <span className="text-muted-foreground italic text-xs">-</span>
         }
 
         const machine = statusSettings?.materiels?.find((m: any) => m.id === id)
-        return machine ? <Badge variant="outline" className="text-[10px] font-normal">{machine.nom}</Badge> : <span className="text-muted-foreground italic text-xs">Inconnu</span>
+        const machineBadge = machine ? (
+            <Badge variant="outline" className="text-[10px] font-normal">
+                {machine.nom}
+            </Badge>
+        ) : <span className="text-muted-foreground italic text-xs">Inconnu</span>
+
+        return (
+            <div className="flex flex-col gap-1 items-start">
+                {machineBadge}
+                {badgePreference}
+            </div>
+        )
     }
 
     const activeDevis = sortedDevis.filter(d => !isArchived(d))
@@ -516,7 +531,7 @@ export default function DevisContratsPage() {
                                                     <TableCell className="font-medium text-xs">{devis.reference || generateReference(devis)}</TableCell>
                                                     <TableCell>{devis.date_debut}</TableCell>
                                                     <TableCell className="font-medium">{devis.nom_client}</TableCell>
-                                                    <TableCell>{getEquipmentName(devis.data?.equipment_id)}</TableCell>
+                                                    <TableCell>{getEquipmentName(devis.data?.equipment_id, devis.data?.choix_client)}</TableCell>
                                                     <TableCell className="text-muted-foreground text-sm">{devis.lieu || "-"}</TableCell>
                                                     <TableCell>{parseFloat(devis.prix_total || "0").toFixed(2)}€</TableCell>
                                                     <TableCell>
@@ -712,7 +727,7 @@ export default function DevisContratsPage() {
                                                     <TableCell className="font-medium text-xs text-indigo-600">{contrat.id.startsWith("2026") ? contrat.id : (contrat.reference || generateReference(contrat))}</TableCell>
                                                     <TableCell>{contrat.date_debut}</TableCell>
                                                     <TableCell className="font-medium">{contrat.nom_client}</TableCell>
-                                                    <TableCell>{getEquipmentName(contrat.data?.equipment_id)}</TableCell>
+                                                    <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
                                                     <TableCell className="text-muted-foreground text-sm">{contrat.lieu || "-"}</TableCell>
                                                     <TableCell>{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
                                                     <TableCell>
@@ -794,7 +809,7 @@ export default function DevisContratsPage() {
                                                         <TableCell className="font-medium text-xs">{contrat.id}</TableCell>
                                                         <TableCell>{contrat.date_debut}</TableCell>
                                                         <TableCell className="font-medium">{contrat.nom_client}</TableCell>
-                                                        <TableCell>{getEquipmentName(contrat.data?.equipment_id)}</TableCell>
+                                                        <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
                                                         <TableCell className="text-muted-foreground text-sm">{contrat.lieu || "-"}</TableCell>
                                                         <TableCell>{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
                                                         <TableCell>

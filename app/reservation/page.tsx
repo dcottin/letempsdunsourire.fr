@@ -145,6 +145,7 @@ export default function ReservationPage() {
                 lieu: data.lieu,
                 texte_libre: data.message,
                 equipment_id: data.equipment_id,
+                choix_client: data.equipment_id, // Permanent record of initial choice
                 offre: data.offre,
                 selected_options: finalOptions,
                 prix_total: totalPrice.toString(),
