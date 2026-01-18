@@ -308,14 +308,14 @@ export default function ReservationPage() {
 
                         <div className="mb-8 space-y-4">
                             <label className="text-xs font-bold text-slate-700 uppercase tracking-widest pl-1">Type de matériel</label>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
                                 {EQUIPMENT_OPTIONS.map((eq) => (
                                     <div
                                         key={eq.id}
                                         onClick={() => setValue("equipment_id", eq.id)}
                                         className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 group ${selectedEquipId === eq.id
-                                                ? "border-indigo-500 bg-indigo-50/50 shadow-md ring-2 ring-indigo-50"
-                                                : "border-slate-100 bg-white hover:border-slate-200"
+                                            ? "border-indigo-500 bg-indigo-50/50 shadow-md ring-2 ring-indigo-50"
+                                            : "border-slate-100 bg-white hover:border-slate-200"
                                             }`}
                                     >
                                         <div className={`text-xs font-bold ${selectedEquipId === eq.id ? "text-indigo-600" : "text-slate-700"}`}>
@@ -329,7 +329,7 @@ export default function ReservationPage() {
 
                         <div className="mb-8 space-y-4">
                             <label className="text-xs font-bold text-slate-700 uppercase tracking-widest pl-1">Choisir votre Formule</label>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
                                 {settings?.offres?.map((off, idx) => (
                                     <div
                                         key={idx}
