@@ -1295,31 +1295,32 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     </CardContent>
                 </Card>
 
-                <div className="flex flex-col md:flex-row items-center justify-end gap-4 pt-6 mt-6 border-t border-slate-100">
-                    <div className="flex-1">
+                <div className="flex flex-col items-center justify-center gap-4 pt-8 mt-6 border-t border-slate-100">
+                    <div className="flex flex-col items-center gap-4 w-full">
                         {Object.keys(form.formState.errors).length > 0 && (
-                            <div className="text-xs text-red-500 font-medium flex items-center gap-1.5 px-3 py-1.5 bg-red-50 rounded-lg border border-red-100 w-fit">
-                                <AlertCircleIcon className="size-3.5" />
+                            <div className="text-xs text-red-500 font-medium flex items-center gap-1.5 px-4 py-2 bg-red-50 rounded-full border border-red-100 shadow-sm animate-pulse">
+                                <AlertCircleIcon className="size-4" />
                                 {Object.keys(form.formState.errors).length} champ(s) incomplet(s) ou invalide(s)
                             </div>
                         )}
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {onCancel && (
-                            <Button type="button" variant="outline" onClick={onCancel} className="bg-white">
-                                Annuler
-                            </Button>
-                        )}
-                        <Button type="submit" disabled={isSaving} className="min-w-[140px] shadow-sm">
-                            {isSaving ? (
-                                <>
-                                    <Loader2Icon className="mr-2 size-4 animate-spin" />
-                                    Enregistrement...
-                                </>
-                            ) : (
-                                "Enregistrer"
+
+                        <div className="flex items-center gap-4 w-full justify-center">
+                            {onCancel && (
+                                <Button type="button" variant="outline" onClick={onCancel} className="bg-white px-8 uppercase text-xs font-bold tracking-wider">
+                                    Annuler
+                                </Button>
                             )}
-                        </Button>
+                            <Button type="submit" disabled={isSaving} className="min-w-[280px] h-12 shadow-md uppercase text-xs font-bold tracking-widest bg-indigo-600 hover:bg-indigo-700">
+                                {isSaving ? (
+                                    <>
+                                        <Loader2Icon className="mr-2 size-4 animate-spin" />
+                                        ENREGISTREMENT...
+                                    </>
+                                ) : (
+                                    "ENREGISTRER LES MODIFICATIONS"
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
