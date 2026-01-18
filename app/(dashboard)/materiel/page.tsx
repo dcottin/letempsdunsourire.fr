@@ -226,7 +226,7 @@ export default function MaterielPage() {
                     </div>
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight text-slate-800">Parc Matériel</h2>
-                        <p className="text-muted-foreground">Gérez vos photobooths, miroirs et bornes iPad.</p>
+                        <p className="text-muted-foreground">Gestion du parc de photobooths.</p>
                     </div>
                 </div>
                 <Button onClick={handleAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md">
