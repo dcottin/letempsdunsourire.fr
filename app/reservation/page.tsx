@@ -44,7 +44,7 @@ export default function ReservationPage() {
     const [submitting, setSubmitting] = useState(false)
     const [success, setSuccess] = useState(false)
     const [selectedEquipment, setSelectedEquipment] = useState<string>("")
-    const [modalOpen, setModalOpen] = useState(false)
+
     const [totalPrice, setTotalPrice] = useState(0)
     const [reservationRef, setReservationRef] = useState<string>("")
 
@@ -176,8 +176,6 @@ export default function ReservationPage() {
         }
     }
 
-    const openModal = () => setModalOpen(true)
-    const closeModal = () => setModalOpen(false)
 
     if (loading) {
         return (
@@ -303,28 +301,7 @@ export default function ReservationPage() {
                                 <ChevronRightIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90" />
                             </div>
 
-                            {/* Preview box */}
-                            {currentEquip && (
-                                <div
-                                    onClick={openModal}
-                                    className="mt-4 p-4 border border-indigo-100 rounded-xl bg-white flex items-center gap-4 cursor-pointer hover:shadow-md hover:border-indigo-200 transition-all group/preview animate-in fade-in slide-in-from-bottom-2 duration-300"
-                                >
-                                    {currentEquip.img ? (
-                                        <img src={currentEquip.img} className="w-20 h-20 object-cover rounded-lg border border-slate-100 bg-slate-50" />
-                                    ) : (
-                                        <div className="w-20 h-20 rounded-lg border border-slate-100 bg-slate-50 flex items-center justify-center text-slate-300">
-                                            <EyeIcon className="h-8 w-8" />
-                                        </div>
-                                    )}
-                                    <div className="flex-1">
-                                        <span className="text-sm font-bold text-indigo-700 flex items-center gap-2">
-                                            <EyeIcon className="h-4 w-4" /> Voir les détails
-                                        </span>
-                                        <p className="text-xs text-slate-500 mt-1">Cliquez pour voir les photos et fonctionnalités</p>
-                                    </div>
-                                    <ChevronRightIcon className="h-5 w-5 text-slate-300 group-hover/preview:text-indigo-500 transition-colors" />
-                                </div>
-                            )}
+
                         </div>
 
                         <div className="mb-6 space-y-2">
@@ -443,38 +420,7 @@ export default function ReservationPage() {
                 </form>
             </div >
 
-            {/* Modal */}
-            {
-                modalOpen && currentEquip && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={closeModal}></div>
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden transform transition-all relative z-10 animate-in zoom-in-95 duration-200">
-                            <div className="relative h-56 bg-slate-100 flex items-center justify-center p-4">
-                                {currentEquip.img ? (
-                                    <img src={currentEquip.img} className="w-full h-full object-contain" />
-                                ) : (
-                                    <EyeIcon className="h-16 w-16 text-slate-300" />
-                                )}
-                                <button onClick={closeModal} className="absolute top-4 right-4 bg-white/90 text-slate-400 hover:text-red-500 rounded-full w-8 h-8 flex items-center justify-center shadow-sm transition hover:scale-105">
-                                    <XIcon className="h-5 w-5" />
-                                </button>
-                            </div>
-                            <div className="p-8">
-                                <h3 className="text-2xl font-bold text-slate-900 mb-2">{currentEquip.name}</h3>
-                                <div className="h-1.5 w-12 bg-indigo-500 rounded-full mb-6"></div>
-                                <p className="text-slate-600 leading-relaxed">
-                                    {currentEquip.desc}
-                                </p>
-                                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
-                                    <button onClick={closeModal} className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold transition">
-                                        Fermer
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )
-            }
+
         </div >
     )
 }
