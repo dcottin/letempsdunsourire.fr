@@ -54,34 +54,34 @@ const DEFAULT_SETTINGS = {
 const formSchema = z.object({
     // Client Info
     nom_client: z.string().min(2, { message: "Le nom est requis." }),
-    email_client: z.string().default(""),
-    telephone_client: z.string().default(""),
-    adresse_client: z.string().default(""),
+    email_client: z.string().nullable().default(""),
+    telephone_client: z.string().nullable().default(""),
+    adresse_client: z.string().nullable().default(""),
 
     // Event & Material
-    nom_evenement: z.string().default(""),
+    nom_evenement: z.string().nullable().default(""),
     date_debut: z.string().min(1, { message: "Date de début requise." }),
-    heure_debut: z.string().default(""),
-    date_fin: z.string().default(""),
-    heure_fin: z.string().default(""),
+    heure_debut: z.string().nullable().default(""),
+    date_fin: z.string().nullable().default(""),
+    heure_fin: z.string().nullable().default(""),
     lieu: z.string().min(2, "Le lieu est requis"),
-    texte_libre: z.string().default(""),
-    equipment_id: z.string().optional(), // Can be optional initially or required depending on strictness
+    texte_libre: z.string().nullable().default(""),
+    equipment_id: z.string().nullable().optional(),
     offre: z.string().min(1, "L'offre est requise"),
-    offre_impression: z.string().default(""),
-    source_contact: z.string().default(""),
+    offre_impression: z.string().nullable().default(""),
+    source_contact: z.string().nullable().default(""),
 
     // Pricing
     prix_total: z.string().default("0"),
-    frais_livraison: z.string().default("0"),
-    remise: z.string().default("0"),
-    acompte_recu: z.string().default("0"),
+    frais_livraison: z.string().nullable().default("0"),
+    remise: z.string().nullable().default("0"),
+    acompte_recu: z.string().nullable().default("0"),
     acompte_paye: z.boolean().default(false),
     contrat_signe: z.boolean().default(false),
     solde_paye: z.boolean().default(false),
     design_valide: z.boolean().default(false),
     etat: z.string().default("Contact"),
-    note_interne: z.string().default(""),
+    note_interne: z.string().nullable().default(""),
     selected_options: z.array(z.object({
         name: z.string(),
         price: z.string()
@@ -99,10 +99,12 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
     // Sanitize initialData to ensure it matches formSchema expectations
     const sanitizedInitialData = React.useMemo(() => {
         if (!initialData) return null
+        const data = initialData.data || {}
         return {
             ...initialData,
-            ...initialData.data,
-            selected_options: initialData.data?.selected_options || initialData.selected_options || []
+            ...data,
+            prix_total: (initialData.prix_total || data.prix_total || "0").toString(),
+            selected_options: data.selected_options || initialData.selected_options || []
         }
     }, [initialData])
 
@@ -257,7 +259,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 savedRecord = data
             } else {
                 // Generate custom ID (Reference)
-                const datePart = finalValues.date_debut ? format(new Date(finalValues.date_debut), "yyyyMMdd") : "00000000"
+                const datePart = finalValues.date_debut ? format(new Date(finalValues.date_debut as string), "yyyyMMdd") : "00000000"
                 const initials = finalValues.nom_client
                     ? finalValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
                     : "XX"
@@ -372,13 +374,13 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
         }
 
         // 3. Delivery Fee
-        const deliveryPrice = parseFloat(watchedLivraison)
+        const deliveryPrice = parseFloat(watchedLivraison || "0")
         if (!isNaN(deliveryPrice)) {
             total += deliveryPrice
         }
 
         // 4. Discount
-        const discountValue = parseFloat(watchedRemise)
+        const discountValue = parseFloat(watchedRemise || "0")
         if (!isNaN(discountValue)) {
             total -= discountValue
         }
@@ -392,7 +394,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
     const formValues = form.getValues()
 
     const generateReference = () => {
-        const datePart = formValues.date_debut ? format(new Date(formValues.date_debut), "ddMMyy") : "000000"
+        const datePart = formValues.date_debut ? format(new Date(formValues.date_debut as string), "ddMMyy") : "000000"
         const initials = formValues.nom_client
             ? formValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
             : "XX"
@@ -619,7 +621,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit, (err) => console.error("Form Submit Errors:", err))} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit, (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
                 {/* Hidden areas for background PDF generation */}
                 <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden h-0 w-0" aria-hidden="true">
                     <div id="pdf-contract-container" style={{ background: 'white' }}>
