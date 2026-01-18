@@ -126,12 +126,16 @@ export function StatisticsView({ devis, contrats }: StatisticsViewProps) {
 
 
     // Filter Lists (from filtered data)
-    const activeContratsList = filteredData.contrats.filter(c => c.etat !== "Annulé" && c.etat !== "Cancelled")
+    const activeContratsList = filteredData.contrats.filter(c => c.etat !== "Annulé" && c.etat !== "Cancelled" && c.etat !== "Refusé")
+    const cancelledContratsList = filteredData.contrats.filter(c => c.etat === "Annulé" || c.etat === "Cancelled" || c.etat === "Refusé")
+    const cancelledDevisList = filteredData.devis.filter(d => d.etat === "Annulé" || d.etat === "Refusé")
+
     const activeContratsCount = activeContratsList.length
 
-    // 1. Estimation CA (Sur devis en attente "Contact")
+    // 1. Estimation CA (Sur devis en attente "Contact" ou "Demande Web")
+    const leadStatuses = ["Contact", "Demande Web", "Relancé", "Lead"]
     const estimatedCA = filteredData.devis
-        .filter(d => d.etat === "Contact")
+        .filter(d => leadStatuses.includes(d.etat))
         .reduce((acc, curr) => acc + parseCurrency(curr.prix_total), 0)
 
     // 2. CA Encaissé (Logique basée sur les statuts de paiement)
@@ -154,8 +158,14 @@ export function StatisticsView({ devis, contrats }: StatisticsViewProps) {
         return acc + total // Tout reste à payer
     }, 0)
 
-    // 4. Remises (Sur contrats actifs)
+    // 4. Remises (Sur dossiers actifs - devis validés ou contrats)
     const remisesTotal = activeContratsList.reduce((acc, curr) => acc + parseCurrency(curr.remise), 0)
+
+    // 5. Pertes & Annulations
+    const manqueAGagner = [...cancelledContratsList, ...cancelledDevisList].reduce((acc, curr) => acc + parseCurrency(curr.prix_total), 0)
+    const acomptesConserves = cancelledContratsList.reduce((acc, curr) => {
+        return curr.acompte_paye ? acc + parseCurrency(curr.acompte_recu) : acc
+    }, 0)
 
     return (
         <div className="flex flex-col gap-6 p-4 md:p-8 bg-[#f1f5f9]/50 min-h-screen rounded-xl">
@@ -259,12 +269,12 @@ export function StatisticsView({ devis, contrats }: StatisticsViewProps) {
                                 <p className="text-sm font-medium text-red-800">Manque à gagner total</p>
                                 <p className="text-xs text-red-400">Valeur totale des contrats annulés</p>
                             </div>
-                            <span className="text-lg md:text-xl font-bold text-red-600">0,00 €</span>
+                            <span className="text-lg md:text-xl font-bold text-red-600">{manqueAGagner.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
                         </div>
 
                         <div className="flex items-center justify-between px-2">
                             <span className="text-sm text-slate-500">Dont montants conservés (acomptes)</span>
-                            <span className="text-sm font-bold text-slate-700">0,00 €</span>
+                            <span className="text-sm font-bold text-slate-700">{acomptesConserves.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</span>
                         </div>
                     </CardContent>
                 </Card>
