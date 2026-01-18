@@ -32,6 +32,7 @@ const DEFAULT_SETTINGS: Settings = {
 }
 
 const EQUIPMENT_OPTIONS = [
+    { id: "import", name: "Sans importance", img: "", desc: "Le modèle disponible sera sélectionné." },
     { id: "bois", name: "Modèle en bois", img: "", desc: "Finition bois élégante." },
     { id: "blanc", name: "Modèle blanc", img: "", desc: "Finition blanche moderne." },
     { id: "noir", name: "Modèle noir", img: "", desc: "Finition noire sobre." }
@@ -294,7 +295,6 @@ export default function ReservationPage() {
                                     {...register("equipment_id")}
                                     className="block w-full rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4 border appearance-none transition-all cursor-pointer"
                                 >
-                                    <option value="">-- Je ne sais pas encore --</option>
                                     {EQUIPMENT_OPTIONS.map(eq => (
                                         <option key={eq.id} value={eq.id}>{eq.name}</option>
                                     ))}
