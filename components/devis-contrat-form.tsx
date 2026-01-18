@@ -143,27 +143,29 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 console.log("Checking availability for:", watchedDateDebut)
 
                 // 1. Check Devis
-                const { data: devisData, error: devisError } = await supabase
-                    .from('devis')
-                    .select('data, date_debut')
-                    .eq('date_debut', watchedDateDebut)
+                let devisQuery = supabase.from('devis').select('id, data, date_debut').eq('date_debut', watchedDateDebut)
+                if (mode === 'devis' && initialData?.id) {
+                    devisQuery = devisQuery.neq('id', initialData.id)
+                }
+                const { data: devisData, error: devisError } = await devisQuery
 
                 if (devisError) throw devisError
 
                 // 2. Check Contrats
-                const { data: contratsData, error: contratsError } = await supabase
-                    .from('contrats')
-                    .select('data, date_debut')
-                    .eq('date_debut', watchedDateDebut)
+                let contratsQuery = supabase.from('contrats').select('id, data, date_debut').eq('date_debut', watchedDateDebut)
+                if (mode === 'contrat' && initialData?.id) {
+                    contratsQuery = contratsQuery.neq('id', initialData.id)
+                }
+                const { data: contratsData, error: contratsError } = await contratsQuery
 
                 if (contratsError) throw contratsError
 
                 // Merge results
-                const allBookings = [...(devisData || []), ...(contratsData || [])]
+                const allOtherBookings = [...(devisData || []), ...(contratsData || [])]
 
-                console.log("Found total bookings for date (Devis + Contrats):", allBookings.length)
+                console.log("Found other bookings for date:", allOtherBookings.length)
 
-                const busyIds = allBookings
+                const busyIds = allOtherBookings
                     ?.map((d: any) => d.data?.equipment_id)
                     .filter(Boolean) || []
 
