@@ -32,10 +32,10 @@ const DEFAULT_SETTINGS: Settings = {
 }
 
 const EQUIPMENT_OPTIONS = [
-    { id: "booth1", name: "Photobooth Vintage", img: "/uploads/booth1.jpg", desc: "Le charme de l'ancien avec la technologie moderne." },
-    { id: "booth2", name: "Photobooth Moderne", img: "/uploads/booth2.jpg", desc: "Design épuré et performances rapides." },
-    { id: "mirror", name: "Miroir Magique", img: "/uploads/mirror.jpg", desc: "Une expérience interactive et élégante." },
-    { id: "30", name: "Petit bois 1 (Exemple)", img: "", desc: "Modèle compact." }
+    { id: "bois", name: "Bois", img: "", desc: "Finition bois élégante." },
+    { id: "blanc", name: "Blanc", img: "", desc: "Finition blanche moderne." },
+    { id: "noir", name: "Noir", img: "", desc: "Finition noire sobre." },
+    { id: "import", name: "Sans importance", img: "", desc: "Le modèle disponible sera sélectionné." }
 ]
 
 export default function ReservationPage() {

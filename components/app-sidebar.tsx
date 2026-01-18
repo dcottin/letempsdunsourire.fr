@@ -19,6 +19,7 @@ import {
     LogOutIcon,
     MapIcon,
     CalendarIcon,
+    Camera,
 } from "lucide-react"
 
 import {
@@ -133,6 +134,7 @@ function NavMain({
                                     {item.title === "Planification" && <MapIcon />}
                                     {item.title === "Calendrier" && <CalendarIcon />}
                                     {item.title === "Personnalisation" && <SettingsIcon />}
+                                    {item.title === "Matériel" && <Camera />}
                                     <span>{item.title}</span>
                                 </Link>
                             </SidebarMenuButton>

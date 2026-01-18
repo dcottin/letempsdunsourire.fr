@@ -34,9 +34,6 @@ type Materiel = {
     nom: string
     config_fonctionnalites: string
     img_main: string | null
-    img_real1: string | null
-    img_real2: string | null
-    img_real3: string | null
     statut: 'Actif' | 'Inactif'
     date_creation: string
 }
@@ -122,10 +119,7 @@ export default function MaterielPage() {
             config_fonctionnalites: "",
             statut: "Actif",
             date_creation: new Date().toISOString(),
-            img_main: null,
-            img_real1: null,
-            img_real2: null,
-            img_real3: null
+            img_main: null
         })
         setIsModalOpen(true)
     }
@@ -340,34 +334,6 @@ export default function MaterielPage() {
                             </div>
                         </div>
 
-                        {/* Realization Images */}
-                        <div className="grid grid-cols-3 gap-4">
-                            {['img_real1', 'img_real2', 'img_real3'].map((field, idx) => (
-                                <div key={field} className="space-y-2">
-                                    <Label className="text-[10px] font-bold text-slate-500 uppercase text-center block">Réalisation {idx + 1}</Label>
-                                    <div className="h-24 bg-slate-100 rounded-lg relative overflow-hidden border border-slate-200 group/real">
-                                        {currentMat[field as keyof Materiel] ? (
-                                            <>
-                                                <img src={currentMat[field as keyof Materiel] as string} className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/real:opacity-100 flex items-center justify-center transition-opacity cursor-pointer" onClick={() => removeImage(field as keyof Materiel)}>
-                                                    <X className="text-white h-5 w-5" />
-                                                </div>
-                                            </>
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                                <ImageIcon className="h-6 w-6" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    <Input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) => handleImageUpload(e, field as keyof Materiel)}
-                                        className="text-[10px] h-8"
-                                    />
-                                </div>
-                            ))}
-                        </div>
                     </div>
 
                     <DialogFooter>
@@ -379,6 +345,6 @@ export default function MaterielPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
+        </div >
     )
 }
