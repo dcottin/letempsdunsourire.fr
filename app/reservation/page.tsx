@@ -34,8 +34,7 @@ const DEFAULT_SETTINGS: Settings = {
 const EQUIPMENT_OPTIONS = [
     { id: "bois", name: "Modèle en bois", img: "", desc: "Finition bois élégante." },
     { id: "blanc", name: "Modèle blanc", img: "", desc: "Finition blanche moderne." },
-    { id: "noir", name: "Modèle noir", img: "", desc: "Finition noire sobre." },
-    { id: "import", name: "Sans importance", img: "", desc: "Le modèle disponible sera sélectionné." }
+    { id: "noir", name: "Modèle noir", img: "", desc: "Finition noire sobre." }
 ]
 
 export default function ReservationPage() {
