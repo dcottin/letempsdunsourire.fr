@@ -10,6 +10,20 @@ import { format } from "date-fns"
 // We need to use the client-side supabase instance usually exported from lib
 import { supabase } from "@/lib/supabase"
 
+type ReservationForm = {
+    nom_evenement: string
+    date_debut: string
+    lieu: string
+    equipment_id: string
+    offre: string
+    options_selected: string[]
+    nom_complet: string
+    email: string
+    telephone: string
+    adresse: string
+    message: string
+}
+
 type Settings = {
     nom_societe: string
     logo_base64?: string
@@ -48,7 +62,13 @@ export default function ReservationPage() {
     const [totalPrice, setTotalPrice] = useState(0)
     const [reservationRef, setReservationRef] = useState<string>("")
 
-    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm()
+    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<ReservationForm>({
+        defaultValues: {
+            equipment_id: "import",
+            offre: "Basic",
+            options_selected: []
+        }
+    })
 
     const selectedOfferName = watch("offre")
     const selectedEquipId = watch("equipment_id")
@@ -286,40 +306,56 @@ export default function ReservationPage() {
                             Votre Choix
                         </h3>
 
-                        <div className="mb-6 space-y-2">
-                            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Type de matériel</label>
-                            <div className="relative">
-                                <select
-                                    {...register("equipment_id")}
-                                    className="block w-full rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4 border appearance-none transition-all cursor-pointer"
-                                >
-                                    <option value=""></option>
-                                    {EQUIPMENT_OPTIONS.map(eq => (
-                                        <option key={eq.id} value={eq.id}>{eq.name}</option>
-                                    ))}
-                                </select>
-                                <ChevronRightIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90" />
+                        <div className="mb-8 space-y-4">
+                            <label className="text-xs font-bold text-slate-700 uppercase tracking-widest pl-1">Type de matériel</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                {EQUIPMENT_OPTIONS.map((eq) => (
+                                    <div
+                                        key={eq.id}
+                                        onClick={() => setValue("equipment_id", eq.id)}
+                                        className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-2 group ${selectedEquipId === eq.id
+                                                ? "border-indigo-500 bg-indigo-50/50 shadow-md ring-2 ring-indigo-50"
+                                                : "border-slate-100 bg-white hover:border-slate-200"
+                                            }`}
+                                    >
+                                        <div className={`text-xs font-bold ${selectedEquipId === eq.id ? "text-indigo-600" : "text-slate-700"}`}>
+                                            {eq.name}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-
-
+                            <input type="hidden" {...register("equipment_id")} />
                         </div>
 
-                        <div className="mb-6 space-y-2">
-                            <label className="text-xs font-semibold text-slate-700 uppercase tracking-wide">Formule souhaitée</label>
-                            <div className="relative">
-                                <select
-                                    {...register("offre")}
-                                    className="block w-full rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4 border appearance-none transition-all cursor-pointer"
-                                >
-                                    <option value=""></option>
-                                    {settings?.offres?.map((off, idx) => (
-                                        <option key={idx} value={off.name}>
-                                            {off.name} ({off.price}€)
-                                        </option>
-                                    ))}
-                                </select>
-                                <ChevronRightIcon className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 rotate-90" />
+                        <div className="mb-8 space-y-4">
+                            <label className="text-xs font-bold text-slate-700 uppercase tracking-widest pl-1">Choisir votre Formule</label>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                {settings?.offres?.map((off, idx) => (
+                                    <div
+                                        key={idx}
+                                        onClick={() => setValue("offre", off.name)}
+                                        className={`relative p-5 rounded-2xl border-2 transition-all cursor-pointer flex flex-col items-center text-center gap-3 group ${selectedOfferName === off.name
+                                            ? "border-indigo-500 bg-indigo-50/50 shadow-md ring-4 ring-indigo-50"
+                                            : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-sm"
+                                            }`}
+                                    >
+                                        {selectedOfferName === off.name && (
+                                            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-tighter shadow-sm border border-white">
+                                                Sélectionné
+                                            </div>
+                                        )}
+                                        <div className="space-y-1">
+                                            <h4 className={`text-sm font-bold tracking-tight ${selectedOfferName === off.name ? "text-indigo-900" : "text-slate-700"}`}>
+                                                {off.name}
+                                            </h4>
+                                            <div className={`text-xl font-extrabold ${selectedOfferName === off.name ? "text-indigo-600" : "text-slate-900"}`}>
+                                                {off.price} €
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
+                            <input type="hidden" {...register("offre")} />
                         </div>
 
                         {/* Options Section */}
