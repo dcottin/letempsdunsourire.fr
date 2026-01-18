@@ -307,7 +307,7 @@ export default function ReservationPage() {
                         </h3>
 
                         <div className="mb-8 space-y-4">
-                            <label className="text-xs font-bold text-slate-700 uppercase tracking-widest pl-1">Type de matériel</label>
+                            <label className="text-xs font-bold text-slate-700 uppercase tracking-widest pl-1">CHOIX DE VOTRE PHOTOBOOTH (sous réserve de disponibilité)</label>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
                                 {EQUIPMENT_OPTIONS.map((eq) => (
                                     <div
@@ -318,6 +318,11 @@ export default function ReservationPage() {
                                             : "border-slate-100 bg-white hover:border-slate-200"
                                             }`}
                                     >
+                                        {selectedEquipId === eq.id && (
+                                            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-indigo-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-white">
+                                                Sélectionné
+                                            </div>
+                                        )}
                                         <div className={`text-xs font-bold ${selectedEquipId === eq.id ? "text-indigo-600" : "text-slate-700"}`}>
                                             {eq.name}
                                         </div>
