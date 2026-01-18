@@ -295,6 +295,7 @@ export default function ReservationPage() {
                                     {...register("equipment_id")}
                                     className="block w-full rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4 border appearance-none transition-all cursor-pointer"
                                 >
+                                    <option value=""></option>
                                     {EQUIPMENT_OPTIONS.map(eq => (
                                         <option key={eq.id} value={eq.id}>{eq.name}</option>
                                     ))}
@@ -333,7 +334,7 @@ export default function ReservationPage() {
                                     {...register("offre")}
                                     className="block w-full rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 px-4 border appearance-none transition-all cursor-pointer"
                                 >
-                                    <option value="">-- Choisir une formule --</option>
+                                    <option value=""></option>
                                     {settings?.offres?.map((off, idx) => (
                                         <option key={idx} value={off.name}>
                                             {off.name} ({off.price}€)
