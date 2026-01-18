@@ -143,7 +143,13 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 console.log("Checking availability for:", watchedDateDebut)
 
                 // 1. Check Devis
-                let devisQuery = supabase.from('devis').select('id, data, date_debut').eq('date_debut', watchedDateDebut)
+                let devisQuery = supabase
+                    .from('devis')
+                    .select('id, data, date_debut, etat')
+                    .eq('date_debut', watchedDateDebut)
+                    .neq('etat', 'Annulé')
+                    .neq('etat', 'Refusé')
+
                 if (mode === 'devis' && initialData?.id) {
                     devisQuery = devisQuery.neq('id', initialData.id)
                 }
@@ -152,7 +158,13 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 if (devisError) throw devisError
 
                 // 2. Check Contrats
-                let contratsQuery = supabase.from('contrats').select('id, data, date_debut').eq('date_debut', watchedDateDebut)
+                let contratsQuery = supabase
+                    .from('contrats')
+                    .select('id, data, date_debut, etat')
+                    .eq('date_debut', watchedDateDebut)
+                    .neq('etat', 'Annulé')
+                    .neq('etat', 'Cancelled')
+
                 if (mode === 'contrat' && initialData?.id) {
                     contratsQuery = contratsQuery.neq('id', initialData.id)
                 }
@@ -163,10 +175,13 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 // Merge results
                 const allOtherBookings = [...(devisData || []), ...(contratsData || [])]
 
-                console.log("Found other bookings for date:", allOtherBookings.length)
+                console.log("Found other dossiers for date:", allOtherBookings.length)
 
+                // IMPORTANT: Only count as "reserving" a machine if it's NOT just a lead
+                // unless we want to block leads too.
+                // Let's count everything that isn't cancelled, but maybe label it differently.
                 const busyIds = allOtherBookings
-                    ?.map((d: any) => d.data?.equipment_id)
+                    ?.map((d: any) => d.data?.equipment_id || d.equipment_id)
                     .filter(Boolean) || []
 
                 // Unique IDs only
