@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -449,9 +449,13 @@ export default function DevisContratsPage() {
             </Dialog>
 
             <Tabs defaultValue="devis" className="w-full">
-                <TabsList>
-                    <TabsTrigger value="devis">Mes Devis</TabsTrigger>
-                    <TabsTrigger value="contrats">Mes Contrats</TabsTrigger>
+                <TabsList className="bg-slate-100/50 p-1">
+                    <TabsTrigger value="devis" className="gap-2 px-4">
+                        <FileTextIcon className="size-4" /> Mes Devis
+                    </TabsTrigger>
+                    <TabsTrigger value="contrats" className="gap-2 px-4">
+                        <ScrollTextIcon className="size-4" /> Mes Contrats
+                    </TabsTrigger>
                 </TabsList>
                 <TabsContent value="devis" className="mt-4">
                     <div className="space-y-8">
@@ -462,7 +466,7 @@ export default function DevisContratsPage() {
                                 onClick={() => setShowActiveDevis(!showActiveDevis)}
                             >
                                 {showActiveDevis ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
-                                <Circle className="size-3 fill-indigo-500 text-indigo-500" /> Dossiers en cours
+                                <FileTextIcon className="size-5 text-indigo-500" /> Dossiers en cours
                             </h3>
                             {showActiveDevis && (
                                 <div className="rounded-md border bg-white shadow-sm animate-in slide-in-from-top-2 duration-200">
@@ -573,7 +577,7 @@ export default function DevisContratsPage() {
                                     onClick={() => setShowArchivedDevis(!showArchivedDevis)}
                                 >
                                     {showArchivedDevis ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
-                                    <Circle className="size-3 fill-slate-300 text-slate-300" /> Archives
+                                    <Archive className="size-5 text-slate-400" /> Archives de devis
                                 </h3>
                                 {showArchivedDevis && (
                                     <div className="rounded-md border bg-slate-50 animate-in slide-in-from-top-2 duration-200">
@@ -766,7 +770,7 @@ export default function DevisContratsPage() {
                                     onClick={() => setShowArchivedContrats(!showArchivedContrats)}
                                 >
                                     {showArchivedContrats ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
-                                    <Circle className="size-3 fill-slate-300 text-slate-300" /> Archives
+                                    <Archive className="size-5 text-slate-400" /> Archives de contrats
                                 </h3>
                                 {showArchivedContrats && (
                                     <div className="rounded-md border bg-slate-50 animate-in slide-in-from-top-2 duration-200">
