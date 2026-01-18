@@ -96,9 +96,19 @@ interface DevisContratFormProps {
 }
 
 export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: DevisContratFormProps) {
+    // Sanitize initialData to ensure it matches formSchema expectations
+    const sanitizedInitialData = React.useMemo(() => {
+        if (!initialData) return null
+        return {
+            ...initialData,
+            ...initialData.data,
+            selected_options: initialData.data?.selected_options || initialData.selected_options || []
+        }
+    }, [initialData])
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema) as any,
-        defaultValues: initialData || {
+        defaultValues: sanitizedInitialData || {
             etat: mode === "contrat" ? "Validé" : "Contact",
             prix_total: "0",
             frais_livraison: "0",
@@ -127,6 +137,13 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
             selected_options: [],
         },
     })
+
+    // Sync form values if initialData changes (e.g. after a first save or if data is refreshed)
+    React.useEffect(() => {
+        if (sanitizedInitialData) {
+            form.reset(sanitizedInitialData)
+        }
+    }, [sanitizedInitialData, form])
 
     const [isSaving, setIsSaving] = React.useState(false)
 
@@ -199,6 +216,12 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
         checkAvailability()
     }, [watchedDateDebut])
+
+    React.useEffect(() => {
+        if (Object.keys(form.formState.errors).length > 0) {
+            console.log("Form Validation Errors:", form.formState.errors)
+        }
+    }, [form.formState.errors])
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSaving(true)
@@ -596,142 +619,143 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
     return (
         <Form {...form}>
-            {/* Hidden areas for background PDF generation */}
-            <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden h-0 w-0" aria-hidden="true">
-                <div id="pdf-contract-container" style={{ background: 'white' }}>
-                    <ContractPreview data={form.watch()} settings={statusSettings} mode={mode} />
-                </div>
-                <div id="pdf-invoice-container" style={{ background: 'white' }}>
-                    <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
-                </div>
-            </div>
-
-            {/* Actions Bar */}
-            <div className="flex flex-wrap justify-end gap-3 mb-4 no-print text-sm">
-                <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
-                        className="gap-2 text-indigo-600 hover:bg-white hover:shadow-sm h-8 px-3 font-semibold transition-all"
-                    >
-                        <EyeIcon className="size-4" /> {mode === 'contrat' ? 'Contrat' : 'Devis'}
-                    </Button>
-                    <div className="w-px h-4 bg-slate-200 mx-0.5" />
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => { e.preventDefault(); handleDownloadPDF('contract'); }}
-                        className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all"
-                        title="Générer PDF"
-                    >
-                        <DownloadIcon className="size-3.5" />
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => { e.preventDefault(); setEmailType('contract'); setShowEmail(true); }}
-                        className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-white hover:shadow-sm transition-all"
-                        title="Envoyer mail"
-                    >
-                        <SendIcon className="size-3.5" />
-                    </Button>
+            <form onSubmit={form.handleSubmit(onSubmit, (err) => console.error("Form Submit Errors:", err))} className="space-y-6">
+                {/* Hidden areas for background PDF generation */}
+                <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden h-0 w-0" aria-hidden="true">
+                    <div id="pdf-contract-container" style={{ background: 'white' }}>
+                        <ContractPreview data={form.watch()} settings={statusSettings} mode={mode} />
+                    </div>
+                    <div id="pdf-invoice-container" style={{ background: 'white' }}>
+                        <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
+                    </div>
                 </div>
 
-                {mode === "contrat" && (
-                    <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm text-sm font-semibold">
+                {/* Actions Bar */}
+                <div className="flex flex-wrap justify-end gap-3 mb-4 no-print text-sm">
+                    <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm">
                         <Button
                             variant="ghost"
                             size="sm"
-                            onClick={(e) => { e.preventDefault(); setShowFacturePreview(true); }}
-                            className="gap-2 text-primary hover:bg-white hover:shadow-sm h-8 px-3 font-semibold transition-all"
+                            onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
+                            className="gap-2 text-indigo-600 hover:bg-white hover:shadow-sm h-8 px-3 font-semibold transition-all"
                         >
-                            <FileTextIcon className="size-4" /> Facture
+                            <EyeIcon className="size-4" /> {mode === 'contrat' ? 'Contrat' : 'Devis'}
                         </Button>
                         <div className="w-px h-4 bg-slate-200 mx-0.5" />
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => { e.preventDefault(); handleDownloadPDF('invoice'); }}
+                            onClick={(e) => { e.preventDefault(); handleDownloadPDF('contract'); }}
                             className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all"
-                            title="Générer PDF Facture"
+                            title="Générer PDF"
                         >
                             <DownloadIcon className="size-3.5" />
                         </Button>
                         <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => { e.preventDefault(); setEmailType('invoice'); setShowEmail(true); }}
+                            onClick={(e) => { e.preventDefault(); setEmailType('contract'); setShowEmail(true); }}
                             className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-white hover:shadow-sm transition-all"
-                            title="Envoyer mail Facture"
+                            title="Envoyer mail"
                         >
                             <SendIcon className="size-3.5" />
                         </Button>
                     </div>
-                )}
-            </div>
 
-            <Dialog open={showPreview} onOpenChange={setShowPreview}>
-                <DialogContent className="w-full h-full max-w-none md:max-w-5xl md:h-[90vh] md:rounded-xl p-0 overflow-hidden bg-slate-100 flex flex-col gap-0 border-none shadow-2xl">
-                    <DialogHeader className="p-4 border-b bg-white flex flex-row justify-between items-center shadow-sm z-10 no-print space-y-0">
-                        <div className="flex flex-col">
-                            <DialogTitle className="font-bold text-lg hidden md:block">{mode === 'contrat' ? 'Le Contrat' : 'Le Devis'}</DialogTitle>
-                            <DialogTitle className="font-bold md:hidden">{mode === 'contrat' ? 'Contrat' : 'Devis'}</DialogTitle>
-                            <DialogDescription className="sr-only">
-                                Visualisez le document avant de l'enregistrer ou de l'envoyer.
-                            </DialogDescription>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => handleDownloadPDF('contract')} className="gap-2">
-                                <DownloadIcon className="size-4" /> PDF
+                    {mode === "contrat" && (
+                        <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm text-sm font-semibold">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => { e.preventDefault(); setShowFacturePreview(true); }}
+                                className="gap-2 text-primary hover:bg-white hover:shadow-sm h-8 px-3 font-semibold transition-all"
+                            >
+                                <FileTextIcon className="size-4" /> Facture
                             </Button>
-                            <Button size="sm" onClick={() => { setEmailType('contract'); setShowEmail(true); }} className="gap-2">
-                                <SendIcon className="size-4" /> Envoyer
+                            <div className="w-px h-4 bg-slate-200 mx-0.5" />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.preventDefault(); handleDownloadPDF('invoice'); }}
+                                className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all"
+                                title="Générer PDF Facture"
+                            >
+                                <DownloadIcon className="size-3.5" />
                             </Button>
-                            <Button variant="ghost" size="sm" onClick={() => setShowPreview(false)}>Fermer</Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.preventDefault(); setEmailType('invoice'); setShowEmail(true); }}
+                                className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-white hover:shadow-sm transition-all"
+                                title="Envoyer mail Facture"
+                            >
+                                <SendIcon className="size-3.5" />
+                            </Button>
                         </div>
-                    </DialogHeader>
-                    <div className="flex-1 overflow-y-auto p-4 md:p-8">
-                        <ContractPreview data={form.watch()} settings={statusSettings} mode={mode} />
-                    </div>
-                </DialogContent>
-            </Dialog>
+                    )}
+                </div>
 
-            <Dialog open={showFacturePreview} onOpenChange={setShowFacturePreview}>
-                <DialogContent className="w-full h-full max-w-none md:max-w-5xl md:h-[90vh] md:rounded-xl p-0 overflow-hidden bg-slate-100 flex flex-col gap-0 border-none shadow-2xl">
-                    <DialogHeader className="p-4 border-b bg-white flex flex-row justify-between items-center shadow-sm z-10 no-print space-y-0">
-                        <div className="flex flex-col">
-                            <DialogTitle className="font-bold text-lg hidden md:block">La Facture</DialogTitle>
-                            <DialogTitle className="font-bold md:hidden">Facture</DialogTitle>
-                            <DialogDescription className="sr-only">
-                                Visualisez la facture avant de l'enregistrer ou de l'envoyer.
-                            </DialogDescription>
+                <Dialog open={showPreview} onOpenChange={setShowPreview}>
+                    <DialogContent className="w-full h-full max-w-none md:max-w-5xl md:h-[90vh] md:rounded-xl p-0 overflow-hidden bg-slate-100 flex flex-col gap-0 border-none shadow-2xl">
+                        <DialogHeader className="p-4 border-b bg-white flex flex-row justify-between items-center shadow-sm z-10 no-print space-y-0">
+                            <div className="flex flex-col">
+                                <DialogTitle className="font-bold text-lg hidden md:block">{mode === 'contrat' ? 'Le Contrat' : 'Le Devis'}</DialogTitle>
+                                <DialogTitle className="font-bold md:hidden">{mode === 'contrat' ? 'Contrat' : 'Devis'}</DialogTitle>
+                                <DialogDescription className="sr-only">
+                                    Visualisez le document avant de l'enregistrer ou de l'envoyer.
+                                </DialogDescription>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={() => handleDownloadPDF('contract')} className="gap-2">
+                                    <DownloadIcon className="size-4" /> PDF
+                                </Button>
+                                <Button size="sm" onClick={() => { setEmailType('contract'); setShowEmail(true); }} className="gap-2">
+                                    <SendIcon className="size-4" /> Envoyer
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => setShowPreview(false)}>Fermer</Button>
+                            </div>
+                        </DialogHeader>
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                            <ContractPreview data={form.watch()} settings={statusSettings} mode={mode} />
                         </div>
-                        <div className="flex gap-2">
-                            <Button variant="outline" size="sm" onClick={() => handleDownloadPDF('invoice')} className="gap-2 text-primary border-primary/20">
-                                <DownloadIcon className="size-4" /> PDF
-                            </Button>
-                            <Button size="sm" onClick={() => { setEmailType('invoice'); setShowEmail(true); }} className="gap-2">
-                                <SendIcon className="size-4" /> Envoyer
-                            </Button>
-                            <Button variant="ghost" size="sm" onClick={() => setShowFacturePreview(false)}>Fermer</Button>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={showFacturePreview} onOpenChange={setShowFacturePreview}>
+                    <DialogContent className="w-full h-full max-w-none md:max-w-5xl md:h-[90vh] md:rounded-xl p-0 overflow-hidden bg-slate-100 flex flex-col gap-0 border-none shadow-2xl">
+                        <DialogHeader className="p-4 border-b bg-white flex flex-row justify-between items-center shadow-sm z-10 no-print space-y-0">
+                            <div className="flex flex-col">
+                                <DialogTitle className="font-bold text-lg hidden md:block">La Facture</DialogTitle>
+                                <DialogTitle className="font-bold md:hidden">Facture</DialogTitle>
+                                <DialogDescription className="sr-only">
+                                    Visualisez la facture avant de l'enregistrer ou de l'envoyer.
+                                </DialogDescription>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={() => handleDownloadPDF('invoice')} className="gap-2 text-primary border-primary/20">
+                                    <DownloadIcon className="size-4" /> PDF
+                                </Button>
+                                <Button size="sm" onClick={() => { setEmailType('invoice'); setShowEmail(true); }} className="gap-2">
+                                    <SendIcon className="size-4" /> Envoyer
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => setShowFacturePreview(false)}>Fermer</Button>
+                            </div>
+                        </DialogHeader>
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                            <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
                         </div>
-                    </DialogHeader>
-                    <div className="flex-1 overflow-y-auto p-4 md:p-8">
-                        <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
-                    </div>
-                </DialogContent>
-            </Dialog>
+                    </DialogContent>
+                </Dialog>
 
-            <SendEmailDialog
-                open={showEmail}
-                onOpenChange={setShowEmail}
-                defaultEmail={form.watch("email_client") || ""}
-                defaultSubject={`${mode === "contrat" ? "Contrat" : "Devis"} - ${form.watch("nom_evenement") || "Événement"}`}
-                onSend={handleSendEmail}
-            />
+                <SendEmailDialog
+                    open={showEmail}
+                    onOpenChange={setShowEmail}
+                    defaultEmail={form.watch("email_client") || ""}
+                    defaultSubject={`${mode === "contrat" ? "Contrat" : "Devis"} - ${form.watch("nom_evenement") || "Événement"}`}
+                    onSend={handleSendEmail}
+                />
 
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 p-1">
+
                 {/* Client Info */}
                 <Card className="border-l-4 border-l-primary/20">
                     <CardHeader className="pb-3">
@@ -1275,16 +1299,24 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                             Annuler
                         </Button>
                     )}
-                    <Button type="submit" size="lg" disabled={isSaving} className="flex-1 md:flex-none shadow-lg shadow-primary/20">
-                        {isSaving ? (
-                            <>
-                                <Loader2Icon className="mr-2 size-4 animate-spin" />
-                                Enregistrement...
-                            </>
-                        ) : (
-                            "Enregistrer"
+                    <div className="flex flex-col items-end gap-1">
+                        {Object.keys(form.formState.errors).length > 0 && (
+                            <div className="text-[10px] text-red-500 font-bold flex items-center gap-1 animate-pulse mb-1">
+                                <AlertCircleIcon className="size-3" />
+                                {Object.keys(form.formState.errors).length} champ(s) non valide(s)
+                            </div>
                         )}
-                    </Button>
+                        <Button type="submit" size="lg" disabled={isSaving} className="flex-1 md:flex-none shadow-lg shadow-primary/20">
+                            {isSaving ? (
+                                <>
+                                    <Loader2Icon className="mr-2 size-4 animate-spin" />
+                                    Enregistrement...
+                                </>
+                            ) : (
+                                "Enregistrer"
+                            )}
+                        </Button>
+                    </div>
                 </div>
 
             </form>

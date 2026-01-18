@@ -136,37 +136,19 @@ export default function DevisContratsPage() {
 
     // Resolve Equipment Name Helper
     const getEquipmentName = (id: string, preference?: string) => {
-        const preferences: Record<string, string> = {
-            'bois': 'Modèle en bois',
-            'blanc': 'Modèle blanc',
-            'noir': 'Modèle noir',
-            'import': 'Sans importance'
-        }
+        const preferences = ['bois', 'blanc', 'noir', 'import']
 
-        const prefLabel = preferences[preference || ''] || preferences[id]
-        const badgePreference = prefLabel ? (
-            <Badge variant="secondary" className="text-[10px] font-bold bg-amber-50 text-amber-700 border-amber-200">
-                {prefLabel}
-            </Badge>
-        ) : null
-
-        if (!id || id === 'none' || preferences[id]) {
-            return badgePreference || <span className="text-muted-foreground italic text-xs">-</span>
+        // If it's a preference or none, the user wants "nothing" in the table column
+        if (!id || id === 'none' || preferences.includes(id)) {
+            return <span className="text-muted-foreground italic text-xs">-</span>
         }
 
         const machine = statusSettings?.materiels?.find((m: any) => m.id === id)
-        const machineBadge = machine ? (
+        return machine ? (
             <Badge variant="outline" className="text-[10px] font-normal">
                 {machine.nom}
             </Badge>
         ) : <span className="text-muted-foreground italic text-xs">Inconnu</span>
-
-        return (
-            <div className="flex flex-col gap-1 items-start">
-                {machineBadge}
-                {badgePreference}
-            </div>
-        )
     }
 
     const activeDevis = sortedDevis.filter(d => !isArchived(d))
