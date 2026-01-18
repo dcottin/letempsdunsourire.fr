@@ -1295,7 +1295,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     </CardContent>
                 </Card>
 
-                <div className="sticky bottom-0 bg-background/95 backdrop-blur p-4 border-t flex justify-end gap-3 shadow-lg -mx-1 -mb-1 rounded-b-lg">
+                <div className="sticky bottom-0 bg-background/95 backdrop-blur-md p-4 border-t flex justify-end gap-3 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] -mx-6 -mb-6 mt-6 z-30 px-6">
                     {onCancel && (
                         <Button type="button" variant="outline" onClick={onCancel} className="md:w-auto">
                             Annuler
@@ -1308,7 +1308,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                                 {Object.keys(form.formState.errors).length} champ(s) non valide(s)
                             </div>
                         )}
-                        <Button type="submit" size="lg" disabled={isSaving} className="flex-1 md:flex-none shadow-lg shadow-primary/20">
+                        <Button type="submit" size="lg" disabled={isSaving} className="flex-1 md:flex-none shadow-lg shadow-primary/20 px-8">
                             {isSaving ? (
                                 <>
                                     <Loader2Icon className="mr-2 size-4 animate-spin" />
