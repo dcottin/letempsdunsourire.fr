@@ -11,6 +11,7 @@ import {
 import { format } from "date-fns"
 
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
     Form,
     FormControl,
@@ -877,9 +878,25 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                                 const availableMachines = statusSettings?.materiels?.filter((m: any) => !unavailableIds.includes(m.id)) || []
                                 const allReserved = totalMachines > 0 && availableMachines.length === 0
 
+                                // Check if current value is a preference from reservation form
+                                const preferences: Record<string, string> = {
+                                    'bois': 'Modèle en bois',
+                                    'blanc': 'Modèle blanc',
+                                    'noir': 'Modèle noir',
+                                    'import': 'Sans importance'
+                                }
+                                const isPreference = preferences[field.value]
+
                                 return (
                                     <FormItem>
-                                        <FormLabel className="uppercase text-xs font-bold text-muted-foreground text-indigo-600">Matériel (Disponibilité auto)</FormLabel>
+                                        <div className="flex items-center justify-between">
+                                            <FormLabel className="uppercase text-xs font-bold text-muted-foreground text-indigo-600">Matériel (Disponibilité auto)</FormLabel>
+                                            {isPreference && (
+                                                <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200 text-[10px] animate-pulse">
+                                                    Souhait client : {preferences[field.value]}
+                                                </Badge>
+                                            )}
+                                        </div>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl>
                                                 <SelectTrigger className={`font-bold ${allReserved ? "text-red-600 bg-red-50 border-red-200" : "text-indigo-700 bg-indigo-50 border-indigo-200"}`}>

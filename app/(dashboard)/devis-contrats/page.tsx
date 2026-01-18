@@ -137,6 +137,19 @@ export default function DevisContratsPage() {
     // Resolve Equipment Name Helper
     const getEquipmentName = (id: string) => {
         if (!id || id === 'none') return <span className="text-muted-foreground italic text-xs">-</span>
+
+        // Handle preferences from reservation form
+        const preferences: Record<string, string> = {
+            'bois': 'Modèle en bois',
+            'blanc': 'Modèle blanc',
+            'noir': 'Modèle noir',
+            'import': 'Sans importance'
+        }
+
+        if (preferences[id]) {
+            return <Badge variant="secondary" className="text-[10px] font-bold bg-amber-50 text-amber-700 border-amber-200">{preferences[id]}</Badge>
+        }
+
         const machine = statusSettings?.materiels?.find((m: any) => m.id === id)
         return machine ? <Badge variant="outline" className="text-[10px] font-normal">{machine.nom}</Badge> : <span className="text-muted-foreground italic text-xs">Inconnu</span>
     }
