@@ -510,7 +510,7 @@ export default function DevisContratsPage() {
                                                 </TableRow>
                                             ) : activeDevis.map((devis) => (
                                                 <TableRow key={devis.id}>
-                                                    <TableCell className="font-medium text-xs">{devis.reference || generateReference(devis)}</TableCell>
+                                                    <TableCell className="font-medium text-xs font-mono">{devis.reference || generateReference(devis)}</TableCell>
                                                     <TableCell>{devis.date_debut}</TableCell>
                                                     <TableCell className="font-medium">{devis.nom_client}</TableCell>
                                                     <TableCell>{getEquipmentName(devis.data?.equipment_id, devis.data?.choix_client)}</TableCell>
@@ -595,7 +595,7 @@ export default function DevisContratsPage() {
                                             <TableBody>
                                                 {archivedDevis.map((devis) => (
                                                     <TableRow key={devis.id}>
-                                                        <TableCell className="font-medium text-xs">{getDisplayReference(devis, "devis")}</TableCell>
+                                                        <TableCell className="font-medium text-xs font-mono">{getDisplayReference(devis, "devis")}</TableCell>
                                                         <TableCell>{devis.date_debut}</TableCell>
                                                         <TableCell className="font-medium">{devis.nom_client}</TableCell>
                                                         <TableCell className="text-muted-foreground text-sm">{devis.lieu || "-"}</TableCell>
@@ -706,7 +706,7 @@ export default function DevisContratsPage() {
                                                 </TableRow>
                                             ) : activeContrats.map((contrat) => (
                                                 <TableRow key={contrat.id}>
-                                                    <TableCell className="font-medium text-xs text-indigo-600">{contrat.id.startsWith("2026") ? contrat.id : (contrat.reference || generateReference(contrat))}</TableCell>
+                                                    <TableCell className="font-medium text-xs font-mono">{contrat.id.startsWith("2026") ? contrat.id : (contrat.reference || generateReference(contrat))}</TableCell>
                                                     <TableCell>{contrat.date_debut}</TableCell>
                                                     <TableCell className="font-medium">{contrat.nom_client}</TableCell>
                                                     <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
@@ -788,7 +788,7 @@ export default function DevisContratsPage() {
                                             <TableBody>
                                                 {archivedContrats.map((contrat) => (
                                                     <TableRow key={contrat.id}>
-                                                        <TableCell className="font-medium text-xs">{contrat.id}</TableCell>
+                                                        <TableCell className="font-medium text-xs font-mono">{contrat.id}</TableCell>
                                                         <TableCell>{contrat.date_debut}</TableCell>
                                                         <TableCell className="font-medium">{contrat.nom_client}</TableCell>
                                                         <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
