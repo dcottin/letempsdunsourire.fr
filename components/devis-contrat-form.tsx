@@ -1155,29 +1155,6 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                             )}
                         />
 
-                        <FormField
-                            control={form.control}
-                            name="offre_impression"
-                            render={({ field }: { field: any }) => (
-                                <FormItem>
-                                    <FormLabel className="uppercase text-xs font-bold text-muted-foreground flex items-center gap-1">
-                                        Désignation pour impression <span className="text-[10px] lowercase font-normal italic">(Optionnel)</span>
-                                    </FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder="Ex: Formule Prestige + Photos illimitées"
-                                            className="border-slate-200 focus-visible:ring-indigo-500"
-                                            {...field}
-                                            value={field.value ?? ""}
-                                        />
-                                    </FormControl>
-                                    <FormDescription className="text-[10px]">
-                                        S'affichera sur le document à la place du nom de la formule.
-                                    </FormDescription>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
 
                         {/* Catalogue Options Selection */}
                         {isLoadingSettings ? (
