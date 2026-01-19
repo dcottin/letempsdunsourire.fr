@@ -570,7 +570,6 @@ export default function DevisContratsPage() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-slate-50/50">
-                                            <TableHead className="w-[80px]"></TableHead>
                                             <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
                                             <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
                                             <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
@@ -583,12 +582,11 @@ export default function DevisContratsPage() {
                                     </TableHeader>
                                     <TableBody>
                                         {isLoading ? (
-                                            <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                            <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                         ) : activeContrats.length === 0 ? (
-                                            <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground">Aucun contrat trouvé.</TableCell></TableRow>
+                                            <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground">Aucun contrat trouvé.</TableCell></TableRow>
                                         ) : activeContrats.map((contrat) => (
                                             <TableRow key={contrat.id} className="hover:bg-slate-50/50">
-                                                <TableCell className="w-[80px]"></TableCell>
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                 <TableCell>
@@ -643,7 +641,6 @@ export default function DevisContratsPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
-                                                <TableHead className="w-[80px]"></TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
                                                 <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
@@ -656,12 +653,11 @@ export default function DevisContratsPage() {
                                         </TableHeader>
                                         <TableBody>
                                             {isLoading ? (
-                                                <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                             ) : archivedContrats.length === 0 ? (
-                                                <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground">Aucune archive trouvée.</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground">Aucune archive trouvée.</TableCell></TableRow>
                                             ) : archivedContrats.map((contrat) => (
                                                 <TableRow key={contrat.id} className="opacity-70 h-10 hover:opacity-100 transition-opacity">
-                                                    <TableCell className="w-[80px]"></TableCell>
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell>
