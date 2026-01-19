@@ -60,6 +60,7 @@ export default function DevisContratsPage() {
     const [editingItem, setEditingItem] = useState<Devis | Contrat | null>(null)
 
     // Collapsible State
+    const [showActiveDevis, setShowActiveDevis] = useState(true)
     const [showActiveContrats, setShowActiveContrats] = useState(true)
     const [showArchivedContrats, setShowArchivedContrats] = useState(false)
     const [devisList, setDevisList] = useState<Devis[]>([])
@@ -416,6 +417,60 @@ export default function DevisContratsPage() {
 
             <div className="w-full mt-4">
                 <div className="space-y-8">
+                    {/* DEVIS EN COURS */}
+                    <div>
+                        <h3 className="text-lg font-bold mb-4 flex items-center gap-2 cursor-pointer select-none hover:text-indigo-600 transition-colors" onClick={() => setShowActiveDevis(!showActiveDevis)}>
+                            {showActiveDevis ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
+                            <FileTextIcon className="size-5 text-indigo-500" /> Devis en cours ({filteredSortedDevis.length})
+                        </h3>
+                        {showActiveDevis && (
+                            <div className="rounded-md border bg-white shadow-sm overflow-hidden mb-8">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow className="bg-slate-50/50">
+                                            <TableHead className="w-[120px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
+                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
+                                            <TableHead>MATÉRIEL</TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-100 text-center">STATUT</TableHead>
+                                            <TableHead className="text-right">ACTIONS</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {isLoading ? (
+                                            <TableRow><TableCell colSpan={7} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                        ) : filteredSortedDevis.length === 0 ? (
+                                            <TableRow><TableCell colSpan={7} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
+                                        ) : filteredSortedDevis.map((devis) => (
+                                            <TableRow key={devis.id} className="hover:bg-slate-50/50">
+                                                <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
+                                                <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
+                                                <TableCell>
+                                                    <div className="font-medium text-sm">{devis.nom_client}</div>
+                                                    <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{devis.nom_evenement || devis.lieu}</div>
+                                                </TableCell>
+                                                <TableCell>{getEquipmentName(devis.data?.equipment_id)}</TableCell>
+                                                <TableCell className="text-sm font-semibold">{parseFloat(devis.prix_total || "0").toFixed(2)}€</TableCell>
+                                                <TableCell className="text-center">
+                                                    <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-slate-100 text-slate-600 border-none">
+                                                        {devis.etat || "Contact"}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-1">
+                                                        <Button size="icon" variant="ghost" className="size-8" onClick={() => openEditForm("devis", devis)}><PencilIcon className="size-3" /></Button>
+                                                        <Button size="icon" variant="ghost" className="size-8 text-red-500 hover:text-red-600" onClick={() => handleDelete("devis", devis.id)}><TrashIcon className="size-3" /></Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+                    </div>
+
                     {/* ACTIVE CONTRATS */}
                     <div>
                         <h3 className="text-lg font-bold mb-4 flex items-center gap-2 cursor-pointer select-none hover:text-indigo-600 transition-colors" onClick={() => setShowActiveContrats(!showActiveContrats)}>
