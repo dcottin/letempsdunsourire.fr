@@ -52,12 +52,6 @@ export async function POST(req: Request) {
         console.log("- Subject:", subject);
         console.log("- From Name:", fromName);
         console.log("- Attachments Count:", attachments?.length || 0);
-        if (attachments?.length > 0) {
-            attachments.forEach((att: any, idx: number) => {
-                const contentLen = att.content ? att.content.length : 0;
-                console.log(`  Attachment ${idx + 1}: ${att.filename} (${contentLen} chars)`);
-            });
-        }
 
         // Validate required fields
         if (!to) {
