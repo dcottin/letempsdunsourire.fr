@@ -129,15 +129,37 @@ export default function ReservationPage() {
         }
     }
 
-    const generateReference = (nom: string, date: string) => {
-        const datePart = date ? format(new Date(date), "yyyyMMdd") : "00000000"
-        const initials = nom
-            ? nom.split(' ').map((n: string) => n[0]).join('').toUpperCase()
-            : "XX"
-        return `D-${datePart}-${initials}`
+    const generateReference = (nom: string, dateStr: string) => {
+        try {
+            // Safer parsing: handle YYYY-MM-DD manually if new Date fails
+            let dateObj: Date;
+            if (!dateStr) {
+                dateObj = new Date();
+            } else {
+                // Try direct parsing first
+                dateObj = new Date(dateStr);
+                // Fallback for some mobile browsers with YYYY-MM-DD
+                if (isNaN(dateObj.getTime()) && dateStr.includes('-')) {
+                    const parts = dateStr.split('-');
+                    if (parts.length === 3) {
+                        dateObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                    }
+                }
+            }
+
+            const datePart = !isNaN(dateObj.getTime()) ? format(dateObj, "yyyyMMdd") : format(new Date(), "yyyyMMdd");
+            const initials = nom
+                ? nom.trim().split(/\s+/).map((n: string) => n[0]).join('').toUpperCase().substring(0, 3)
+                : "XX"
+            return `D-${datePart}-${initials}`
+        } catch (e) {
+            console.error("Reference generation error:", e);
+            return `D-${format(new Date(), "yyyyMMdd")}-ERR`;
+        }
     }
 
     const onSubmit = async (data: any) => {
+        console.log("Form data before submission:", data);
         setSubmitting(true)
         try {
             // Reconstruct selected options array with prices
@@ -150,12 +172,12 @@ export default function ReservationPage() {
             }
 
             const reference = generateReference(data.nom_complet, data.date_debut)
+            console.log("Generated Reference:", reference);
             setReservationRef(reference)
 
             // Construct the full data object to be stored in the 'data' JSONB column
-            // We follow the same structure as DevisContratForm
             const fullData = {
-                ...data, // Include raw form data
+                ...data,
                 reference: reference,
                 nom_client: data.nom_complet,
                 email_client: data.email,
@@ -166,9 +188,15 @@ export default function ReservationPage() {
                 etat: "Demande Web"
             }
 
-            console.log("Submitting reservation...", { reference, fullData })
+            console.log("Supabase Payload:", {
+                id: reference,
+                nom_client: data.nom_complet,
+                prix_total: totalPrice.toString(),
+                date_debut: data.date_debut,
+                data: fullData
+            });
 
-            const { error } = await supabase
+            const { error: insertError } = await supabase
                 .from('devis')
                 .insert([
                     {
@@ -176,25 +204,24 @@ export default function ReservationPage() {
                         nom_client: data.nom_complet,
                         prix_total: totalPrice.toString(),
                         date_debut: data.date_debut,
-                        // We remove 'etat' from top level if it's not a column, 
-                        // matching the logic in devis-contrat-form.tsx
                         data: fullData
                     }
                 ])
 
-            if (error) {
-                console.error("Supabase insert error:", error)
-                throw error
+            if (insertError) {
+                console.error("Supabase insert error details:", insertError)
+                throw insertError
             }
 
             setSuccess(true)
 
         } catch (error: any) {
-            console.error("Error submitting reservation:", error)
-            // If it's a JSON parse error (Unexpected token R...), it might be an HTML error page
+            console.error("Caught onSubmit error:", error)
             const errorMsg = error.message || error.toString()
-            if (errorMsg.includes("Unexpected token") || errorMsg.includes("valid JSON")) {
-                alert(`Erreur de serveur (Vercel/Supabase). Le message reçu n'est pas du JSON. Veuillez vérifier votre connexion ou réutiliser le formulaire plus tard.`)
+            if (errorMsg.includes("pattern")) {
+                alert(`Erreur de format (Pattern Error). Détails : ${errorMsg}. Veuillez vérifier vos informations ou contacter le support.`)
+            } else if (errorMsg.includes("Unexpected token") || errorMsg.includes("valid JSON")) {
+                alert(`Erreur de serveur. Veuillez réessayer (Erreur JSON).`)
             } else {
                 alert(`Erreur lors de l'envoi: ${errorMsg}`)
             }
