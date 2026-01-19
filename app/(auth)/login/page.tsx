@@ -39,97 +39,100 @@ export default function LoginPage() {
     const logoSrc = settings?.logo_base64 || null
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#f8fafc] p-4 relative overflow-hidden">
-            {/* Background decorative elements */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-50 rounded-full blur-3xl opacity-60"></div>
-            <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-3xl opacity-60"></div>
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 relative overflow-hidden font-sans">
+            {/* Minimal Background decor */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/50 via-white to-white"></div>
 
-            <div className="w-full max-w-[440px] relative z-10">
-                <div className="text-center mb-8 flex flex-col items-center">
+            <div className="w-full max-w-[420px] relative z-10">
+                <div className="text-center mb-10 flex flex-col items-center">
                     {logoSrc ? (
-                        <div className="mb-6 p-1 bg-white rounded-2xl shadow-xl overflow-hidden ring-4 ring-indigo-50/50">
+                        <div className="mb-6 transition-transform hover:scale-105 duration-300">
                             <img
                                 src={logoSrc}
                                 alt="Logo"
-                                className="h-24 w-auto object-contain max-w-[200px]"
+                                className="h-28 w-auto object-contain max-w-[240px] drop-shadow-sm"
                             />
                         </div>
                     ) : (
-                        <div className="mb-6 aspect-square size-20 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-500/20 flex translate-y-2">
-                            <Camera className="size-10" />
+                        <div className="mb-6 aspect-square size-16 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg flex">
+                            <Camera className="size-8" />
                         </div>
                     )}
 
-                    <h1 className="font-bold text-4xl text-slate-900 tracking-tight font-script mb-2" style={{ fontFamily: 'var(--font-script)' }}>
+                    <h1 className="font-bold text-3xl text-slate-900 tracking-tight font-script mb-1" style={{ fontFamily: 'var(--font-script)' }}>
                         {companyName}
                     </h1>
-                    <div className="h-1 w-12 bg-indigo-500 rounded-full mb-4"></div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Plateforme de Gestion</p>
                 </div>
 
-                <Card className="border-none shadow-[0_20px_50px_rgba(0,0,0,0.08)] bg-white/90 backdrop-blur-sm rounded-3xl overflow-hidden">
-                    <CardHeader className="pt-8 px-8 pb-4">
-                        <CardTitle className="text-2xl font-bold text-slate-800">C'est génial de vous revoir !</CardTitle>
-                        <CardDescription className="text-slate-500">
-                            Identifiez-vous pour gérer votre activité.
+                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[32px] overflow-hidden">
+                    <CardHeader className="pt-10 px-10 pb-4 text-center">
+                        <CardTitle className="text-2xl font-bold text-slate-800">Se connecter</CardTitle>
+                        <CardDescription className="text-slate-400 mt-1">
+                            Accédez à votre espace administrateur
                         </CardDescription>
                     </CardHeader>
                     <form action={login} onSubmit={handleSubmit}>
-                        <CardContent className="space-y-5 px-8">
+                        <CardContent className="space-y-6 px-10">
                             {errorMessage && (
-                                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm animate-in fade-in slide-in-from-top-2">
-                                    <AlertCircle className="size-5 shrink-0 opacity-80" />
+                                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm animate-in fade-in zoom-in-95">
+                                    <AlertCircle className="size-4 shrink-0" />
                                     <p className="font-medium">{errorMessage}</p>
                                 </div>
                             )}
 
                             <div className="space-y-2">
-                                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Email</Label>
-                                <div className="relative group">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400 transition-colors group-focus-within:text-indigo-500" />
+                                <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-wider text-slate-400 ml-1">Email</Label>
+                                <div className="relative">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 pointer-events-none" />
                                     <Input
                                         id="email"
                                         name="email"
                                         type="email"
                                         placeholder="admin@example.com"
                                         required
-                                        className="pl-12 h-12 bg-slate-50 border-slate-100 rounded-2xl focus-visible:ring-indigo-500 focus-visible:bg-white transition-all shadow-sm"
+                                        className="pl-12 h-12 bg-slate-50 border-none rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:bg-white transition-all shadow-none"
                                         defaultValue="contact@letempsdunsourire.fr"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="password" className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Mot de passe</Label>
-                                <div className="relative group">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-400 transition-colors group-focus-within:text-indigo-500" />
+                                <Label htmlFor="password" className="text-[11px] font-bold uppercase tracking-wider text-slate-400 ml-1">Mot de passe</Label>
+                                <div className="relative focus-within:text-indigo-500">
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 pointer-events-none transition-colors" />
                                     <Input
                                         id="password"
                                         name="password"
                                         type="password"
                                         required
-                                        className="pl-12 h-12 bg-slate-50 border-slate-100 rounded-2xl focus-visible:ring-indigo-500 focus-visible:bg-white transition-all shadow-sm"
+                                        className="pl-12 h-12 bg-slate-50 border-none rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:bg-white transition-all shadow-none"
                                     />
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="p-8">
-                            <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 rounded-2xl shadow-lg shadow-indigo-600/20 active:scale-[0.98] transition-all" disabled={isLoading}>
+                        <CardFooter className="p-10 pt-6">
+                            <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-2xl shadow-xl shadow-slate-200 active:scale-[0.98] transition-all" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 size-5 animate-spin" />
-                                        Authentification...
+                                        Vérification...
                                     </>
                                 ) : (
-                                    'Accéder au Dashboard'
+                                    'Connexion'
                                 )}
                             </Button>
                         </CardFooter>
                     </form>
                 </Card>
 
-                <p className="text-center mt-10 text-xs text-slate-400 font-medium tracking-wide">
-                    &copy; {new Date().getFullYear()} {companyName}. Solution SaaS Premium.
-                </p>
+                <div className="mt-12 flex items-center justify-center gap-4 grayscale opacity-40">
+                    <div className="h-[1px] w-8 bg-slate-300"></div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 whitespace-nowrap">
+                        &copy; {new Date().getFullYear()} {companyName}
+                    </p>
+                    <div className="h-[1px] w-8 bg-slate-300"></div>
+                </div>
             </div>
         </div>
     )
