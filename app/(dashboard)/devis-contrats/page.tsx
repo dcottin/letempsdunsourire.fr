@@ -559,7 +559,7 @@ export default function DevisContratsPage() {
                                 onClick={() => setShowArchivedContrats(!showArchivedContrats)}
                             >
                                 {showArchivedContrats ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
-                                <Archive className="size-5 text-slate-400" /> Archives de contrats
+                                <Archive className="size-5 text-slate-400" /> Archives de contrats ({archivedContrats.length})
                             </h3>
                             {showArchivedContrats && (
                                 <div className="rounded-md border bg-slate-50 animate-in slide-in-from-top-2 duration-200">
