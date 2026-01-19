@@ -451,7 +451,7 @@ export default function DevisContratsPage() {
                             onClick={() => setShowActiveContrats(!showActiveContrats)}
                         >
                             {showActiveContrats ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
-                            <ScrollTextIcon className="size-5 text-indigo-500" /> Contrats en cours
+                            <ScrollTextIcon className="size-5 text-indigo-500" /> Contrats en cours ({activeContrats.length})
                         </h3>
                         {showActiveContrats && (
                             <div className="rounded-md border bg-white shadow-sm animate-in slide-in-from-top-2 duration-200">
