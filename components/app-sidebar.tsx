@@ -88,6 +88,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: CalendarIcon,
         },
         {
+            title: "Statistiques",
+            url: "/statistiques",
+            icon: LayersIcon,
+        },
+        {
             title: "Contrats",
             url: "/devis-contrats",
             icon: PanelLeftIcon,
