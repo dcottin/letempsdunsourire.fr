@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -612,6 +612,11 @@ export default function DevisContratsPage() {
                                                         <div title="Solde Reçu" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'solde_paye', 'contrats')}>
                                                             {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                                                         </div>
+                                                        {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
+                                                            <div title="Design Validé" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'design_valide', 'contrats')}>
+                                                                {contrat.design_valide ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
@@ -677,6 +682,9 @@ export default function DevisContratsPage() {
                                                             <div>{contrat.contrat_signe ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
                                                             <div>{contrat.acompte_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
                                                             <div>{contrat.solde_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
+                                                            {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
+                                                                <div>{contrat.design_valide ? <Palette className="size-3.5 text-emerald-500" /> : <Palette className="size-3.5 text-slate-200" />}</div>
+                                                            )}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="text-center">
