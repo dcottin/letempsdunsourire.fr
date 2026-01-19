@@ -23,7 +23,8 @@ export default async function DashboardLayout({
 
     // 2. Sidebar persistence
     const cookieStore = await cookies()
-    const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
+    const sidebarStateJson = cookieStore.get("sidebar_state")?.value
+    const defaultOpen = sidebarStateJson ? sidebarStateJson === "true" : true
 
     return (
         <SidebarProvider
