@@ -550,7 +550,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 filename: `${emailType === 'invoice' ? 'Facture' : (mode === 'contrat' ? 'Contrat' : 'Devis')}_${generateReference()}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
-                    scale: 4,
+                    scale: 2,
                     useCORS: true,
                     windowWidth: 800,
                     onclone: (clonedDoc: Document) => {
@@ -579,8 +579,11 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 }),
             })
 
-            const result = await response.json()
-            if (!response.ok) throw new Error(result.error?.message || "Erreur lors de l'envoi")
+            const result = await response.json().catch(() => ({})); // Handle empty or non-json responses
+            if (!response.ok) {
+                console.error("API Error Response:", response.status, response.statusText, result);
+                throw new Error(`${response.status} ${response.statusText} - ${result.error?.message || result.error || "Erreur inconnue"}`);
+            }
 
             alert(`Email envoyé avec succès !`)
             setShowEmail(false)
@@ -602,7 +605,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                 filename: `${type === 'invoice' ? 'Facture' : (mode === 'contrat' ? 'Contrat' : 'Devis')}_${generateReference()}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
-                    scale: 4,
+                    scale: 2,
                     useCORS: true,
                     windowWidth: 800,
                     onclone: (clonedDoc: Document) => {

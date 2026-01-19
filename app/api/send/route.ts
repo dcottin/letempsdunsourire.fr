@@ -1,16 +1,29 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Remove top-level initialization to prevent crash on module load
+// const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
     console.log("------------------------------------------------------------------");
     console.log("API /api/send called");
     console.log("Time:", new Date().toISOString());
 
-    if (!process.env.RESEND_API_KEY) {
+    // Check Env Var inside the request to ensure it's loaded
+    const apiKey = process.env.RESEND_API_KEY;
+
+    if (!apiKey) {
         console.error("CRITICAL: RESEND_API_KEY is missing in environment variables.");
         return NextResponse.json({ error: "Server configuration error: Missing API Key" }, { status: 500 });
+    }
+
+    // Initialize Resend inside the handler to catch instantiation errors
+    let resend;
+    try {
+        resend = new Resend(apiKey);
+    } catch (initError: any) {
+        console.error("Failed to initialize Resend client:", initError);
+        return NextResponse.json({ error: "Email Service Init Failed", details: initError.message }, { status: 500 });
     }
 
     try {
