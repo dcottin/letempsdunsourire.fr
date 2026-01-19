@@ -153,44 +153,51 @@ export default function ReservationPage() {
             setReservationRef(reference)
 
             // Construct the full data object to be stored in the 'data' JSONB column
+            // We follow the same structure as DevisContratForm
             const fullData = {
-                reference: reference, // Save the readable reference
+                ...data, // Include raw form data
+                reference: reference,
                 nom_client: data.nom_complet,
                 email_client: data.email,
                 telephone_client: data.telephone,
                 adresse_client: data.adresse,
-                nom_evenement: data.nom_evenement,
-                date_debut: data.date_debut,
-                date_fin: data.date_fin,
-                lieu: data.lieu,
-                texte_libre: data.message,
-                equipment_id: data.equipment_id,
-                choix_client: data.equipment_id, // Permanent record of initial choice
-                offre: data.offre,
                 selected_options: finalOptions,
                 prix_total: totalPrice.toString(),
                 etat: "Demande Web"
             }
 
+            console.log("Submitting reservation...", { reference, fullData })
+
             const { error } = await supabase
                 .from('devis')
                 .insert([
                     {
-                        id: reference, // Use reference as ID now for consistency
+                        id: reference,
                         nom_client: data.nom_complet,
                         prix_total: totalPrice.toString(),
                         date_debut: data.date_debut,
-                        etat: "Demande Web",
-                        data: fullData // Everything else goes here!
+                        // We remove 'etat' from top level if it's not a column, 
+                        // matching the logic in devis-contrat-form.tsx
+                        data: fullData
                     }
                 ])
-            if (error) throw error
+
+            if (error) {
+                console.error("Supabase insert error:", error)
+                throw error
+            }
+
             setSuccess(true)
 
-
         } catch (error: any) {
-            console.error("Error submitting:", error)
-            alert(`Erreur lors de l'envoi: ${error.message || error.toString()}`)
+            console.error("Error submitting reservation:", error)
+            // If it's a JSON parse error (Unexpected token R...), it might be an HTML error page
+            const errorMsg = error.message || error.toString()
+            if (errorMsg.includes("Unexpected token") || errorMsg.includes("valid JSON")) {
+                alert(`Erreur de serveur (Vercel/Supabase). Le message reçu n'est pas du JSON. Veuillez vérifier votre connexion ou réutiliser le formulaire plus tard.`)
+            } else {
+                alert(`Erreur lors de l'envoi: ${errorMsg}`)
+            }
         } finally {
             setSubmitting(false)
         }
