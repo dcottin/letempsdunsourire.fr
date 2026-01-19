@@ -59,6 +59,11 @@ export default function DevisContratsPage() {
     const [formMode, setFormMode] = useState<"devis" | "contrat">("devis")
     const [editingItem, setEditingItem] = useState<Devis | Contrat | null>(null)
     const [validatingDevisId, setValidatingDevisId] = useState<string | null>(null)
+    const [isMounted, setIsMounted] = useState(false)
+
+    useEffect(() => {
+        setIsMounted(true)
+    }, [])
 
     // Collapsible State
     const [showActiveDevis, setShowActiveDevis] = useState(true)
