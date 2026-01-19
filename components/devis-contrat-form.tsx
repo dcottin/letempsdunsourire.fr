@@ -299,6 +299,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
     const [isLoadingSettings, setIsLoadingSettings] = React.useState(true)
     const [showPreview, setShowPreview] = React.useState(false)
     const [showFacturePreview, setShowFacturePreview] = React.useState(false)
+    const [showDevisPreview, setShowDevisPreview] = React.useState(false)
     const [showEmail, setShowEmail] = React.useState(false)
 
     // Load settings from Supabase
@@ -536,10 +537,13 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
         clonedDoc.head.appendChild(forcePrintStyle);
     };
 
-    const [emailType, setEmailType] = React.useState<"contract" | "invoice">("contract")
+    const [emailType, setEmailType] = React.useState<"contract" | "invoice" | "devis">("contract")
 
     const handleSendEmail = async (data: { to: string; subject: string; message: string }) => {
-        const containerId = emailType === "invoice" ? 'pdf-invoice-container' : 'pdf-contract-container'
+        let containerId = 'pdf-contract-container'
+        if (emailType === "invoice") containerId = 'pdf-invoice-container'
+        if (emailType === "devis") containerId = 'pdf-devis-container'
+
         const printContent = document.getElementById(containerId)
         if (!printContent) {
             alert("Erreur : Impossible de trouver le contenu du document.")
@@ -551,7 +555,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
             const options = {
                 margin: 0,
-                filename: `${emailType === 'invoice' ? 'Facture' : (mode === 'contrat' ? 'Contrat' : 'Devis')}_${generateReference()}.pdf`,
+                filename: `${emailType === 'invoice' ? 'Facture' : (emailType === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference()}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
                     scale: 2,
@@ -597,8 +601,11 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
         }
     }
 
-    const handleDownloadPDF = async (type: "contract" | "invoice" = "contract") => {
-        const containerId = type === "invoice" ? 'pdf-invoice-container' : 'pdf-contract-container'
+    const handleDownloadPDF = async (type: "contract" | "invoice" | "devis" = "contract") => {
+        let containerId = 'pdf-contract-container'
+        if (type === "invoice") containerId = 'pdf-invoice-container'
+        if (type === "devis") containerId = 'pdf-devis-container'
+
         const printContent = document.getElementById(containerId)
         if (!printContent) return
 
@@ -606,7 +613,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
             const html2pdf = (await import('html2pdf.js' as any)).default
             const options = {
                 margin: 0,
-                filename: `${type === 'invoice' ? 'Facture' : (mode === 'contrat' ? 'Contrat' : 'Devis')}_${generateReference()}.pdf`,
+                filename: `${type === 'invoice' ? 'Facture' : (type === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference()}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
                     scale: 2,
@@ -636,6 +643,9 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     </div>
                     <div id="pdf-invoice-container" style={{ background: 'white' }}>
                         <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
+                    </div>
+                    <div id="pdf-devis-container" style={{ background: 'white' }}>
+                        <ContractPreview data={form.watch()} settings={statusSettings} mode="devis" />
                     </div>
                 </div>
 
@@ -702,6 +712,38 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                             </Button>
                         </div>
                     )}
+
+                    {mode === "contrat" && (
+                        <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm text-sm font-semibold">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={(e) => { e.preventDefault(); setShowDevisPreview(true); }}
+                                className="gap-2 text-indigo-500 hover:bg-white hover:shadow-sm h-8 px-3 font-semibold transition-all"
+                            >
+                                <ScrollTextIcon className="size-4" /> Devis
+                            </Button>
+                            <div className="w-px h-4 bg-slate-200 mx-0.5" />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.preventDefault(); handleDownloadPDF('devis'); }}
+                                className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all"
+                                title="Générer PDF Devis"
+                            >
+                                <DownloadIcon className="size-3.5" />
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => { e.preventDefault(); setEmailType('devis'); setShowEmail(true); }}
+                                className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-white hover:shadow-sm transition-all"
+                                title="Envoyer mail Devis"
+                            >
+                                <SendIcon className="size-3.5" />
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 <Dialog open={showPreview} onOpenChange={setShowPreview}>
@@ -752,6 +794,32 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                         </DialogHeader>
                         <div className="flex-1 overflow-y-auto p-4 md:p-8">
                             <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
+                        </div>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={showDevisPreview} onOpenChange={setShowDevisPreview}>
+                    <DialogContent className="w-full h-full max-w-none md:max-w-5xl md:h-[90vh] md:rounded-xl p-0 overflow-hidden bg-slate-100 flex flex-col gap-0 border-none shadow-2xl">
+                        <DialogHeader className="p-4 border-b bg-white flex flex-row justify-between items-center shadow-sm z-10 no-print space-y-0">
+                            <div className="flex flex-col">
+                                <DialogTitle className="font-bold text-lg hidden md:block">Le Devis</DialogTitle>
+                                <DialogTitle className="font-bold md:hidden">Devis</DialogTitle>
+                                <DialogDescription className="sr-only">
+                                    Visualisez le devis avant de l'enregistrer ou de l'envoyer.
+                                </DialogDescription>
+                            </div>
+                            <div className="flex gap-2">
+                                <Button variant="outline" size="sm" onClick={() => handleDownloadPDF('devis')} className="gap-2">
+                                    <DownloadIcon className="size-4" /> PDF
+                                </Button>
+                                <Button size="sm" onClick={() => { setEmailType('devis'); setShowEmail(true); }} className="gap-2">
+                                    <SendIcon className="size-4" /> Envoyer
+                                </Button>
+                                <Button variant="ghost" size="sm" onClick={() => setShowDevisPreview(false)}>Fermer</Button>
+                            </div>
+                        </DialogHeader>
+                        <div className="flex-1 overflow-y-auto p-4 md:p-8">
+                            <ContractPreview data={form.watch()} settings={statusSettings} mode="devis" />
                         </div>
                     </DialogContent>
                 </Dialog>
