@@ -53,8 +53,33 @@ import {
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 
+import { supabase } from "@/lib/supabase"
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname()
+    const [companyName, setCompanyName] = React.useState("Chargement...")
+
+    React.useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const { data, error } = await supabase
+                    .from('settings')
+                    .select('data')
+                    .limit(1)
+                    .single()
+
+                if (data?.data?.nom_societe) {
+                    setCompanyName(data.data.nom_societe)
+                } else {
+                    setCompanyName("Mon Entreprise")
+                }
+            } catch (err) {
+                console.error("Error fetching company name:", err)
+                setCompanyName("Mon Entreprise")
+            }
+        }
+        fetchSettings()
+    }, [])
 
     const navMain = [
         {
@@ -92,9 +117,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             asChild
                             className="data-[slot=sidebar-menu-button]:!p-1.5"
                         >
-                            <Link href="#">
-                                <LayersIcon className="!size-5" />
-                                <span className="text-base font-semibold">Acme Inc.</span>
+                            <Link href="/">
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
+                                    <LayersIcon className="size-4" />
+                                </div>
+                                <div className="grid flex-1 text-left text-sm leading-tight">
+                                    <span className="truncate font-semibold">{companyName}</span>
+                                    <span className="truncate text-xs text-muted-foreground">Administration</span>
+                                </div>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
