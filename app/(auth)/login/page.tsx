@@ -40,6 +40,9 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-white p-6 relative overflow-hidden font-sans">
+            {/* Background decor */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/20 via-white to-white pointer-events-none"></div>
+
             <div className="w-full max-w-[360px] relative z-10">
                 <div className="text-center mb-6 flex flex-col items-center">
                     {logoSrc ? (
@@ -59,7 +62,7 @@ export default function LoginPage() {
                     <h1 className="font-bold text-xl text-slate-900 tracking-tight font-script mb-0.5" style={{ fontFamily: 'var(--font-script)' }}>
                         {companyName}
                     </h1>
-                    <p className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-bold opacity-70">Admin Access</p>
+                    <p className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-bold opacity-70">Plateforme Admin</p>
                 </div>
 
                 <Card className="border-none shadow-[0_4px_20px_rgb(0,0,0,0.06)] bg-white rounded-[32px] overflow-hidden">
@@ -105,23 +108,25 @@ export default function LoginPage() {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="p-6 bg-slate-50 border-t border-slate-100">
-                            <Button type="submit" className="w-full h-11 text-xs font-bold uppercase tracking-widest bg-slate-900 text-white rounded-full shadow-none border-none" disabled={isLoading}>
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 size-3 animate-spin" />
-                                        ...
-                                    </>
-                                ) : (
-                                    'Connexion'
-                                )}
-                            </Button>
+                        <CardFooter className="px-8 py-5 bg-slate-50 border-t border-slate-100">
+                            <div className="w-full bg-white rounded-full p-1 shadow-sm border border-slate-200/50">
+                                <Button type="submit" className="w-full h-10 text-[10px] font-bold uppercase tracking-[0.2em] bg-slate-900 hover:bg-black text-white rounded-full shadow-none transition-all" disabled={isLoading}>
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 className="mr-2 size-3 animate-spin" />
+                                            ...
+                                        </>
+                                    ) : (
+                                        'CONNEXION'
+                                    )}
+                                </Button>
+                            </div>
                         </CardFooter>
                     </form>
                 </Card>
 
                 <div className="mt-8 text-center opacity-30">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <p className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
                         &copy; {new Date().getFullYear()} {companyName}
                     </p>
                 </div>
