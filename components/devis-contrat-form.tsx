@@ -560,9 +560,9 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
             const options = {
                 margin: 0,
                 filename: `${emailType === 'invoice' ? 'Facture' : (emailType === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(emailType as any)}.pdf`,
-                image: { type: 'jpeg', quality: 0.9 },
+                image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
-                    scale: 1.5,
+                    scale: 2,
                     useCORS: true,
                     windowWidth: 800,
                     onclone: (clonedDoc: Document) => {
@@ -618,9 +618,9 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
             const options = {
                 margin: 0,
                 filename: `${type === 'invoice' ? 'Facture' : (type === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(type as any)}.pdf`,
-                image: { type: 'jpeg', quality: 0.9 },
+                image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
-                    scale: 1.5,
+                    scale: 2,
                     useCORS: true,
                     windowWidth: 800,
                     onclone: (clonedDoc: Document) => {
