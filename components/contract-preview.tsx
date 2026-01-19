@@ -162,7 +162,7 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
                                     <div className="flex items-center gap-2">
                                         <div className="size-1.5 rounded-full bg-black"></div>
                                         <div>
-                                            <p className="font-medium text-sm">{data.offre_impression || "Formule Standard"}</p>
+                                            <p className="font-medium text-sm">{data.offre_impression || data.offre || "Formule Standard"}</p>
                                             {(data.texte_libre) && (
                                                 <p className="text-[10px] text-slate-400 mt-0.5 whitespace-pre-line leading-tight">{data.texte_libre}</p>
                                             )}
