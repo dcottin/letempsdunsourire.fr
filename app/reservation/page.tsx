@@ -165,7 +165,7 @@ export default function ReservationPage() {
         const url = process.env.NEXT_PUBLIC_SUPABASE_URL
         if (!url || url.includes("undefined") || url === "") {
             console.error("Supabase URL is missing or invalid on Vercel.");
-            alert("Erreur de configuration : Les variables d'environnement Supabase (URL) sont manquantes sur Vercel. Veuillez les ajouter dans le tableau de bord Vercel.");
+            // Silent error logs are fine, but no alert for the user as requested.
             return;
         }
 
