@@ -30,6 +30,12 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
@@ -95,7 +101,8 @@ interface DevisContratFormProps {
     onCancel?: () => void
 }
 
-export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: DevisContratFormProps) {
+export function DevisContratForm({ mode: initialMode, initialData, onSuccess, onCancel }: DevisContratFormProps) {
+    const [internalMode, setInternalMode] = React.useState<"devis" | "contrat">(initialMode)
     // Sanitize initialData to ensure it matches formSchema expectations
     const sanitizedInitialData = React.useMemo(() => {
         if (!initialData) return null
@@ -111,7 +118,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema) as any,
         defaultValues: sanitizedInitialData || {
-            etat: mode === "contrat" ? "Validé" : "Contact",
+            etat: internalMode === "contrat" ? "Validé" : "Contact",
             prix_total: "0",
             frais_livraison: "0",
             remise: "0",
@@ -170,7 +177,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     .neq('etat', 'Annulé')
                     .neq('etat', 'Refusé')
 
-                if (mode === 'devis' && initialData?.id) {
+                if (internalMode === 'devis' && initialData?.id) {
                     devisQuery = devisQuery.neq('id', initialData.id)
                 }
                 const { data: devisData, error: devisError } = await devisQuery
@@ -185,7 +192,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     .neq('etat', 'Annulé')
                     .neq('etat', 'Cancelled')
 
-                if (mode === 'contrat' && initialData?.id) {
+                if (internalMode === 'contrat' && initialData?.id) {
                     contratsQuery = contratsQuery.neq('id', initialData.id)
                 }
                 const { data: contratsData, error: contratsError } = await contratsQuery
@@ -227,12 +234,12 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         setIsSaving(true)
-        const table = mode === "devis" ? "devis" : "contrats"
+        const table = internalMode === "devis" ? "devis" : "contrats"
 
         // For contracts, we ensure the 'etat' is properly set if not already
         const finalValues = {
             ...values,
-            etat: values.etat || (mode === "contrat" ? "Validé" : "Contact")
+            etat: values.etat || (internalMode === "contrat" ? "Validé" : "Contact")
         }
 
         const record = {
@@ -264,7 +271,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     ? finalValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
                     : "XX"
 
-                const prefix = mode === 'contrat' ? 'C' : 'D'
+                const prefix = internalMode === 'contrat' ? 'C' : 'D'
                 const newId = `${prefix}-${datePart}-${initials}`
 
                 const newItem = {
@@ -394,7 +401,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
     const formValues = form.getValues()
 
-    const generateReference = (type: "devis" | "contrat" | "invoice" = mode as any) => {
+    const generateReference = (type: "devis" | "contrat" | "invoice" = internalMode as any) => {
         const prefix = type === "invoice" ? "F" : (type === "contrat" ? "C" : "D")
 
         // If we have an existing ID/Reference, use its core parts but fix the prefix
@@ -559,7 +566,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
             const options = {
                 margin: 0,
-                filename: `${emailType === 'invoice' ? 'Facture' : (emailType === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(emailType as any)}.pdf`,
+                filename: `${emailType === 'invoice' ? 'Facture' : (emailType === 'devis' ? 'Devis' : (internalMode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(emailType as any)}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
                     scale: 2,
@@ -617,7 +624,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
             const html2pdf = (await import('html2pdf.js' as any)).default
             const options = {
                 margin: 0,
-                filename: `${type === 'invoice' ? 'Facture' : (type === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(type as any)}.pdf`,
+                filename: `${type === 'invoice' ? 'Facture' : (type === 'devis' ? 'Devis' : (internalMode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(type as any)}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: {
                     scale: 2,
@@ -640,13 +647,33 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit, (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
+                {!initialData?.id && (
+                    <div className="bg-slate-50 p-1.5 rounded-xl border-2 border-slate-100 shadow-sm mb-6 no-print">
+                        <Tabs value={internalMode} onValueChange={(v) => setInternalMode(v as any)} className="w-full">
+                            <TabsList className="grid grid-cols-2 w-full h-12 bg-transparent gap-2">
+                                <TabsTrigger
+                                    value="devis"
+                                    className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
+                                >
+                                    <FileTextIcon className="size-4" /> DEVIS
+                                </TabsTrigger>
+                                <TabsTrigger
+                                    value="contrat"
+                                    className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
+                                >
+                                    <ScrollTextIcon className="size-4" /> CONTRAT
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                    </div>
+                )}
                 {/* Hidden areas for background PDF generation */}
                 <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden h-0 w-0" aria-hidden="true">
                     <div id="pdf-contract-container" style={{ background: 'white' }}>
-                        <ContractPreview data={form.watch()} settings={statusSettings} mode={mode} />
+                        <ContractPreview data={form.watch()} settings={statusSettings} mode={internalMode} />
                     </div>
                     <div id="pdf-invoice-container" style={{ background: 'white' }}>
-                        <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
+                        <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={internalMode} />
                     </div>
                     <div id="pdf-devis-container" style={{ background: 'white' }}>
                         <ContractPreview data={form.watch()} settings={statusSettings} mode="devis" />
@@ -662,7 +689,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                             onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
                             className="gap-2 text-indigo-600 hover:bg-white hover:shadow-sm h-8 px-3 font-semibold transition-all"
                         >
-                            <EyeIcon className="size-4" /> {mode === 'contrat' ? 'Contrat' : 'Devis'}
+                            <EyeIcon className="size-4" /> {internalMode === 'contrat' ? 'Contrat' : 'Devis'}
                         </Button>
                         <div className="w-px h-4 bg-slate-200 mx-0.5" />
                         <Button
@@ -685,7 +712,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                         </Button>
                     </div>
 
-                    {mode === "contrat" && (
+                    {internalMode === "contrat" && (
                         <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm text-sm font-semibold">
                             <Button
                                 variant="ghost"
@@ -717,7 +744,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                         </div>
                     )}
 
-                    {mode === "contrat" && (
+                    {internalMode === "contrat" && (
                         <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm text-sm font-semibold">
                             <Button
                                 variant="ghost"
@@ -754,8 +781,8 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     <DialogContent className="w-full h-full max-w-none md:max-w-5xl md:h-[90vh] md:rounded-xl p-0 overflow-hidden bg-slate-100 flex flex-col gap-0 border-none shadow-2xl">
                         <DialogHeader className="p-4 border-b bg-white flex flex-row justify-between items-center shadow-sm z-10 no-print space-y-0">
                             <div className="flex flex-col">
-                                <DialogTitle className="font-bold text-lg hidden md:block">{mode === 'contrat' ? 'Le Contrat' : 'Le Devis'}</DialogTitle>
-                                <DialogTitle className="font-bold md:hidden">{mode === 'contrat' ? 'Contrat' : 'Devis'}</DialogTitle>
+                                <DialogTitle className="font-bold text-lg hidden md:block">{internalMode === 'contrat' ? 'Le Contrat' : 'Le Devis'}</DialogTitle>
+                                <DialogTitle className="font-bold md:hidden">{internalMode === 'contrat' ? 'Contrat' : 'Devis'}</DialogTitle>
                                 <DialogDescription className="sr-only">
                                     Visualisez le document avant de l'enregistrer ou de l'envoyer.
                                 </DialogDescription>
@@ -771,7 +798,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                             </div>
                         </DialogHeader>
                         <div className="flex-1 overflow-y-auto p-4 md:p-8">
-                            <ContractPreview data={form.watch()} settings={statusSettings} mode={mode} />
+                            <ContractPreview data={form.watch()} settings={statusSettings} mode={internalMode} />
                         </div>
                     </DialogContent>
                 </Dialog>
@@ -797,7 +824,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                             </div>
                         </DialogHeader>
                         <div className="flex-1 overflow-y-auto p-4 md:p-8">
-                            <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={mode} />
+                            <ContractPreview data={form.watch()} settings={statusSettings} isInvoice={true} mode={internalMode} />
                         </div>
                     </DialogContent>
                 </Dialog>
@@ -832,7 +859,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
                     open={showEmail}
                     onOpenChange={setShowEmail}
                     defaultEmail={form.watch("email_client") || ""}
-                    defaultSubject={`${mode === "contrat" ? "Contrat" : "Devis"} - ${form.watch("nom_evenement") || "Événement"}`}
+                    defaultSubject={`${internalMode === "contrat" ? "Contrat" : "Devis"} - ${form.watch("nom_evenement") || "Événement"}`}
                     onSend={handleSendEmail}
                 />
 
