@@ -380,43 +380,43 @@ export default function PersonnalisationPage() {
                         <SettingsIcon className="size-6 text-primary" />
                         Paramètres
                     </h1>
-                    <p className="text-muted-foreground">Configurez votre identité, vos prix et vos documents.</p>
+                    <p className="text-sm text-muted-foreground">Configurez votre identité, vos prix et vos documents.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
                     {isLoading && <Loader2Icon className="size-4 animate-spin text-muted-foreground mr-2" />}
-                    <Button variant="outline" onClick={exportData} title="Exporter les données (Backup)">
-                        <UploadIcon className="size-4 mr-2 rotate-180" /> Exporter
+                    <Button variant="outline" size="sm" onClick={exportData} title="Exporter les données (Backup)" className="flex-1 md:flex-none">
+                        <UploadIcon className="size-4 md:mr-2 rotate-180" /> <span className="hidden md:inline">Exporter</span>
                     </Button>
-                    <div className="relative">
+                    <div className="relative flex-1 md:flex-none">
                         <input type="file" accept=".json" onChange={importData} className="hidden" id="import-btn" />
-                        <Button variant="outline" asChild>
-                            <label htmlFor="import-btn" className="cursor-pointer">
-                                <UploadIcon className="size-4 mr-2" /> Importer
+                        <Button variant="outline" size="sm" asChild className="w-full">
+                            <label htmlFor="import-btn" className="cursor-pointer flex items-center justify-center">
+                                <UploadIcon className="size-4 md:mr-2" /> <span className="hidden md:inline">Importer</span>
                             </label>
                         </Button>
                     </div>
-                    <Button onClick={handleSave} className="gap-2 shadow-lg hover:shadow-xl transition-all" disabled={isLoading}>
+                    <Button onClick={handleSave} size="sm" className="gap-2 shadow-lg hover:shadow-xl transition-all flex-1 md:flex-none" disabled={isLoading}>
                         {isSaved ? <CheckIcon className="size-4" /> : <SettingsIcon className="size-4" />}
-                        {isSaved ? "Enregistré !" : "Enregistrer"}
+                        {isSaved ? "Enregistré !" : <span className="">Enregistrer</span>}
                     </Button>
                 </div>
             </div>
 
             <Tabs defaultValue="identite" className="w-full space-y-6">
-                <TabsList className="bg-white p-1 border h-auto flex-wrap justify-start">
-                    <TabsTrigger value="identite" className="gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                <TabsList className="bg-white p-1 border h-auto flex-nowrap justify-start overflow-x-auto no-scrollbar w-full">
+                    <TabsTrigger value="identite" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
                         <BuildingIcon className="size-4" /> Identité
                     </TabsTrigger>
-                    <TabsTrigger value="finance" className="gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                    <TabsTrigger value="finance" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
                         <CreditCardIcon className="size-4" /> Finance
                     </TabsTrigger>
-                    <TabsTrigger value="catalogue" className="gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                    <TabsTrigger value="catalogue" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
                         <TagIcon className="size-4" /> Catalogue
                     </TabsTrigger>
-                    <TabsTrigger value="workflow" className="gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                    <TabsTrigger value="workflow" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
                         <SlidersIcon className="size-4" /> Workflow
                     </TabsTrigger>
-                    <TabsTrigger value="documents" className="gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                    <TabsTrigger value="documents" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
                         <FileTextIcon className="size-4" /> Documents
                     </TabsTrigger>
                 </TabsList>
