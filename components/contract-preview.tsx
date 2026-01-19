@@ -175,7 +175,8 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
                                         const remise = parseFloat(data.remise) || 0;
                                         const livraison = parseFloat(data.frais_livraison) || 0;
                                         const ops = data.selected_options?.reduce((acc: number, curr: any) => acc + (parseFloat(curr.price) || 0), 0) || 0;
-                                        return (total + remise - ops - livraison).toFixed(2);
+                                        // Back-calculate: total - delivery + remise - options = base price
+                                        return (total - livraison + remise - ops).toFixed(2);
                                     })()}
                                 </td>
                                 <td className="py-2 text-center text-sm">1</td>
@@ -185,7 +186,7 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
                                         const remise = parseFloat(data.remise) || 0;
                                         const livraison = parseFloat(data.frais_livraison) || 0;
                                         const ops = data.selected_options?.reduce((acc: number, curr: any) => acc + (parseFloat(curr.price) || 0), 0) || 0;
-                                        return (total + remise - ops - livraison).toFixed(2);
+                                        return (total - livraison + remise - ops).toFixed(2);
                                     })()}
                                 </td>
                             </tr>
@@ -256,11 +257,7 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
                         )}
                         <div className="flex justify-between font-bold text-lg text-slate-800 border-t pt-2">
                             <span>TOTAL TTC</span>
-                            <span>{(
-                                parseFloat(data.prix_total || "0") +
-                                parseFloat(data.frais_livraison || "0") -
-                                parseFloat(data.remise || "0")
-                            ).toFixed(2)} €</span>
+                            <span>{parseFloat(data.prix_total || "0").toFixed(2)} €</span>
                         </div>
                         {data.acompte_recu && parseFloat(data.acompte_recu) > 0 && (
                             <div className={`flex justify-between text-sm pt-1 ${data.acompte_paye ? "text-emerald-600" : "text-slate-500 italic"}`}>
@@ -274,13 +271,9 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
                                 <div className="flex justify-between font-extrabold text-xl text-primary border-t-2 border-slate-800 pt-2 transition-all">
                                     <span>{data.solde_paye ? "Montant réglé" : "Reste à payer"}</span>
                                     <span>{data.solde_paye ? (
-                                        parseFloat(data.prix_total || "0") +
-                                        parseFloat(data.frais_livraison || "0") -
-                                        parseFloat(data.remise || "0")
+                                        parseFloat(data.prix_total || "0")
                                     ).toFixed(2) : (
-                                        parseFloat(data.prix_total || "0") +
-                                        parseFloat(data.frais_livraison || "0") -
-                                        parseFloat(data.remise || "0") -
+                                        parseFloat(data.prix_total || "0") -
                                         (data.acompte_paye ? parseFloat(data.acompte_recu || "0") : 0)
                                     ).toFixed(2)} €</span>
                                 </div>
