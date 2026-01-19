@@ -221,7 +221,7 @@ export default function ReservationPage() {
             console.log("Supabase Payload Content:", payload)
 
             if (payloadSize > 50000) { // 50KB limit warning
-                alert(`Attention: Les données semblent très volumineuses (${(payloadSize / 1024).toFixed(1)} KB). Cela peut causer une erreur.`)
+                console.warn(`Data seems large: ${(payloadSize / 1024).toFixed(1)} KB`)
             }
 
             const { error: insertError } = await supabase
@@ -241,12 +241,14 @@ export default function ReservationPage() {
 
             // Helpful diagnostics for the user
             if (errorMsg.includes("Unexpected token") || errorMsg.includes("valid JSON")) {
-                alert(`Erreur de serveur (Vercel). Message reçu: "${errorMsg.substring(0, 100)}...". Cela indique souvent: 1. URL Supabase incorrecte 2. Payload trop volumineux (Request Entity Too Large).`)
+                console.error(`Server Error (Vercel): "${errorMsg.substring(0, 100)}..." -> Likely Supabase URL or Payload Size issue.`)
             } else if (errorMsg.includes("pattern")) {
-                alert(`Erreur de format (Pattern). Veuillez vérifier les champs obligatoires.`)
+                console.error(`Format Error (Pattern).`)
             } else {
-                alert(`Erreur lors de l'envoi : ${errorMsg}`)
+                console.error(`Submission Error: ${errorMsg}`)
             }
+            // Fallback generic alert if absolutely needed, or just let the UI handle success/fail state
+            alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.")
         } finally {
             setSubmitting(false)
         }
