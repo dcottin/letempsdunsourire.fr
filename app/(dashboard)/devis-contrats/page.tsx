@@ -582,11 +582,12 @@ export default function DevisContratsPage() {
                                     </TableHeader>
                                     <TableBody>
                                         {isLoading ? (
-                                            <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                            <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                         ) : activeContrats.length === 0 ? (
-                                            <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground">Aucun contrat trouvé.</TableCell></TableRow>
+                                            <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground">Aucun contrat trouvé.</TableCell></TableRow>
                                         ) : activeContrats.map((contrat) => (
                                             <TableRow key={contrat.id} className="hover:bg-slate-50/50">
+                                                <TableCell className="w-[80px]"></TableCell>
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                 <TableCell>
@@ -613,8 +614,12 @@ export default function DevisContratsPage() {
                                                 </TableCell>
                                                 <TableCell className="text-right">
                                                     <div className="flex justify-end gap-1">
-                                                        <Button size="icon" variant="ghost" className="size-8" onClick={() => openEditForm("contrat", contrat)}><PencilIcon className="size-3" /></Button>
-                                                        <Button size="icon" variant="ghost" className="size-8 text-red-500 hover:text-red-600" onClick={() => handleDelete("contrat", contrat.id)}><TrashIcon className="size-3" /></Button>
+                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
+                                                            <PencilIcon className="size-3.5" />
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete("contrat", contrat.id)} title="Supprimer">
+                                                            <TrashIcon className="size-3.5" />
+                                                        </Button>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -643,7 +648,9 @@ export default function DevisContratsPage() {
                                                     <TableCell className="text-xs font-medium">{contrat.nom_client}</TableCell>
                                                     <TableCell className="text-xs">{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
                                                     <TableCell className="text-right">
-                                                        <Button size="icon" variant="ghost" className="size-7" onClick={() => openEditForm("contrat", contrat)}><PencilIcon className="size-3" /></Button>
+                                                        <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
+                                                            <PencilIcon className="size-3" />
+                                                        </Button>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
