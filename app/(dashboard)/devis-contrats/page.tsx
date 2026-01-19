@@ -499,21 +499,39 @@ export default function DevisContratsPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
+                                                <TableHead className="w-[80px] text-center"></TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
                                                 <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
                                                 <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                                <TableHead className="w-[180px] text-right">ACTIONS</TableHead>
+                                                <TableHead className="w-[100px] text-right">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {isLoading ? (
-                                                <TableRow><TableCell colSpan={6} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={7} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                             ) : filteredSortedDevis.length === 0 ? (
-                                                <TableRow><TableCell colSpan={6} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={7} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
                                             ) : filteredSortedDevis.map((devis) => (
                                                 <TableRow key={devis.id} className="hover:bg-slate-50/50">
+                                                    <TableCell className="text-center px-2">
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="h-8 px-2 text-[10px] font-bold text-emerald-600 hover:text-white hover:bg-emerald-500 border border-emerald-100 hover:border-emerald-600 transition-all gap-1.5 group shadow-sm bg-emerald-50/30"
+                                                            onClick={() => handleValidateDevis(devis)}
+                                                            disabled={validatingDevisId === devis.id}
+                                                            title="Valider le Devis"
+                                                        >
+                                                            {validatingDevisId === devis.id ? (
+                                                                <div className="size-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                                                            ) : (
+                                                                <CheckCircleIcon className="size-3 transition-transform group-hover:scale-110" />
+                                                            )}
+                                                            VALIDER
+                                                        </Button>
+                                                    </TableCell>
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell>
@@ -524,21 +542,6 @@ export default function DevisContratsPage() {
                                                     <TableCell className="text-sm font-semibold">{parseFloat(devis.prix_total || "0").toFixed(2)}€</TableCell>
                                                     <TableCell className="text-right">
                                                         <div className="flex justify-end gap-1 items-center">
-                                                            <Button
-                                                                size="sm"
-                                                                variant="ghost"
-                                                                className="h-8 px-2.5 text-[10px] font-bold text-emerald-600 hover:text-white hover:bg-emerald-500 border border-transparent hover:border-emerald-600 transition-all gap-1.5 group shadow-none"
-                                                                onClick={() => handleValidateDevis(devis)}
-                                                                disabled={validatingDevisId === devis.id}
-                                                            >
-                                                                {validatingDevisId === devis.id ? (
-                                                                    <div className="size-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-                                                                ) : (
-                                                                    <CheckCircleIcon className="size-3 transition-transform group-hover:scale-110" />
-                                                                )}
-                                                                VALIDER
-                                                            </Button>
-                                                            <div className="w-px h-4 bg-slate-200 mx-1" />
                                                             <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("devis", devis)} title="Modifier">
                                                                 <PencilIcon className="size-3.5" />
                                                             </Button>
