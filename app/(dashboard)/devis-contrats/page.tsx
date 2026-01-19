@@ -391,62 +391,64 @@ export default function DevisContratsPage() {
             </div>
 
             {/* Filter Bar */}
-            <div className="bg-white p-4 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4 items-end md:items-center">
-                <div className="flex-1 w-full">
-                    <Label className="text-xs text-muted-foreground mb-1 block">Recherche</Label>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Client, référence..."
-                            className="pl-9"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        {searchQuery && (
-                            <X className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground cursor-pointer hover:text-black" onClick={() => setSearchQuery("")} />
-                        )}
+            {isMounted && (
+                <div className="bg-white p-4 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4 items-end md:items-center">
+                    <div className="flex-1 w-full">
+                        <Label className="text-xs text-muted-foreground mb-1 block">Recherche</Label>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Client, référence..."
+                                className="pl-9"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            {searchQuery && (
+                                <X className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground cursor-pointer hover:text-black" onClick={() => setSearchQuery("")} />
+                            )}
+                        </div>
                     </div>
-                </div>
 
-                <div className="w-full md:w-48">
-                    <Label className="text-xs text-muted-foreground mb-1 block">Période</Label>
-                    <Select value={dateFilter === "custom" ? "custom" : dateFilter} onValueChange={handleDateFilterChange}>
-                        <SelectTrigger className="w-full">
-                            <CalendarIcon className="size-4 mr-2 text-muted-foreground" />
-                            <SelectValue placeholder="Période" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Tout</SelectItem>
-                            <SelectItem value="this_year">Cette année</SelectItem>
-                            <SelectItem value="this_month">Ce mois-ci</SelectItem>
-                            <SelectItem value="last_month">Le mois dernier</SelectItem>
-                            <SelectItem value="last_3_months">3 derniers mois</SelectItem>
-                            <SelectItem value="last_6_months">6 derniers mois</SelectItem>
-                            <SelectItem value="custom">Personnalisée...</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                    <div className="w-full md:w-48">
+                        <Label className="text-xs text-muted-foreground mb-1 block">Période</Label>
+                        <Select value={dateFilter === "custom" ? "custom" : dateFilter} onValueChange={handleDateFilterChange}>
+                            <SelectTrigger className="w-full">
+                                <CalendarIcon className="size-4 mr-2 text-muted-foreground" />
+                                <SelectValue placeholder="Période" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tout</SelectItem>
+                                <SelectItem value="this_year">Cette année</SelectItem>
+                                <SelectItem value="this_month">Ce mois-ci</SelectItem>
+                                <SelectItem value="last_month">Le mois dernier</SelectItem>
+                                <SelectItem value="last_3_months">3 derniers mois</SelectItem>
+                                <SelectItem value="last_6_months">6 derniers mois</SelectItem>
+                                <SelectItem value="custom">Personnalisée...</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                <div className="w-full md:w-48">
-                    <Label className="text-xs text-muted-foreground mb-1 block">Statut</Label>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-full">
-                            <Filter className="size-4 mr-2 text-muted-foreground" />
-                            <SelectValue placeholder="Statut" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Tous les statuts</SelectItem>
-                            {availableStatuses.map(s => (
-                                <SelectItem key={s} value={s}>{s}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
+                    <div className="w-full md:w-48">
+                        <Label className="text-xs text-muted-foreground mb-1 block">Statut</Label>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-full">
+                                <Filter className="size-4 mr-2 text-muted-foreground" />
+                                <SelectValue placeholder="Statut" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tous les statuts</SelectItem>
+                                {availableStatuses.map(s => (
+                                    <SelectItem key={s} value={s}>{s}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                <Button variant="ghost" size="icon" className="mb-0.5" title="Réinitialiser les filtres" onClick={() => { setSearchQuery(""); setDateFilter("all"); setStatusFilter("all"); }}>
-                    <X className="size-4" />
-                </Button>
-            </div>
+                    <Button variant="ghost" size="icon" className="mb-0.5" title="Réinitialiser les filtres" onClick={() => { setSearchQuery(""); setDateFilter("all"); setStatusFilter("all"); }}>
+                        <X className="size-4" />
+                    </Button>
+                </div>
+            )}
 
             {/* Active Date Indicator */}
             {(dateFilter !== "all" || statusFilter !== "all" || searchQuery) && (
@@ -509,7 +511,7 @@ export default function DevisContratsPage() {
                                                 <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
                                                 <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                                <TableHead className="w-[120px] text-right">ACTIONS</TableHead>
+                                                <TableHead className="w-[120px] text-center">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -527,8 +529,8 @@ export default function DevisContratsPage() {
                                                     </TableCell>
                                                     <TableCell>{getEquipmentName(devis.data?.equipment_id)}</TableCell>
                                                     <TableCell className="text-sm font-semibold">{parseFloat(devis.prix_total || "0").toFixed(2)}€</TableCell>
-                                                    <TableCell className="text-right">
-                                                        <div className="flex justify-end gap-1 items-center">
+                                                    <TableCell className="text-center">
+                                                        <div className="flex justify-center gap-1 items-center">
                                                             <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("devis", devis)} title="Modifier">
                                                                 <PencilIcon className="size-3.5" />
                                                             </Button>
@@ -546,7 +548,6 @@ export default function DevisContratsPage() {
                                                                     <CheckCircleIcon className="size-4 transition-transform group-hover:scale-110" />
                                                                 )}
                                                             </Button>
-                                                            <div className="w-px h-4 bg-slate-200 mx-0.5" />
                                                             <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete("devis", devis.id)} title="Supprimer">
                                                                 <TrashIcon className="size-3.5" />
                                                             </Button>
@@ -579,7 +580,7 @@ export default function DevisContratsPage() {
                                             <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
                                             <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse')}>ENCAISSÉ</TableHead>
                                             <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100 text-center">SUIVI</TableHead>
-                                            <TableHead className="w-[100px] text-right">ACTIONS</TableHead>
+                                            <TableHead className="w-[100px] text-center">ACTIONS</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -613,8 +614,8 @@ export default function DevisContratsPage() {
                                                         </div>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-1">
+                                                <TableCell className="text-center">
+                                                    <div className="flex justify-center gap-1">
                                                         <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
                                                             <PencilIcon className="size-3.5" />
                                                         </Button>
@@ -650,7 +651,7 @@ export default function DevisContratsPage() {
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse')}>ENCAISSÉ</TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100 text-center">SUIVI</TableHead>
-                                                <TableHead className="w-[100px] text-right">ACTIONS</TableHead>
+                                                <TableHead className="w-[100px] text-center">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -678,8 +679,8 @@ export default function DevisContratsPage() {
                                                             <div>{contrat.solde_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-right">
-                                                        <div className="flex justify-end gap-1">
+                                                    <TableCell className="text-center">
+                                                        <div className="flex justify-center gap-1">
                                                             <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
                                                                 <PencilIcon className="size-3" />
                                                             </Button>
