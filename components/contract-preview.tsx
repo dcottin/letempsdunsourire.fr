@@ -21,8 +21,12 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
     }
 
     const generateReference = () => {
-        const prefix = isInvoice ? "FAC" : "2026"
-        const datePart = data.date_debut ? format(new Date(data.date_debut), "ddMMyy") : "000000"
+        // Priority 1: Use explicitly passed reference
+        if (data.reference) return data.reference
+
+        // Priority 2: Use prefix + date + initials
+        const prefix = isInvoice ? "FAC" : (mode === 'contrat' ? "C" : (mode === 'devis' ? "D" : "X"))
+        const datePart = data.date_debut ? format(new Date(data.date_debut), "yyyyMMdd") : format(new Date(), "yyyyMMdd")
         const initials = data.nom_client
             ? data.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
             : "XX"

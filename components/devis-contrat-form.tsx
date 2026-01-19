@@ -394,11 +394,15 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
     const formValues = form.getValues()
 
     const generateReference = () => {
-        const datePart = formValues.date_debut ? format(new Date(formValues.date_debut as string), "ddMMyy") : "000000"
+        // Use existing reference if loaded from DB
+        if (initialData?.id) return initialData.id
+
+        const datePart = formValues.date_debut ? format(new Date(formValues.date_debut as string), "yyyyMMdd") : format(new Date(), "yyyyMMdd")
         const initials = formValues.nom_client
             ? formValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
             : "XX"
-        return `2026-${datePart}-${initials}`
+        const prefix = mode === 'contrat' ? 'C' : 'D'
+        return `${prefix}-${datePart}-${initials}`
     }
 
     const persistAndSanitizeStyles = (clonedDoc: Document) => {
