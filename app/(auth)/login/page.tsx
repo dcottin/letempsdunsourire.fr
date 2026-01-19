@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { login } from './actions'
 import { Button } from '@/components/ui/button'
@@ -11,6 +11,18 @@ import { AlertCircle, Lock, Mail, Loader2, Camera } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-white">
+                <Loader2 className="size-10 animate-spin text-indigo-600" />
+            </div>
+        }>
+            <LoginContent />
+        </Suspense>
+    )
+}
+
+function LoginContent() {
     const searchParams = useSearchParams()
     const [isLoading, setIsLoading] = React.useState(false)
     const [settings, setSettings] = React.useState<any>(null)
