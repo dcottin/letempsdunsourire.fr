@@ -213,17 +213,17 @@ export default function MaterielPage() {
 
     return (
         <div className="flex-1 space-y-4 p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-200">
                         <Camera className="size-6" />
                     </div>
                     <div>
-                        <h2 className="text-3xl font-bold tracking-tight text-slate-800">Parc Matériel</h2>
-                        <p className="text-muted-foreground">Gestion du parc de photobooths.</p>
+                        <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-slate-800">Parc Matériel</h2>
+                        <p className="text-sm text-muted-foreground">Gestion du parc de photobooths.</p>
                     </div>
                 </div>
-                <Button onClick={handleAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md">
+                <Button onClick={handleAdd} className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md w-full sm:w-auto">
                     <Plus className="mr-2 h-4 w-4" /> Ajouter une machine
                 </Button>
             </div>
@@ -232,7 +232,7 @@ export default function MaterielPage() {
                 {settings.materiels?.map((mat) => (
                     <div key={mat.id} className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-200 group relative flex flex-col overflow-hidden">
                         {/* Actions Overlay */}
-                        <div className="absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                        <div className="absolute top-3 right-3 flex gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity z-10">
                             <Button size="icon" variant="secondary" className="h-8 w-8 rounded-full shadow-sm bg-white text-indigo-600 hover:bg-indigo-50 border border-indigo-100" onClick={() => handleEdit(mat)} title="Modifier">
                                 <Pen className="h-3 w-3" />
                             </Button>
