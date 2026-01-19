@@ -58,6 +58,7 @@ export default function DevisContratsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [formMode, setFormMode] = useState<"devis" | "contrat">("devis")
     const [editingItem, setEditingItem] = useState<Devis | Contrat | null>(null)
+    const [validatingDevisId, setValidatingDevisId] = useState<string | null>(null)
 
     // Collapsible State
     const [showActiveDevis, setShowActiveDevis] = useState(true)
@@ -297,6 +298,54 @@ export default function DevisContratsPage() {
         if (error) alert("Erreur lors de la mise à jour")
     }
 
+    const handleValidateDevis = async (devis: Devis) => {
+        setValidatingDevisId(devis.id)
+        try {
+            const newId = generateReference(devis, "contrat")
+            const newContract = {
+                id: newId,
+                nom_client: devis.nom_client,
+                prix_total: devis.prix_total,
+                date_debut: devis.date_debut,
+                data: {
+                    ...devis.data,
+                    reference: newId,
+                    etat: "Validé"
+                }
+            }
+
+            // 1. Insert into contracts
+            const { data: savedRecord, error: insertError } = await supabase
+                .from('contrats')
+                .insert([newContract])
+                .select()
+                .single()
+
+            if (insertError) throw insertError
+
+            // 2. Delete from devis
+            const { error: deleteError } = await supabase
+                .from('devis')
+                .delete()
+                .eq('id', devis.id)
+
+            if (deleteError) {
+                console.error("Validation delete error:", deleteError)
+            }
+
+            // 3. Update local state
+            const mappedItem = { ...savedRecord, ...savedRecord.data }
+            setDevisList(prev => prev.filter(i => i.id !== devis.id))
+            setContratsList(prev => [mappedItem, ...prev])
+
+        } catch (e) {
+            console.error("Validation error", e)
+            alert("Erreur lors de la validation du devis.")
+        } finally {
+            setValidatingDevisId(null)
+        }
+    }
+
     const handleDateFilterChange = (val: string) => {
         if (val === "custom") setIsCustomDateDialogOpen(true)
         else setDateFilter(val)
@@ -455,7 +504,7 @@ export default function DevisContratsPage() {
                                                 <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
                                                 <TableHead>MATÉRIEL</TableHead>
                                                 <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-100 text-center">STATUT</TableHead>
+                                                <TableHead className="text-center">VALIDER</TableHead>
                                                 <TableHead className="text-right">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
@@ -475,9 +524,19 @@ export default function DevisContratsPage() {
                                                     <TableCell>{getEquipmentName(devis.data?.equipment_id)}</TableCell>
                                                     <TableCell className="text-sm font-semibold">{parseFloat(devis.prix_total || "0").toFixed(2)}€</TableCell>
                                                     <TableCell className="text-center">
-                                                        <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-slate-100 text-slate-600 border-none">
-                                                            {devis.etat || "Contact"}
-                                                        </Badge>
+                                                        <Button
+                                                            size="sm"
+                                                            className="h-7 px-2 text-[10px] font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white border-indigo-200 transition-all gap-1.5"
+                                                            onClick={() => handleValidateDevis(devis)}
+                                                            disabled={validatingDevisId === devis.id}
+                                                        >
+                                                            {validatingDevisId === devis.id ? (
+                                                                <div className="size-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                            ) : (
+                                                                <CheckCircleIcon className="size-3" />
+                                                            )}
+                                                            VALIDER
+                                                        </Button>
                                                     </TableCell>
                                                     <TableCell className="text-right">
                                                         <div className="flex justify-end gap-1">
