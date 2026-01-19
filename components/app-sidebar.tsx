@@ -83,19 +83,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     const navMain = [
         {
-            title: "Tableau de Bord",
-            url: "/statistiques",
-            icon: DatabaseIcon,
-        },
-        {
             title: "Calendrier",
             url: "/calendrier",
             icon: CalendarIcon,
-        },
-        {
-            title: "Statistiques",
-            url: "/statistiques",
-            icon: LayersIcon,
         },
         {
             title: "Contrats",
