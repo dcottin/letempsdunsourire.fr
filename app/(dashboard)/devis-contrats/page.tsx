@@ -639,19 +639,56 @@ export default function DevisContratsPage() {
                                 <Archive className="size-4" /> Archives ({archivedContrats.length})
                             </h3>
                             {showArchivedContrats && (
-                                <div className="rounded-md border bg-slate-50/30">
+                                <div className="rounded-md border bg-slate-50/30 overflow-hidden">
                                     <Table>
+                                        <TableHeader>
+                                            <TableRow className="bg-slate-50/50">
+                                                <TableHead className="w-[80px]"></TableHead>
+                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
+                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
+                                                <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
+                                                <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
+                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
+                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse')}>ENCAISSÉ</TableHead>
+                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100 text-center">SUIVI</TableHead>
+                                                <TableHead className="w-[100px] text-right">ACTIONS</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
                                         <TableBody>
-                                            {archivedContrats.map((contrat) => (
-                                                <TableRow key={contrat.id} className="opacity-70 h-10">
-                                                    <TableCell className="font-mono text-[9px] w-[120px]">{getDisplayReference(contrat, "contrat")}</TableCell>
-                                                    <TableCell className="text-[9px] w-[80px]">{contrat.date_debut}</TableCell>
-                                                    <TableCell className="text-xs font-medium">{contrat.nom_client}</TableCell>
-                                                    <TableCell className="text-xs">{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
+                                            {isLoading ? (
+                                                <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                            ) : archivedContrats.length === 0 ? (
+                                                <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground">Aucune archive trouvée.</TableCell></TableRow>
+                                            ) : archivedContrats.map((contrat) => (
+                                                <TableRow key={contrat.id} className="opacity-70 h-10 hover:opacity-100 transition-opacity">
+                                                    <TableCell className="w-[80px]"></TableCell>
+                                                    <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
+                                                    <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
+                                                    <TableCell>
+                                                        <div className="font-medium text-sm">{contrat.nom_client}</div>
+                                                        <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{contrat.nom_evenement || contrat.lieu}</div>
+                                                    </TableCell>
+                                                    <TableCell className="text-xs">{getEquipmentName(contrat.data?.equipment_id)}</TableCell>
+                                                    <TableCell className="text-xs font-semibold">{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
+                                                    <TableCell className="text-[10px] text-emerald-600/70 font-medium">
+                                                        {contrat.solde_paye ? parseFloat(contrat.prix_total || "0").toFixed(2) : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0).toFixed(2)}€
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex gap-1 justify-center scale-90 opacity-60">
+                                                            <div>{contrat.contrat_signe ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
+                                                            <div>{contrat.acompte_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
+                                                            <div>{contrat.solde_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
+                                                        </div>
+                                                    </TableCell>
                                                     <TableCell className="text-right">
-                                                        <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
-                                                            <PencilIcon className="size-3" />
-                                                        </Button>
+                                                        <div className="flex justify-end gap-1">
+                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
+                                                                <PencilIcon className="size-3" />
+                                                            </Button>
+                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete("contrat", contrat.id)} title="Supprimer">
+                                                                <TrashIcon className="size-3" />
+                                                            </Button>
+                                                        </div>
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
