@@ -504,15 +504,14 @@ export default function DevisContratsPage() {
                                                 <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
                                                 <TableHead>MATÉRIEL</TableHead>
                                                 <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                                <TableHead className="text-center">VALIDER</TableHead>
                                                 <TableHead className="text-right">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {isLoading ? (
-                                                <TableRow><TableCell colSpan={7} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={6} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                             ) : filteredSortedDevis.length === 0 ? (
-                                                <TableRow><TableCell colSpan={7} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={6} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
                                             ) : filteredSortedDevis.map((devis) => (
                                                 <TableRow key={devis.id} className="hover:bg-slate-50/50">
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
@@ -523,23 +522,23 @@ export default function DevisContratsPage() {
                                                     </TableCell>
                                                     <TableCell>{getEquipmentName(devis.data?.equipment_id)}</TableCell>
                                                     <TableCell className="text-sm font-semibold">{parseFloat(devis.prix_total || "0").toFixed(2)}€</TableCell>
-                                                    <TableCell className="text-center">
-                                                        <Button
-                                                            size="sm"
-                                                            className="h-7 px-2 text-[10px] font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white border-indigo-200 transition-all gap-1.5"
-                                                            onClick={() => handleValidateDevis(devis)}
-                                                            disabled={validatingDevisId === devis.id}
-                                                        >
-                                                            {validatingDevisId === devis.id ? (
-                                                                <div className="size-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                                                            ) : (
-                                                                <CheckCircleIcon className="size-3" />
-                                                            )}
-                                                            VALIDER
-                                                        </Button>
-                                                    </TableCell>
                                                     <TableCell className="text-right">
-                                                        <div className="flex justify-end gap-1">
+                                                        <div className="flex justify-end gap-1 items-center">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                className="h-7 px-2 text-[10px] font-bold border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all gap-1.5"
+                                                                onClick={() => handleValidateDevis(devis)}
+                                                                disabled={validatingDevisId === devis.id}
+                                                            >
+                                                                {validatingDevisId === devis.id ? (
+                                                                    <div className="size-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                                ) : (
+                                                                    <CheckCircleIcon className="size-3" />
+                                                                )}
+                                                                VALIDER
+                                                            </Button>
+                                                            <div className="w-px h-4 bg-slate-200 mx-1" />
                                                             <Button size="icon" variant="ghost" className="size-8" onClick={() => openEditForm("devis", devis)}><PencilIcon className="size-3" /></Button>
                                                             <Button size="icon" variant="ghost" className="size-8 text-red-500 hover:text-red-600" onClick={() => handleDelete("devis", devis.id)}><TrashIcon className="size-3" /></Button>
                                                         </div>
