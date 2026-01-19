@@ -1,5 +1,6 @@
-
 import { cookies } from "next/headers"
+import { redirect } from "next/navigation"
+import { createClient } from "@/utils/supabase/server"
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +13,15 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode
 }) {
+    // 1. Check Auth (Fail-safe)
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
+    if (!user) {
+        redirect('/login')
+    }
+
+    // 2. Sidebar persistence
     const cookieStore = await cookies()
     const defaultOpen = cookieStore.get("sidebar_state")?.value === "true"
 
