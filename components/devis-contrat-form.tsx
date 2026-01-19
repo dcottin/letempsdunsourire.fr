@@ -256,14 +256,54 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             let savedRecord
 
             if (initialData?.id) {
-                const { data, error: updateError } = await supabase
-                    .from(table)
-                    .update(record)
-                    .eq('id', initialData.id)
-                    .select()
-                    .single()
-                if (updateError) throw updateError
-                savedRecord = data
+                // Check if mode changed
+                if (internalMode !== initialMode) {
+                    console.log(`Mode changed from ${initialMode} to ${internalMode}. Migrating record...`)
+
+                    // 1. Generate new ID
+                    const newId = generateReference(internalMode)
+                    const newItem = {
+                        id: newId,
+                        ...record,
+                        data: {
+                            ...record.data,
+                            reference: newId
+                        }
+                    }
+
+                    // 2. Insert into the new table
+                    const { data: insertData, error: insertError } = await supabase
+                        .from(internalMode === "devis" ? "devis" : "contrats")
+                        .insert([newItem])
+                        .select()
+                        .single()
+
+                    if (insertError) throw insertError
+
+                    // 3. Delete from the old table
+                    const { error: deleteError } = await supabase
+                        .from(initialMode === "devis" ? "devis" : "contrats")
+                        .delete()
+                        .eq('id', initialData.id)
+
+                    if (deleteError) {
+                        console.error("Migration delete error (insert succeeded):", deleteError)
+                        // Note: insert succeeded but delete failed. We might have a duplicate across tables.
+                        // We continue anyway as the main goal (new record) is achieved.
+                    }
+
+                    savedRecord = insertData
+                } else {
+                    // Standard update
+                    const { data, error: updateError } = await supabase
+                        .from(table)
+                        .update(record)
+                        .eq('id', initialData.id)
+                        .select()
+                        .single()
+                    if (updateError) throw updateError
+                    savedRecord = data
+                }
             } else {
                 // Generate custom ID (Reference)
                 const datePart = finalValues.date_debut ? format(new Date(finalValues.date_debut as string), "yyyyMMdd") : "00000000"
@@ -647,26 +687,24 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit, (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
-                {!initialData?.id && (
-                    <div className="bg-slate-50 p-1.5 rounded-xl border-2 border-slate-100 shadow-sm mb-6 no-print">
-                        <Tabs value={internalMode} onValueChange={(v) => setInternalMode(v as any)} className="w-full">
-                            <TabsList className="grid grid-cols-2 w-full h-12 bg-transparent gap-2">
-                                <TabsTrigger
-                                    value="devis"
-                                    className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
-                                >
-                                    <FileTextIcon className="size-4" /> DEVIS
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value="contrat"
-                                    className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
-                                >
-                                    <ScrollTextIcon className="size-4" /> CONTRAT
-                                </TabsTrigger>
-                            </TabsList>
-                        </Tabs>
-                    </div>
-                )}
+                <div className="bg-slate-50 p-1.5 rounded-xl border-2 border-slate-100 shadow-sm mb-6 no-print">
+                    <Tabs value={internalMode} onValueChange={(v) => setInternalMode(v as any)} className="w-full">
+                        <TabsList className="grid grid-cols-2 w-full h-12 bg-transparent gap-2">
+                            <TabsTrigger
+                                value="devis"
+                                className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
+                            >
+                                <FileTextIcon className="size-4" /> DEVIS
+                            </TabsTrigger>
+                            <TabsTrigger
+                                value="contrat"
+                                className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
+                            >
+                                <ScrollTextIcon className="size-4" /> CONTRAT
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
+                </div>
                 {/* Hidden areas for background PDF generation */}
                 <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden h-0 w-0" aria-hidden="true">
                     <div id="pdf-contract-container" style={{ background: 'white' }}>
