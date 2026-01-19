@@ -184,21 +184,27 @@ export default function ReservationPage() {
             console.log("Generated Reference:", reference);
             setReservationRef(reference)
 
-            // Construct the full data object to be stored in the 'data' JSONB column
+            // Construct the full data object STRICTLY avoiding spread ...data
+            // to ensure no accidental huge objects (like images/settings) are included
             const fullData = {
-                ...data,
                 reference: reference,
                 nom_client: data.nom_complet,
                 email_client: data.email,
                 telephone_client: data.telephone,
                 adresse_client: data.adresse,
+                nom_evenement: data.nom_evenement,
+                date_debut: data.date_debut,
+                date_fin: data.date_fin,
+                lieu: data.lieu,
+                texte_libre: data.message,
+                equipment_id: data.equipment_id,
+                choix_client: data.equipment_id,
+                offre: data.offre,
                 selected_options: finalOptions,
                 prix_total: totalPrice.toString(),
                 etat: "Demande Web"
             }
 
-            // We use a clean UUID for the PK on Vercel to avoid potential string pattern issues with DB
-            // while keeping the business reference inside the data blob.
             const recordId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : reference;
 
             const payload = {
@@ -209,7 +215,14 @@ export default function ReservationPage() {
                 data: fullData
             };
 
-            console.log("Supabase Payload:", payload);
+            const payloadStr = JSON.stringify(payload)
+            const payloadSize = new Blob([payloadStr]).size
+            console.log("Supabase Payload Size:", payloadSize, "bytes")
+            console.log("Supabase Payload Content:", payload)
+
+            if (payloadSize > 50000) { // 50KB limit warning
+                alert(`Attention: Les données semblent très volumineuses (${(payloadSize / 1024).toFixed(1)} KB). Cela peut causer une erreur.`)
+            }
 
             const { error: insertError } = await supabase
                 .from('devis')
@@ -228,7 +241,7 @@ export default function ReservationPage() {
 
             // Helpful diagnostics for the user
             if (errorMsg.includes("Unexpected token") || errorMsg.includes("valid JSON")) {
-                alert(`Erreur de serveur (Vercel). Le serveur a renvoyé une page d'erreur au lieu de données. Cela peut arriver si les variables d'environnement sont manquantes. Message : ${errorMsg.substring(0, 50)}...`)
+                alert(`Erreur de serveur (Vercel). Message reçu: "${errorMsg.substring(0, 100)}...". Cela indique souvent: 1. URL Supabase incorrecte 2. Payload trop volumineux (Request Entity Too Large).`)
             } else if (errorMsg.includes("pattern")) {
                 alert(`Erreur de format (Pattern). Veuillez vérifier les champs obligatoires.`)
             } else {
