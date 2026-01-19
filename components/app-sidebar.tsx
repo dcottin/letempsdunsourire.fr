@@ -52,12 +52,27 @@ import {
 } from "@/components/ui/sidebar"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
-
+import { logout } from "@/app/(auth)/login/actions"
 import { supabase } from "@/lib/supabase"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const pathname = usePathname()
     const [companyName, setCompanyName] = React.useState("Chargement...")
+    const [user, setUser] = React.useState<any>(null)
+
+    React.useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                setUser({
+                    name: user.user_metadata?.full_name || user.email?.split('@')[0] || "Admin",
+                    email: user.email,
+                    avatar: user.user_metadata?.avatar_url || ""
+                })
+            }
+        }
+        getUser()
+    }, [])
 
     React.useEffect(() => {
         const fetchSettings = async () => {
@@ -185,6 +200,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     </SidebarMenu>
                 </SidebarGroup>
             </SidebarContent>
+            <SidebarFooter>
+                {user && <NavUser user={user} />}
+            </SidebarFooter>
         </Sidebar>
     )
 }
@@ -392,10 +410,9 @@ function NavUser({
                             </DropdownMenuItem>
                         </DropdownMenuGroup>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>
-                            <LogOutIcon
-                            />
-                            Log out
+                        <DropdownMenuItem onClick={() => logout()} className="text-red-600 focus:text-red-600 cursor-pointer">
+                            <LogOutIcon />
+                            Se déconnecter
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
