@@ -65,24 +65,24 @@ export default function LoginPage() {
                     <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Plateforme de Gestion</p>
                 </div>
 
-                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[32px] overflow-hidden">
-                    <CardHeader className="pt-10 px-10 pb-4 text-center">
-                        <CardTitle className="text-2xl font-bold text-slate-800">Se connecter</CardTitle>
-                        <CardDescription className="text-slate-400 mt-1">
+                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[24px] overflow-hidden">
+                    <CardHeader className="pt-8 px-8 pb-2 text-center">
+                        <CardTitle className="text-xl font-bold text-slate-800">Se connecter</CardTitle>
+                        <CardDescription className="text-slate-400 mt-1 text-xs">
                             Accédez à votre espace administrateur
                         </CardDescription>
                     </CardHeader>
                     <form action={login} onSubmit={handleSubmit}>
-                        <CardContent className="space-y-6 px-10 pb-8">
+                        <CardContent className="space-y-4 px-8 pb-6">
                             {errorMessage && (
-                                <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm animate-in fade-in zoom-in-95">
-                                    <AlertCircle className="size-4 shrink-0" />
+                                <div className="bg-red-50 border border-red-100 text-red-600 px-3 py-2 rounded-xl flex items-center gap-2 text-xs animate-in fade-in zoom-in-95">
+                                    <AlertCircle className="size-3.5 shrink-0" />
                                     <p className="font-medium">{errorMessage}</p>
                                 </div>
                             )}
 
-                            <div className="space-y-2">
-                                <Label htmlFor="email" className="text-[11px] font-bold uppercase tracking-wider text-slate-400 ml-1">Email</Label>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Email</Label>
                                 <div className="relative">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 pointer-events-none" />
                                     <Input
@@ -91,14 +91,14 @@ export default function LoginPage() {
                                         type="email"
                                         placeholder="admin@example.com"
                                         required
-                                        className="pl-12 h-12 bg-white border border-slate-200 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none"
+                                        className="pl-11 h-11 bg-white border border-slate-200 rounded-xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none text-sm"
                                         defaultValue="contact@letempsdunsourire.fr"
                                     />
                                 </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="password" className="text-[11px] font-bold uppercase tracking-wider text-slate-400 ml-1">Mot de passe</Label>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Mot de passe</Label>
                                 <div className="relative focus-within:text-indigo-500">
                                     <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 pointer-events-none transition-colors" />
                                     <Input
@@ -106,13 +106,13 @@ export default function LoginPage() {
                                         name="password"
                                         type="password"
                                         required
-                                        className="pl-12 h-12 bg-white border border-slate-200 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none"
+                                        className="pl-11 h-11 bg-white border border-slate-200 rounded-xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none text-sm"
                                     />
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="p-10 bg-white">
-                            <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-2xl shadow-xl active:scale-[0.98] transition-all" disabled={isLoading}>
+                        <CardFooter className="px-8 pb-8 pt-2 bg-white">
+                            <Button type="submit" className="w-full h-12 text-xs font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-xl shadow-lg active:scale-[0.98] transition-all" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 size-5 animate-spin" />
