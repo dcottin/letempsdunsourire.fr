@@ -83,55 +83,112 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     const navMain = [
         {
-            title: "Devis & Contrats",
-            url: "/devis-contrats",
-        },
-        {
-            title: "Statistiques",
+            title: "Tableau de Bord",
             url: "/statistiques",
-        },
-        {
-            title: "Planification",
-            url: "/planification",
+            icon: DatabaseIcon,
         },
         {
             title: "Calendrier",
             url: "/calendrier",
+            icon: CalendarIcon,
         },
+        {
+            title: "Statistiques",
+            url: "/statistiques",
+            icon: LayersIcon,
+        },
+        {
+            title: "Historique",
+            url: "/devis-contrats",
+            icon: PanelLeftIcon,
+        },
+    ]
+
+    const navConfig = [
         {
             title: "Personnalisation",
             url: "/personnalisation",
+            icon: SettingsIcon,
         },
         {
-            title: "Matériel",
+            title: "Matériels",
             url: "/materiel",
+            icon: Camera,
+        },
+        {
+            title: "Abonnement",
+            url: "#",
+            icon: CreditCardIcon,
+        },
+        {
+            title: "Mon Profil",
+            url: "#",
+            icon: UserCircleIcon,
         },
     ]
 
     return (
-        <Sidebar collapsible="icon" {...props}>
-            <SidebarHeader>
+        <Sidebar collapsible="none" {...props} className="border-none shadow-xl">
+            <SidebarHeader className="py-6 px-4">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             asChild
-                            className="data-[slot=sidebar-menu-button]:!p-1.5"
+                            className="hover:bg-transparent active:bg-transparent"
                         >
                             <Link href="/">
-                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white">
-                                    <LayersIcon className="size-4" />
+                                <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20">
+                                    <Camera className="size-5" />
                                 </div>
-                                <div className="grid flex-1 text-left text-sm leading-tight">
-                                    <span className="truncate font-semibold">{companyName}</span>
-                                    <span className="truncate text-xs text-muted-foreground">Administration</span>
+                                <div className="grid flex-1 text-left text-sm leading-tight ml-3">
+                                    <span className="truncate font-bold text-base tracking-tight">{companyName}</span>
                                 </div>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>
-            <SidebarContent>
-                <NavMain items={navMain} pathname={pathname} />
+            <SidebarContent className="px-2">
+                <SidebarGroup>
+                    <SidebarMenu>
+                        {navMain.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname === item.url}
+                                    className="h-11 rounded-xl px-3 transition-colors hover:bg-white/10 data-[active=true]:bg-indigo-600 data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-indigo-600/20"
+                                >
+                                    <Link href={item.url} className="flex items-center gap-3">
+                                        <item.icon className="size-5" />
+                                        <span className="font-medium text-[15px]">{item.title}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroup>
+
+                <SidebarGroup className="mt-4">
+                    <SidebarGroupLabel className="px-3 text-white/40 font-bold tracking-widest text-[11px] mb-2">
+                        CONFIGURATION
+                    </SidebarGroupLabel>
+                    <SidebarMenu>
+                        {navConfig.map((item) => (
+                            <SidebarMenuItem key={item.title}>
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={pathname === item.url}
+                                    className="h-11 rounded-xl px-3 transition-colors hover:bg-white/10 data-[active=true]:bg-indigo-600 data-[active=true]:text-white data-[active=true]:shadow-lg data-[active=true]:shadow-indigo-600/20"
+                                >
+                                    <Link href={item.url} className="flex items-center gap-3">
+                                        <item.icon className="size-5" />
+                                        <span className="font-medium text-[15px]">{item.title}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </SidebarGroup>
             </SidebarContent>
         </Sidebar>
     )
