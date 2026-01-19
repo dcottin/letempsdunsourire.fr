@@ -111,7 +111,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="px-8 pb-8 pt-4 bg-white flex justify-center">
+                        <CardFooter className="px-8 pb-8 pt-0 bg-white flex justify-center">
                             <Button type="submit" className="w-full h-12 text-xs font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-xl shadow-lg active:scale-[0.98] transition-all" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
