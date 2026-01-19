@@ -197,8 +197,12 @@ export default function ReservationPage() {
                 etat: "Demande Web"
             }
 
+            // We use a clean UUID for the PK on Vercel to avoid potential string pattern issues with DB
+            // while keeping the business reference inside the data blob.
+            const recordId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : reference;
+
             const payload = {
-                id: reference,
+                id: recordId,
                 nom_client: data.nom_complet,
                 prix_total: totalPrice.toString(),
                 date_debut: data.date_debut,
