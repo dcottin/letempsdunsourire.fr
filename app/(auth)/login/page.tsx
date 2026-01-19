@@ -39,9 +39,9 @@ export default function LoginPage() {
     const logoSrc = settings?.logo_base64 || null
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 relative overflow-hidden font-sans">
+        <div className="min-h-screen flex items-center justify-center bg-white p-6 relative overflow-hidden font-sans">
             {/* Minimal Background decor */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/50 via-white to-white"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/20 via-white to-white"></div>
 
             <div className="w-full max-w-[420px] relative z-10">
                 <div className="text-center mb-10 flex flex-col items-center">
@@ -91,7 +91,7 @@ export default function LoginPage() {
                                         type="email"
                                         placeholder="admin@example.com"
                                         required
-                                        className="pl-12 h-12 bg-slate-50 border-none rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:bg-white transition-all shadow-none"
+                                        className="pl-12 h-12 bg-white border border-slate-200 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none"
                                         defaultValue="contact@letempsdunsourire.fr"
                                     />
                                 </div>
@@ -106,13 +106,13 @@ export default function LoginPage() {
                                         name="password"
                                         type="password"
                                         required
-                                        className="pl-12 h-12 bg-slate-50 border-none rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:bg-white transition-all shadow-none"
+                                        className="pl-12 h-12 bg-white border border-slate-200 rounded-2xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none"
                                     />
                                 </div>
                             </div>
                         </CardContent>
                         <CardFooter className="p-10 pt-0">
-                            <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-2xl shadow-xl shadow-slate-200 active:scale-[0.98] transition-all" disabled={isLoading}>
+                            <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-2xl shadow-lg active:scale-[0.98] transition-all" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 size-5 animate-spin" />
