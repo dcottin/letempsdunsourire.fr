@@ -10,6 +10,8 @@ import { format } from "date-fns"
 // We need to use the client-side supabase instance usually exported from lib
 import { supabase } from "@/lib/supabase"
 
+export const dynamic = 'force-dynamic'
+
 type ReservationForm = {
     nom_evenement: string
     date_debut: string
