@@ -499,12 +499,12 @@ export default function DevisContratsPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
-                                                <TableHead className="w-[120px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
+                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
                                                 <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
-                                                <TableHead>MATÉRIEL</TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                                <TableHead className="text-right">ACTIONS</TableHead>
+                                                <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
+                                                <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
+                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
+                                                <TableHead className="w-[180px] text-right">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -526,21 +526,25 @@ export default function DevisContratsPage() {
                                                         <div className="flex justify-end gap-1 items-center">
                                                             <Button
                                                                 size="sm"
-                                                                variant="outline"
-                                                                className="h-7 px-2 text-[10px] font-bold border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white transition-all gap-1.5"
+                                                                variant="ghost"
+                                                                className="h-8 px-2.5 text-[10px] font-bold text-emerald-600 hover:text-white hover:bg-emerald-500 border border-transparent hover:border-emerald-600 transition-all gap-1.5 group shadow-none"
                                                                 onClick={() => handleValidateDevis(devis)}
                                                                 disabled={validatingDevisId === devis.id}
                                                             >
                                                                 {validatingDevisId === devis.id ? (
-                                                                    <div className="size-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                                    <div className="size-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
                                                                 ) : (
-                                                                    <CheckCircleIcon className="size-3" />
+                                                                    <CheckCircleIcon className="size-3 transition-transform group-hover:scale-110" />
                                                                 )}
                                                                 VALIDER
                                                             </Button>
                                                             <div className="w-px h-4 bg-slate-200 mx-1" />
-                                                            <Button size="icon" variant="ghost" className="size-8" onClick={() => openEditForm("devis", devis)}><PencilIcon className="size-3" /></Button>
-                                                            <Button size="icon" variant="ghost" className="size-8 text-red-500 hover:text-red-600" onClick={() => handleDelete("devis", devis.id)}><TrashIcon className="size-3" /></Button>
+                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("devis", devis)} title="Modifier">
+                                                                <PencilIcon className="size-3.5" />
+                                                            </Button>
+                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete("devis", devis.id)} title="Supprimer">
+                                                                <TrashIcon className="size-3.5" />
+                                                            </Button>
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>
