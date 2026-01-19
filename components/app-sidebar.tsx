@@ -98,7 +98,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             icon: LayersIcon,
         },
         {
-            title: "Historique",
+            title: "Contrat",
             url: "/devis-contrats",
             icon: PanelLeftIcon,
         },
