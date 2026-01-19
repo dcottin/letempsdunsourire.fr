@@ -442,71 +442,146 @@ export default function DevisContratsPage() {
                 </DialogContent>
             </Dialog>
 
-            <Tabs defaultValue="contrats" className="w-full">
-                <TabsList className="bg-slate-100/50 p-1">
-                    <TabsTrigger value="contrats" className="gap-2 px-4">
-                        <ScrollTextIcon className="size-4" /> Mes Contrats
-                    </TabsTrigger>
-                </TabsList>
+            <div className="w-full mt-4">
+                <div className="space-y-8">
+                    {/* ACTIVE CONTRATS */}
+                    <div>
+                        <h3
+                            className="text-lg font-bold mb-4 flex items-center gap-2 cursor-pointer select-none hover:text-indigo-600 transition-colors"
+                            onClick={() => setShowActiveContrats(!showActiveContrats)}
+                        >
+                            {showActiveContrats ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
+                            <ScrollTextIcon className="size-5 text-indigo-500" /> Contrats en cours
+                        </h3>
+                        {showActiveContrats && (
+                            <div className="rounded-md border bg-white shadow-sm animate-in slide-in-from-top-2 duration-200">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('id')}>
+                                                N° {sortConfig?.key === 'id' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
+                                            </TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('date_debut')}>
+                                                DATE {sortConfig?.key === 'date_debut' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
+                                            </TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('nom_client')}>
+                                                CLIENT {sortConfig?.key === 'nom_client' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
+                                            </TableHead>
+                                            <TableHead>MATÉRIEL</TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('lieu')}>
+                                                LIEU {sortConfig?.key === 'lieu' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
+                                            </TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('prix_total')}>
+                                                TOTAL {sortConfig?.key === 'prix_total' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
+                                            </TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('encaisse')}>
+                                                ENCAISSÉ {sortConfig?.key === 'encaisse' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
+                                            </TableHead>
+                                            <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('reste')}>
+                                                RESTE {sortConfig?.key === 'reste' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
+                                            </TableHead>
+                                            <TableHead className="text-center">SUIVI</TableHead>
+                                            <TableHead className="text-right">ACTIONS</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {isLoading ? (
+                                            <TableRow>
+                                                <TableCell colSpan={10} className="text-center h-24 text-muted-foreground italic">
+                                                    Chargement des données...
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : activeContrats.length === 0 ? (
+                                            <TableRow>
+                                                <TableCell colSpan={10} className="text-center h-24 text-muted-foreground">
+                                                    Aucun contrat en cours.
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : activeContrats.map((contrat) => (
+                                            <TableRow key={contrat.id}>
+                                                <TableCell className="font-medium text-xs font-mono">{getDisplayReference(contrat, "contrat")}</TableCell>
+                                                <TableCell>{contrat.date_debut}</TableCell>
+                                                <TableCell className="font-medium">{contrat.nom_client}</TableCell>
+                                                <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
+                                                <TableCell className="text-muted-foreground text-sm">{contrat.lieu || "-"}</TableCell>
+                                                <TableCell>{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
+                                                <TableCell>
+                                                    {contrat.solde_paye
+                                                        ? parseFloat(contrat.prix_total || "0").toFixed(2)
+                                                        : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0).toFixed(2)
+                                                    }€
+                                                </TableCell>
+                                                <TableCell className="font-bold text-primary">
+                                                    {contrat.solde_paye
+                                                        ? "0.00"
+                                                        : (parseFloat(contrat.prix_total || "0") - (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0)).toFixed(2)
+                                                    }€
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex gap-1 justify-center items-center">
+                                                        <div title="Contrat Signé" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'contrat_signe', 'contrats'); }}>
+                                                            {contrat.contrat_signe ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50 hover:text-emerald-500" />}
+                                                        </div>
+                                                        <div title="Acompte Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'acompte_paye', 'contrats'); }}>
+                                                            {contrat.acompte_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50 hover:text-emerald-500" />}
+                                                        </div>
+                                                        <div title="Solde Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'solde_paye', 'contrats'); }}>
+                                                            {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50 hover:text-emerald-500" />}
+                                                        </div>
+                                                        {contrat.selected_options?.some((opt: any) => opt.name?.toLowerCase().includes("template")) && (
+                                                            <div title="Design Validé" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'design_valide', 'contrats'); }}>
+                                                                {contrat.design_valide ? <CheckCircleIcon className="size-4 text-purple-500 fill-purple-50" /> : <Circle className="size-4 text-purple-300 hover:text-purple-500" />}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-right flex justify-end gap-2">
+                                                    <Button size="icon" variant="ghost" onClick={() => openEditForm("contrat", contrat)}>
+                                                        <PencilIcon className="size-4 text-muted-foreground" />
+                                                    </Button>
+                                                    <Button size="icon" variant="ghost" onClick={() => handleDelete("contrat", contrat.id)}>
+                                                        <TrashIcon className="size-4 text-destructive" />
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        )}
+                    </div>
 
-                <TabsContent value="contrats" className="mt-4">
-                    <div className="space-y-8">
-                        {/* ACTIVE CONTRATS */}
-                        <div>
+                    {/* ARCHIVED CONTRATS */}
+                    {archivedContrats.length > 0 && (
+                        <div className="opacity-75 grayscale-[50%] hover:grayscale-0 transition-all duration-500">
                             <h3
-                                className="text-lg font-bold mb-4 flex items-center gap-2 cursor-pointer select-none hover:text-indigo-600 transition-colors"
-                                onClick={() => setShowActiveContrats(!showActiveContrats)}
+                                className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-500 cursor-pointer select-none hover:text-slate-700 transition-colors"
+                                onClick={() => setShowArchivedContrats(!showArchivedContrats)}
                             >
-                                {showActiveContrats ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
-                                <ScrollTextIcon className="size-5 text-indigo-500" /> Contrats en cours
+                                {showArchivedContrats ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
+                                <Archive className="size-5 text-slate-400" /> Archives de contrats
                             </h3>
-                            {showActiveContrats && (
-                                <div className="rounded-md border bg-white shadow-sm animate-in slide-in-from-top-2 duration-200">
+                            {showArchivedContrats && (
+                                <div className="rounded-md border bg-slate-50 animate-in slide-in-from-top-2 duration-200">
                                     <Table>
                                         <TableHeader>
                                             <TableRow>
-                                                <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('id')}>
-                                                    N° {sortConfig?.key === 'id' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
-                                                </TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('date_debut')}>
-                                                    DATE {sortConfig?.key === 'date_debut' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
-                                                </TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('nom_client')}>
-                                                    CLIENT {sortConfig?.key === 'nom_client' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
-                                                </TableHead>
+                                                <TableHead>N°</TableHead>
+                                                <TableHead>DATE</TableHead>
+                                                <TableHead>CLIENT</TableHead>
                                                 <TableHead>MATÉRIEL</TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('lieu')}>
-                                                    LIEU {sortConfig?.key === 'lieu' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
-                                                </TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('prix_total')}>
-                                                    TOTAL {sortConfig?.key === 'prix_total' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
-                                                </TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('encaisse')}>
-                                                    ENCAISSÉ {sortConfig?.key === 'encaisse' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
-                                                </TableHead>
-                                                <TableHead className="cursor-pointer hover:bg-slate-50 transition-colors" onClick={() => handleSort('reste')}>
-                                                    RESTE {sortConfig?.key === 'reste' && <ArrowUpDown className="size-3 inline ml-1 opacity-50" />}
-                                                </TableHead>
+                                                <TableHead>LIEU</TableHead>
+                                                <TableHead>TOTAL</TableHead>
+                                                <TableHead>ENCAISSÉ</TableHead>
+                                                <TableHead>RESTE</TableHead>
                                                 <TableHead className="text-center">SUIVI</TableHead>
                                                 <TableHead className="text-right">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            {isLoading ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={10} className="text-center h-24 text-muted-foreground italic">
-                                                        Chargement des données...
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : activeContrats.length === 0 ? (
-                                                <TableRow>
-                                                    <TableCell colSpan={10} className="text-center h-24 text-muted-foreground">
-                                                        Aucun contrat en cours.
-                                                    </TableCell>
-                                                </TableRow>
-                                            ) : activeContrats.map((contrat) => (
+                                            {archivedContrats.map((contrat) => (
                                                 <TableRow key={contrat.id}>
-                                                    <TableCell className="font-medium text-xs font-mono">{getDisplayReference(contrat, "contrat")}</TableCell>
+                                                    <TableCell className="font-medium text-xs font-mono">{contrat.id}</TableCell>
                                                     <TableCell>{contrat.date_debut}</TableCell>
                                                     <TableCell className="font-medium">{contrat.nom_client}</TableCell>
                                                     <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
@@ -518,26 +593,26 @@ export default function DevisContratsPage() {
                                                             : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0).toFixed(2)
                                                         }€
                                                     </TableCell>
-                                                    <TableCell className="font-bold text-primary">
+                                                    <TableCell className="font-bold text-slate-400">
                                                         {contrat.solde_paye
                                                             ? "0.00"
                                                             : (parseFloat(contrat.prix_total || "0") - (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0)).toFixed(2)
                                                         }€
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="flex gap-1 justify-center items-center">
-                                                            <div title="Contrat Signé" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'contrat_signe', 'contrats'); }}>
-                                                                {contrat.contrat_signe ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50 hover:text-emerald-500" />}
+                                                        <div className="flex gap-1 justify-center items-center opacity-80">
+                                                            <div title="Contrat Signé" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'contrat_signe', 'contrats'); }}>
+                                                                {contrat.contrat_signe ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50" />}
                                                             </div>
-                                                            <div title="Acompte Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'acompte_paye', 'contrats'); }}>
-                                                                {contrat.acompte_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50 hover:text-emerald-500" />}
+                                                            <div title="Acompte Reçu" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'acompte_paye', 'contrats'); }}>
+                                                                {contrat.acompte_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50" />}
                                                             </div>
-                                                            <div title="Solde Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'solde_paye', 'contrats'); }}>
-                                                                {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50 hover:text-emerald-500" />}
+                                                            <div title="Solde Reçu" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'solde_paye', 'contrats'); }}>
+                                                                {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50" />}
                                                             </div>
                                                             {contrat.selected_options?.some((opt: any) => opt.name?.toLowerCase().includes("template")) && (
-                                                                <div title="Design Validé" className="cursor-pointer hover:scale-110 transition-transform" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'design_valide', 'contrats'); }}>
-                                                                    {contrat.design_valide ? <CheckCircleIcon className="size-4 text-purple-500 fill-purple-50" /> : <Circle className="size-4 text-purple-300 hover:text-purple-500" />}
+                                                                <div title="Design Validé" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'design_valide', 'contrats'); }}>
+                                                                    {contrat.design_valide ? <CheckCircleIcon className="size-4 text-purple-500 fill-purple-50" /> : <Circle className="size-4 text-purple-300" />}
                                                                 </div>
                                                             )}
                                                         </div>
@@ -557,92 +632,9 @@ export default function DevisContratsPage() {
                                 </div>
                             )}
                         </div>
-
-                        {/* ARCHIVED CONTRATS */}
-                        {archivedContrats.length > 0 && (
-                            <div className="opacity-75 grayscale-[50%] hover:grayscale-0 transition-all duration-500">
-                                <h3
-                                    className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-500 cursor-pointer select-none hover:text-slate-700 transition-colors"
-                                    onClick={() => setShowArchivedContrats(!showArchivedContrats)}
-                                >
-                                    {showArchivedContrats ? <ChevronDown className="size-5" /> : <ChevronUp className="size-5 text-muted-foreground" />}
-                                    <Archive className="size-5 text-slate-400" /> Archives de contrats
-                                </h3>
-                                {showArchivedContrats && (
-                                    <div className="rounded-md border bg-slate-50 animate-in slide-in-from-top-2 duration-200">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>N°</TableHead>
-                                                    <TableHead>DATE</TableHead>
-                                                    <TableHead>CLIENT</TableHead>
-                                                    <TableHead>MATÉRIEL</TableHead>
-                                                    <TableHead>LIEU</TableHead>
-                                                    <TableHead>TOTAL</TableHead>
-                                                    <TableHead>ENCAISSÉ</TableHead>
-                                                    <TableHead>RESTE</TableHead>
-                                                    <TableHead className="text-center">SUIVI</TableHead>
-                                                    <TableHead className="text-right">ACTIONS</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {archivedContrats.map((contrat) => (
-                                                    <TableRow key={contrat.id}>
-                                                        <TableCell className="font-medium text-xs font-mono">{contrat.id}</TableCell>
-                                                        <TableCell>{contrat.date_debut}</TableCell>
-                                                        <TableCell className="font-medium">{contrat.nom_client}</TableCell>
-                                                        <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
-                                                        <TableCell className="text-muted-foreground text-sm">{contrat.lieu || "-"}</TableCell>
-                                                        <TableCell>{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
-                                                        <TableCell>
-                                                            {contrat.solde_paye
-                                                                ? parseFloat(contrat.prix_total || "0").toFixed(2)
-                                                                : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0).toFixed(2)
-                                                            }€
-                                                        </TableCell>
-                                                        <TableCell className="font-bold text-slate-400">
-                                                            {contrat.solde_paye
-                                                                ? "0.00"
-                                                                : (parseFloat(contrat.prix_total || "0") - (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0)).toFixed(2)
-                                                            }€
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <div className="flex gap-1 justify-center items-center opacity-80">
-                                                                <div title="Contrat Signé" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'contrat_signe', 'contrats'); }}>
-                                                                    {contrat.contrat_signe ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50" />}
-                                                                </div>
-                                                                <div title="Acompte Reçu" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'acompte_paye', 'contrats'); }}>
-                                                                    {contrat.acompte_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50" />}
-                                                                </div>
-                                                                <div title="Solde Reçu" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'solde_paye', 'contrats'); }}>
-                                                                    {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500 fill-emerald-50" /> : <Circle className="size-4 text-muted-foreground/50" />}
-                                                                </div>
-                                                                {contrat.selected_options?.some((opt: any) => opt.name?.toLowerCase().includes("template")) && (
-                                                                    <div title="Design Validé" className="cursor-pointer" onClick={(e) => { e.stopPropagation(); handleToggleChecklist(contrat, 'design_valide', 'contrats'); }}>
-                                                                        {contrat.design_valide ? <CheckCircleIcon className="size-4 text-purple-500 fill-purple-50" /> : <Circle className="size-4 text-purple-300" />}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </TableCell>
-                                                        <TableCell className="text-right flex justify-end gap-2">
-                                                            <Button size="icon" variant="ghost" onClick={() => openEditForm("contrat", contrat)}>
-                                                                <PencilIcon className="size-4 text-muted-foreground" />
-                                                            </Button>
-                                                            <Button size="icon" variant="ghost" onClick={() => handleDelete("contrat", contrat.id)}>
-                                                                <TrashIcon className="size-4 text-destructive" />
-                                                            </Button>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </TabsContent>
-            </Tabs>
+                    )}
+                </div>
+            </div>
         </div>
     )
 }
