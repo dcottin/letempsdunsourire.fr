@@ -308,6 +308,13 @@ export default function ReservationPage() {
                         Remplissez ce formulaire pour vérifier la disponibilité avec
                         <span className="font-bold text-indigo-600 ml-1">{settings?.nom_societe}</span>
                     </p>
+
+                    {/* VERCEL DEBUGGING DIAGNOSTIC */}
+                    <div className="bg-yellow-50 border border-yellow-200 text-xs text-yellow-800 p-2 rounded mt-4 max-w-sm mx-auto">
+                        <strong>Diagnostic Vercel :</strong> <br />
+                        URL Supabase : {process.env.NEXT_PUBLIC_SUPABASE_URL ? `${process.env.NEXT_PUBLIC_SUPABASE_URL.substring(0, 15)}...` : "MANQUANTE"} <br />
+                        Key Supabase : {process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "PRÉSENTE" : "MANQUANTE"}
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 mt-10">
