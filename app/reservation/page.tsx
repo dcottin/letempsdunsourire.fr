@@ -149,12 +149,12 @@ export default function ReservationPage() {
 
             const datePart = !isNaN(dateObj.getTime()) ? format(dateObj, "yyyyMMdd") : format(new Date(), "yyyyMMdd");
             const initials = nom
-                ? nom.trim().split(/\s+/).map((n: string) => n[0]).join('').toUpperCase().substring(0, 3)
+                ? nom.trim().split(/\s+/).map((n: string) => n[0]).join('').toUpperCase()
                 : "XX"
             return `D-${datePart}-${initials}`
         } catch (e) {
             console.error("Reference generation error:", e);
-            return `D-${format(new Date(), "yyyyMMdd")}-ERR`;
+            return `D-${format(new Date(), "yyyyMMdd")}-XX`;
         }
     }
 

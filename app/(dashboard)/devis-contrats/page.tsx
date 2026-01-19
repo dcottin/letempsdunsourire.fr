@@ -213,24 +213,31 @@ export default function DevisContratsPage() {
 
 
 
-    const generateReference = (data: any, suffix?: string) => {
-        const datePart = data.date_debut ? format(new Date(data.date_debut), "ddMMyy") : "000000"
+    const generateReference = (data: any, type: "devis" | "contrat" = "devis") => {
+        const prefix = type === "contrat" ? "C" : "D"
+        const datePart = data.date_debut ? format(new Date(data.date_debut), "yyyyMMdd") : format(new Date(), "yyyyMMdd")
         const initials = data.nom_client
             ? data.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
             : "XX"
-        return `2026-${datePart}-${initials}${suffix || ""}`
+        return `${prefix}-${datePart}-${initials}`
     }
 
     const getDisplayReference = (item: any, type: "devis" | "contrat") => {
-        // If the ID itself is clean (starts with 2026), use it
-        if (item.id && item.id.startsWith("2026")) return item.id
+        const prefix = type === "contrat" ? "C" : "D"
 
-        // If there is a saved reference that is clean, use it
-        if (item.reference && item.reference.startsWith("2026")) return item.reference
+        // Priority 1: Check existing ID for clean format
+        if (item.id && item.id.match(/^[DCAF]-[0-9]{8}-[A-Z0-9]+$/)) {
+            return `${prefix}${item.id.substring(1)}`
+        }
 
-        // As a last fallback, generate a clean one on the fly
-        const suffix = type === "contrat" ? "-C" : ""
-        return generateReference(item, suffix)
+        // Priority 2: Check existing reference in data for clean format
+        const ref = item.reference || item.data?.reference
+        if (ref && ref.match(/^[DCAF]-[0-9]{8}-[A-Z0-9]+$/)) {
+            return `${prefix}${ref.substring(1)}`
+        }
+
+        // Fallback: Generate one on the fly
+        return generateReference(item, type)
     }
 
 
@@ -270,16 +277,7 @@ export default function DevisContratsPage() {
 
         try {
             // 1. Prepare contract data
-            let newId
-            if (devis.id && devis.id.startsWith("D-")) {
-                // Determine new ID by replacing prefix
-                newId = devis.id.replace("D-", "C-")
-            } else {
-                // Logic for old IDs or UUIDs: regenerate strictly
-                newId = generateReference(devis, 'contrat')
-            }
-            // Fallback safety (should not happen if generateReference works)
-            if (!newId.startsWith("C-")) newId = `C-${newId}`
+            const newId = getDisplayReference(devis, "contrat")
 
             const contractData = {
                 id: newId,
@@ -514,7 +512,7 @@ export default function DevisContratsPage() {
                                                 </TableRow>
                                             ) : activeDevis.map((devis) => (
                                                 <TableRow key={devis.id}>
-                                                    <TableCell className="font-medium text-xs font-mono">{devis.reference || generateReference(devis)}</TableCell>
+                                                    <TableCell className="font-medium text-xs font-mono">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell>{devis.date_debut}</TableCell>
                                                     <TableCell className="font-medium">{devis.nom_client}</TableCell>
                                                     <TableCell>{getEquipmentName(devis.data?.equipment_id, devis.data?.choix_client)}</TableCell>
@@ -710,7 +708,7 @@ export default function DevisContratsPage() {
                                                 </TableRow>
                                             ) : activeContrats.map((contrat) => (
                                                 <TableRow key={contrat.id}>
-                                                    <TableCell className="font-medium text-xs font-mono">{contrat.id.startsWith("2026") ? contrat.id : (contrat.reference || generateReference(contrat))}</TableCell>
+                                                    <TableCell className="font-medium text-xs font-mono">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell>{contrat.date_debut}</TableCell>
                                                     <TableCell className="font-medium">{contrat.nom_client}</TableCell>
                                                     <TableCell>{getEquipmentName(contrat.data?.equipment_id, contrat.data?.choix_client)}</TableCell>
