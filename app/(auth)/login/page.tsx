@@ -111,8 +111,8 @@ export default function LoginPage() {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="p-10 pt-0">
-                            <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-2xl shadow-lg active:scale-[0.98] transition-all" disabled={isLoading}>
+                        <CardFooter className="p-10 bg-slate-50/80 border-t border-slate-100">
+                            <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-2xl shadow-xl active:scale-[0.98] transition-all" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="mr-2 size-5 animate-spin" />
