@@ -21,11 +21,19 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
     }
 
     const generateReference = () => {
-        // Priority 1: Use explicitly passed reference
-        if (data.reference) return data.reference
+        // Determine prefix based on document type
+        const prefix = isInvoice ? "F" : (mode === 'contrat' ? "C" : "D")
 
-        // Priority 2: Use prefix + date + initials
-        const prefix = isInvoice ? "FAC" : (mode === 'contrat' ? "C" : (mode === 'devis' ? "D" : "X"))
+        // Priority 1: If we have an existing reference, we might want to keep the date and initials but FIX the prefix
+        if (data.reference || id) {
+            const ref = data.reference || id
+            // If it's already in a format like X-2026MMDD-XX, try to just swap the prefix
+            if (ref.match(/^[DCAF]-[0-9]{8}-[A-Z0-9]+$/)) {
+                return `${prefix}${ref.substring(1)}`
+            }
+        }
+
+        // Priority 2: Generate from scratch
         const datePart = data.date_debut ? format(new Date(data.date_debut), "yyyyMMdd") : format(new Date(), "yyyyMMdd")
         const initials = data.nom_client
             ? data.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()

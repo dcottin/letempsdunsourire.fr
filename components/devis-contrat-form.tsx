@@ -394,15 +394,19 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
     const formValues = form.getValues()
 
-    const generateReference = () => {
-        // Use existing reference if loaded from DB
-        if (initialData?.id) return initialData.id
+    const generateReference = (type: "devis" | "contrat" | "invoice" = mode as any) => {
+        const prefix = type === "invoice" ? "F" : (type === "contrat" ? "C" : "D")
+
+        // If we have an existing ID/Reference, use its core parts but fix the prefix
+        const ref = initialData?.id
+        if (ref && ref.match(/^[DCAF]-[0-9]{8}-[A-Z0-9]+$/)) {
+            return `${prefix}${ref.substring(1)}`
+        }
 
         const datePart = formValues.date_debut ? format(new Date(formValues.date_debut as string), "yyyyMMdd") : format(new Date(), "yyyyMMdd")
         const initials = formValues.nom_client
             ? formValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
             : "XX"
-        const prefix = mode === 'contrat' ? 'C' : 'D'
         return `${prefix}-${datePart}-${initials}`
     }
 
@@ -555,7 +559,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
 
             const options = {
                 margin: 0,
-                filename: `${emailType === 'invoice' ? 'Facture' : (emailType === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference()}.pdf`,
+                filename: `${emailType === 'invoice' ? 'Facture' : (emailType === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(emailType as any)}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
                     scale: 2,
@@ -613,7 +617,7 @@ export function DevisContratForm({ mode, initialData, onSuccess, onCancel }: Dev
             const html2pdf = (await import('html2pdf.js' as any)).default
             const options = {
                 margin: 0,
-                filename: `${type === 'invoice' ? 'Facture' : (type === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference()}.pdf`,
+                filename: `${type === 'invoice' ? 'Facture' : (type === 'devis' ? 'Devis' : (mode === 'contrat' ? 'Contrat' : 'Devis'))}_${generateReference(type as any)}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: {
                     scale: 2,
