@@ -73,7 +73,7 @@ export default function LoginPage() {
                         </CardDescription>
                     </CardHeader>
                     <form action={login} onSubmit={handleSubmit}>
-                        <CardContent className="space-y-6 px-10">
+                        <CardContent className="space-y-6 px-10 pb-8">
                             {errorMessage && (
                                 <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-2xl flex items-center gap-3 text-sm animate-in fade-in zoom-in-95">
                                     <AlertCircle className="size-4 shrink-0" />
@@ -111,7 +111,7 @@ export default function LoginPage() {
                                 </div>
                             </div>
                         </CardContent>
-                        <CardFooter className="p-10 pt-6">
+                        <CardFooter className="p-10 pt-0">
                             <Button type="submit" className="w-full h-14 text-sm font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-2xl shadow-xl shadow-slate-200 active:scale-[0.98] transition-all" disabled={isLoading}>
                                 {isLoading ? (
                                     <>
