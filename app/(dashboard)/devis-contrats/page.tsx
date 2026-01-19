@@ -256,11 +256,32 @@ export default function DevisContratsPage() {
 
     const handleFormSuccess = async (savedRecord: any) => {
         const mappedItem = { ...savedRecord, ...savedRecord.data }
+
         if (editingItem) {
-            if (formMode === "devis") setDevisList(prev => prev.map(item => item.id === mappedItem.id ? mappedItem : item))
-            else setContratsList(prev => prev.map(item => item.id === mappedItem.id ? mappedItem : item))
+            // Check for migration (ID prefix changed)
+            const oldId = editingItem.id
+            const newId = savedRecord.id
+            const oldType = oldId.startsWith('D') ? 'devis' : 'contrats'
+            const newType = newId.startsWith('D') ? 'devis' : 'contrats'
+
+            if (oldType !== newType) {
+                console.log(`UI Sync: Migration detected. Moving from ${oldType} to ${newType}`)
+                // Remove from old list
+                if (oldType === 'devis') setDevisList(prev => prev.filter(i => i.id !== oldId))
+                else setContratsList(prev => prev.filter(i => i.id !== oldId))
+
+                // Add to new list
+                if (newType === 'devis') setDevisList(prev => [mappedItem, ...prev])
+                else setContratsList(prev => [mappedItem, ...prev])
+            } else {
+                // Normal update in the same list
+                if (newType === "devis") setDevisList(prev => prev.map(item => item.id === mappedItem.id ? mappedItem : item))
+                else setContratsList(prev => prev.map(item => item.id === mappedItem.id ? mappedItem : item))
+            }
         } else {
-            if (formMode === "devis") setDevisList(prev => [mappedItem, ...prev])
+            // New record
+            const type = mappedItem.id.startsWith('D') ? 'devis' : 'contrats'
+            if (type === "devis") setDevisList(prev => [mappedItem, ...prev])
             else setContratsList(prev => [mappedItem, ...prev])
         }
         setIsDialogOpen(false)
