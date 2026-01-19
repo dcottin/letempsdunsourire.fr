@@ -14,10 +14,7 @@ export async function POST(req: Request) {
             attachments: attachments,
             html: `
         <div style="font-family: sans-serif; padding: 20px; color: #333;">
-          <h2 style="color: #4f46e5;">Nouveau document reçu</h2>
-          <div style="white-space: pre-wrap; margin-top: 20px;">${message}</div>
-          <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;" />
-          <p style="font-size: 12px; color: #666;">Envoyé depuis votre application Photobooth.</p>
+          <div style="white-space: pre-wrap; line-height: 1.6;">${message}</div>
         </div>
       `,
         });
