@@ -65,7 +65,7 @@ export default function LoginPage() {
                     <p className="text-[8px] uppercase tracking-[0.2em] text-slate-400 font-bold opacity-70">Plateforme Admin</p>
                 </div>
 
-                <Card className="border-none shadow-[0_4px_20px_rgb(0,0,0,0.06)] bg-white rounded-[32px] overflow-hidden">
+                <Card className="border-none shadow-[0_4px_20px_rgb(0,0,0,0.06)] bg-white rounded-[48px] overflow-hidden">
                     <CardHeader className="pt-8 px-8 pb-3 text-center">
                         <CardTitle className="text-lg font-bold text-slate-800">Connexion</CardTitle>
                     </CardHeader>
