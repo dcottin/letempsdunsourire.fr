@@ -160,6 +160,15 @@ export default function ReservationPage() {
 
     const onSubmit = async (data: any) => {
         console.log("Form data before submission:", data);
+
+        // Environment Variable Check
+        const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+        if (!url || url.includes("undefined") || url === "") {
+            console.error("Supabase URL is missing or invalid on Vercel.");
+            alert("Erreur de configuration : Les variables d'environnement Supabase (URL) sont manquantes sur Vercel. Veuillez les ajouter dans le tableau de bord Vercel.");
+            return;
+        }
+
         setSubmitting(true)
         try {
             // Reconstruct selected options array with prices
@@ -188,25 +197,19 @@ export default function ReservationPage() {
                 etat: "Demande Web"
             }
 
-            console.log("Supabase Payload:", {
+            const payload = {
                 id: reference,
                 nom_client: data.nom_complet,
                 prix_total: totalPrice.toString(),
                 date_debut: data.date_debut,
                 data: fullData
-            });
+            };
+
+            console.log("Supabase Payload:", payload);
 
             const { error: insertError } = await supabase
                 .from('devis')
-                .insert([
-                    {
-                        id: reference,
-                        nom_client: data.nom_complet,
-                        prix_total: totalPrice.toString(),
-                        date_debut: data.date_debut,
-                        data: fullData
-                    }
-                ])
+                .insert([payload])
 
             if (insertError) {
                 console.error("Supabase insert error details:", insertError)
@@ -218,12 +221,14 @@ export default function ReservationPage() {
         } catch (error: any) {
             console.error("Caught onSubmit error:", error)
             const errorMsg = error.message || error.toString()
-            if (errorMsg.includes("pattern")) {
-                alert(`Erreur de format (Pattern Error). Détails : ${errorMsg}. Veuillez vérifier vos informations ou contacter le support.`)
-            } else if (errorMsg.includes("Unexpected token") || errorMsg.includes("valid JSON")) {
-                alert(`Erreur de serveur. Veuillez réessayer (Erreur JSON).`)
+
+            // Helpful diagnostics for the user
+            if (errorMsg.includes("Unexpected token") || errorMsg.includes("valid JSON")) {
+                alert(`Erreur de serveur (Vercel). Le serveur a renvoyé une page d'erreur au lieu de données. Cela peut arriver si les variables d'environnement sont manquantes. Message : ${errorMsg.substring(0, 50)}...`)
+            } else if (errorMsg.includes("pattern")) {
+                alert(`Erreur de format (Pattern). Veuillez vérifier les champs obligatoires.`)
             } else {
-                alert(`Erreur lors de l'envoi: ${errorMsg}`)
+                alert(`Erreur lors de l'envoi : ${errorMsg}`)
             }
         } finally {
             setSubmitting(false)
