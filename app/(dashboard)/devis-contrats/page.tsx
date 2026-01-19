@@ -570,14 +570,15 @@ export default function DevisContratsPage() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-slate-50/50">
-                                            <TableHead className="w-[120px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
+                                            <TableHead className="w-[80px]"></TableHead>
+                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
                                             <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
-                                            <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
-                                            <TableHead>MATÉRIEL</TableHead>
-                                            <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                            <TableHead className="cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse')}>ENCAISSÉ</TableHead>
-                                            <TableHead className="cursor-pointer hover:bg-slate-100 text-center">SUIVI</TableHead>
-                                            <TableHead className="text-right">ACTIONS</TableHead>
+                                            <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
+                                            <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
+                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
+                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse')}>ENCAISSÉ</TableHead>
+                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100 text-center">SUIVI</TableHead>
+                                            <TableHead className="w-[100px] text-right">ACTIONS</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
