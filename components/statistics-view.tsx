@@ -131,12 +131,18 @@ export function StatisticsView({ devis, contrats }: StatisticsViewProps) {
     const cancelledDevisList = filteredData.devis.filter(d => d.etat === "Annulé" || d.etat === "Refusé")
 
     const activeContratsCount = activeContratsList.length
+    const now = new Date()
+    const pastReservationsCount = activeContratsList.filter(c => c.date_debut && new Date(c.date_debut) < now).length
+    const upcomingReservationsCount = activeContratsList.filter(c => !c.date_debut || new Date(c.date_debut) >= now).length
 
-    // 1. Estimation CA (Sur devis en attente "Contact" ou "Demande Web")
+    // 1. Estimation CA (Contrats actifs + Devis en attente "Contact" ou "Demande Web")
     const leadStatuses = ["Contact", "Demande Web", "Relancé", "Lead"]
-    const estimatedCA = filteredData.devis
+    const confirmedCA = activeContratsList.reduce((acc, curr) => acc + parseCurrency(curr.prix_total), 0)
+    const leadCA = filteredData.devis
         .filter(d => leadStatuses.includes(d.etat))
         .reduce((acc, curr) => acc + parseCurrency(curr.prix_total), 0)
+
+    const estimatedCA = confirmedCA + leadCA
 
     // 2. CA Encaissé (Logique basée sur les statuts de paiement)
     const encaisseTotal = activeContratsList.reduce((acc, curr) => {
@@ -199,58 +205,57 @@ export function StatisticsView({ devis, contrats }: StatisticsViewProps) {
 
             {/* KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 md:gap-6">
-                {/* Réservations */}
+                {/* 1. Réservations (Total) */}
                 <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-slate-500">
                     <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Réservations</div>
                         <div className="text-2xl md:text-3xl font-bold text-slate-800">{activeContratsCount}</div>
-                        <div className="text-xs text-slate-500 font-medium mt-1">Dossiers actifs</div>
+                        <div className="text-xs text-slate-500 font-medium mt-1">Dossiers actifs (Total)</div>
                     </CardContent>
                 </Card>
 
-                {/* Estimation CA */}
+                {/* 2. Réalisées */}
+                <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-slate-400 opacity-80">
+                    <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full">
+                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Réservations réalisées</div>
+                        <div className="text-xl md:text-2xl font-bold text-slate-600">{pastReservationsCount}</div>
+                        <div className="text-xs text-slate-400 mt-1">Événements passés</div>
+                    </CardContent>
+                </Card>
+
+                {/* 3. À venir */}
+                <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-indigo-400">
+                    <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full">
+                        <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Réservations à venir</div>
+                        <div className="text-xl md:text-2xl font-bold text-indigo-700">{upcomingReservationsCount}</div>
+                        <div className="text-xs text-indigo-400/80 mt-1">Prochains événements</div>
+                    </CardContent>
+                </Card>
+
+                {/* 4. Estimation CA */}
                 <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-blue-500">
                     <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Estimation CA</div>
                         <div className="text-xl md:text-2xl font-bold text-slate-700">{estimatedCA.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
-                        <div className="text-xs text-slate-400 mt-1">Sur devis en attente</div>
+                        <div className="text-xs text-slate-400 mt-1">Prév. (Réservations + Leads)</div>
                     </CardContent>
                 </Card>
 
-                {/* CA Encaissé */}
-                <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-emerald-500 relative overflow-hidden">
-                    <div className="absolute right-0 top-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full"></div>
+                {/* 5. CA Encaissé */}
+                <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-emerald-500 relative overflow-hidden bg-emerald-50/20">
                     <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full relative z-10">
                         <div className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">CA Encaissé (Total)</div>
                         <div className="text-xl md:text-2xl font-bold text-emerald-600">{encaisseTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
-                        <div className="text-xs text-emerald-500 mt-1">Flux trésorerie réel</div>
+                        <div className="text-xs text-emerald-500 mt-1">Trésorerie réelle perçue</div>
                     </CardContent>
                 </Card>
 
-                {/* Reste à Encaisser */}
+                {/* 6. Reste à Encaisser */}
                 <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-amber-500">
                     <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full">
                         <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Reste à Encaisser</div>
                         <div className="text-xl md:text-2xl font-bold text-amber-600">{resteAEncaisser.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
-                        <div className="text-xs text-amber-500 mt-1">À venir (Actifs)</div>
-                    </CardContent>
-                </Card>
-
-                {/* Frais Livraison (Mocked for now as we don't have separate field) */}
-                <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-violet-500">
-                    <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full">
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Frais Livraison</div>
-                        <div className="text-xl md:text-2xl font-bold text-violet-600">0,00 €</div>
-                        <div className="text-xs text-violet-400 mt-1">Sur contrats actifs</div>
-                    </CardContent>
-                </Card>
-
-                {/* Remises */}
-                <Card className="rounded-2xl shadow-sm border-slate-100 border-l-[4px] border-l-pink-500">
-                    <CardContent className="p-4 md:p-6 flex flex-col justify-center h-full">
-                        <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Remises offertes</div>
-                        <div className="text-xl md:text-2xl font-bold text-pink-600">{remisesTotal.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</div>
-                        <div className="text-xs text-pink-400 mt-1">Geste commercial</div>
+                        <div className="text-xs text-amber-500 mt-1">Montants en attente</div>
                     </CardContent>
                 </Card>
             </div>

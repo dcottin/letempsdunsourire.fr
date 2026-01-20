@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
-import { BuildingIcon, FileTextIcon, SlidersIcon, CameraIcon, CreditCardIcon, FileIcon, SettingsIcon, CheckIcon, UploadIcon, PenToolIcon, TrashIcon, XIcon, EraserIcon, Loader2Icon, TagIcon, StarIcon, BoxIcon, TruckIcon, EyeIcon, PlusIcon, PlusCircleIcon } from "lucide-react"
+import { BuildingIcon, FileTextIcon, SlidersIcon, CameraIcon, CreditCardIcon, FileIcon, SettingsIcon, CheckIcon, UploadIcon, PenToolIcon, TrashIcon, XIcon, EraserIcon, Loader2Icon, TagIcon, StarIcon, BoxIcon, TruckIcon, EyeIcon, PlusIcon, PlusCircleIcon, MailIcon, InfoIcon, CheckCircleIcon, ListIcon } from "lucide-react"
+import { RichTextEditor } from "@/components/rich-text-editor"
 import { supabase } from "@/lib/supabase"
 
 // Define a type for our settings
@@ -27,6 +28,8 @@ type Settings = {
     ville: string
     telephone_contact: string
     logo_base64?: string
+    logo_url?: string
+    logo_width?: number
 
     // Finance
     banque_titulaire: string
@@ -62,6 +65,15 @@ type Settings = {
     offres: { name: string; price: string }[]
     options: { name: string; price: string; public: boolean }[]
     label_livraison: string
+
+    // Emails
+    email_devis_subject: string
+    email_devis_body: string
+    email_contrat_subject: string
+    email_contrat_body: string
+    email_facture_subject: string
+    email_facture_body: string
+    enabled_email_tags?: string[]
 }
 
 const defaultSettings: Settings = {
@@ -74,6 +86,8 @@ const defaultSettings: Settings = {
     code_postal: "",
     ville: "",
     telephone_contact: "",
+    logo_url: "",
+    logo_width: 100,
     banque_titulaire: "",
     banque_nom: "",
     iban: "",
@@ -102,13 +116,50 @@ const defaultSettings: Settings = {
         { name: "Prestige", price: "350" }
     ],
     options: [],
-    label_livraison: "Frais de déplacement"
+    label_livraison: "Frais de déplacement",
+    email_devis_subject: "Votre Devis - {{company_name}}",
+    email_devis_body: "Bonjour {{client_name}},\n\nVoici le devis {{doc_number}} concernant votre événement.\n\nCordialement,\n{{company_name}}",
+    email_contrat_subject: "Votre Contrat - {{company_name}}",
+    email_contrat_body: "Bonjour {{client_name}},\n\nVoici le contrat {{doc_number}}. Merci de le signer pour valider la réservation.\n\nCordialement,\n{{company_name}}",
+    email_facture_subject: "Votre Facture - {{company_name}}",
+    email_facture_body: "Bonjour {{client_name}},\n\nVoici la facture {{doc_number}}.\n\nCordialement,\n{{company_name}}",
+    enabled_email_tags: [
+        "{{client_name}}",
+        "{{doc_number}}",
+        "{{company_name}}",
+        "{{event_date}}",
+        "{{event_location}}",
+        "{{deposit_amount}}",
+        "{{balance_amount}}",
+        "{{company_logo}}"
+    ]
 }
+
+const ALL_TAGS = [
+    { id: "{{client_name}}", label: "Nom du client" },
+    { id: "{{client_phone}}", label: "Téléphone client" },
+    { id: "{{client_email}}", label: "Email client" },
+    { id: "{{client_address}}", label: "Adresse client" },
+    { id: "{{doc_number}}", label: "Numéro document" },
+    { id: "{{doc_type}}", label: "Type de document" },
+    { id: "{{company_name}}", label: "Votre entreprise" },
+    { id: "{{event_date}}", label: "Date événement" },
+    { id: "{{event_time}}", label: "Heure début" },
+    { id: "{{event_end_time}}", label: "Heure fin" },
+    { id: "{{event_location}}", label: "Lieu événement" },
+    { id: "{{total_amount}}", label: "Prix TTC" },
+    { id: "{{deposit_amount}}", label: "Montant Acompte" },
+    { id: "{{balance_amount}}", label: "Montant Solde" },
+    { id: "{{company_logo}}", label: "Logo Entreprise" },
+]
+
 
 export default function PersonnalisationPage() {
     const [settings, setSettings] = useState<Settings>(defaultSettings)
     const [isSaved, setIsSaved] = useState(false)
     const [isSigModalOpen, setIsSigModalOpen] = useState(false)
+    const [isTagsModalOpen, setIsTagsModalOpen] = useState(false)
+    const [isMounted, setIsMounted] = useState(false)
 
     const logoInputRef = useRef<HTMLInputElement>(null)
     const signatureInputRef = useRef<HTMLInputElement>(null)
@@ -120,6 +171,7 @@ export default function PersonnalisationPage() {
 
     // Load from Supabase
     useEffect(() => {
+        setIsMounted(true)
         fetchSettings()
     }, [])
 
@@ -262,19 +314,50 @@ export default function PersonnalisationPage() {
     }
 
     // --- LOGO UPLOAD ---
-    const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]
-        if (file) {
-            const reader = new FileReader()
-            reader.onloadend = () => {
-                handleChange("logo_base64", reader.result as string)
+        if (!file) return
+
+        try {
+            // Upload to Supabase Storage
+            const fileExt = file.name.split('.').pop()
+            const fileName = `logo-${Date.now()}.${fileExt}`
+            const filePath = `${fileName}`
+
+            // 1. Upload
+            const { error: uploadError } = await supabase.storage
+                .from('assets')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                })
+
+            if (uploadError) {
+                console.error("Upload error:", uploadError)
+                alert(`Erreur upload: ${uploadError.message}. Assurez-vous d'avoir créé le bucket 'assets' en Public dans Supabase.`)
+                return
             }
-            reader.readAsDataURL(file)
+
+            // 2. Get Public URL
+            const { data } = supabase.storage
+                .from('assets')
+                .getPublicUrl(filePath)
+
+            if (data?.publicUrl) {
+                handleChange("logo_url", data.publicUrl)
+            }
+
+        } catch (error) {
+            console.error("Logo upload failed", error)
+            alert("Erreur imprévue lors de l'upload.")
         }
     }
 
     const triggerLogoInput = () => logoInputRef.current?.click()
-    const removeLogo = () => handleChange("logo_base64", undefined)
+    const removeLogo = () => {
+        handleChange("logo_base64", undefined)
+        handleChange("logo_url", undefined)
+    }
 
     // --- SIGNATURE UPLOAD ---
     const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -402,583 +485,603 @@ export default function PersonnalisationPage() {
                 </div>
             </div>
 
-            <Tabs defaultValue="identite" className="w-full space-y-6">
-                <TabsList className="bg-white p-1 border h-auto flex-nowrap justify-start overflow-x-auto no-scrollbar w-full">
-                    <TabsTrigger value="identite" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                        <BuildingIcon className="size-4" /> Identité
-                    </TabsTrigger>
-                    <TabsTrigger value="finance" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                        <CreditCardIcon className="size-4" /> Finance
-                    </TabsTrigger>
-                    <TabsTrigger value="catalogue" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                        <TagIcon className="size-4" /> Catalogue
-                    </TabsTrigger>
-                    <TabsTrigger value="workflow" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                        <SlidersIcon className="size-4" /> Workflow
-                    </TabsTrigger>
-                    <TabsTrigger value="documents" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                        <FileTextIcon className="size-4" /> Documents
-                    </TabsTrigger>
-                </TabsList>
+            {!isMounted ? (
+                <div className="flex justify-center py-20">
+                    <Loader2Icon className="size-8 animate-spin text-indigo-600" />
+                </div>
+            ) : (
+                <Tabs defaultValue="identite" className="w-full space-y-6">
+                    <TabsList className="bg-white p-1 border h-auto flex-nowrap justify-start overflow-x-auto no-scrollbar w-full">
+                        <TabsTrigger value="identite" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                            <BuildingIcon className="size-4" /> Identité
+                        </TabsTrigger>
+                        <TabsTrigger value="emails" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                            <MailIcon className="size-4" /> Emails
+                        </TabsTrigger>
+                        <TabsTrigger value="finance" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                            <CreditCardIcon className="size-4" /> Finance
+                        </TabsTrigger>
+                        <TabsTrigger value="catalogue" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                            <TagIcon className="size-4" /> Catalogue
+                        </TabsTrigger>
+                        <TabsTrigger value="workflow" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                            <SlidersIcon className="size-4" /> Workflow
+                        </TabsTrigger>
+                        <TabsTrigger value="documents" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
+                            <FileTextIcon className="size-4" /> Documents
+                        </TabsTrigger>
+                    </TabsList>
 
-                {/* --- TAB: IDENTITÉ --- */}
-                <TabsContent value="identite">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Card className="md:col-span-2">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><BuildingIcon className="size-5 text-indigo-500" /> Informations Société</CardTitle>
-                                <CardDescription>Apparaît sur tous vos documents.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2 md:col-span-2">
-                                    <Label>Nom Commercial / Raison Sociale</Label>
-                                    <Input
-                                        value={settings.nom_societe}
-                                        onChange={(e) => handleChange("nom_societe", e.target.value)}
-                                        className="font-bold text-lg"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>SIRET</Label>
-                                    <Input value={settings.siret} onChange={(e) => handleChange("siret", e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>TVA Intracommunautaire</Label>
-                                    <Input value={settings.tva_intra} onChange={(e) => handleChange("tva_intra", e.target.value)} placeholder="FR..." />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Email Contact</Label>
-                                    <Input value={settings.email_contact} onChange={(e) => handleChange("email_contact", e.target.value)} type="email" />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Téléphone</Label>
-                                    <Input value={settings.telephone_contact} onChange={(e) => handleChange("telephone_contact", e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Code NAF (APE)</Label>
-                                    <Input value={settings.code_naf} onChange={(e) => handleChange("code_naf", e.target.value)} placeholder="Ex: 7739Z" />
-                                </div>
-                                <div className="space-y-2 md:col-span-2">
-                                    <Label>Adresse</Label>
-                                    <Input value={settings.adresse} onChange={(e) => handleChange("adresse", e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Code Postal</Label>
-                                    <Input value={settings.code_postal} onChange={(e) => handleChange("code_postal", e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Ville</Label>
-                                    <Input value={settings.ville} onChange={(e) => handleChange("ville", e.target.value)} />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><CameraIcon className="size-5 text-indigo-500" /> Logo</CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-col items-center justify-center p-6">
-                                <div className="w-full h-32 bg-slate-50 border-2 border-dashed rounded-lg flex items-center justify-center mb-4 overflow-hidden relative">
-                                    {settings.logo_base64 ? (
-                                        <img src={settings.logo_base64} alt="Logo" className="max-h-full max-w-full object-contain" />
-                                    ) : (
-                                        <span className="text-slate-400 italic text-sm">Aucun logo</span>
-                                    )}
-                                </div>
-                                <div className="w-full space-y-2">
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        ref={logoInputRef}
-                                        onChange={handleLogoUpload}
-                                    />
-                                    <Button variant="outline" className="w-full gap-2" onClick={triggerLogoInput}>
-                                        <UploadIcon className="size-4" /> Importer
-                                    </Button>
-                                    {settings.logo_base64 && (
-                                        <Button variant="ghost" className="w-full text-red-500 hover:text-red-700 hover:bg-red-50 gap-2" onClick={removeLogo}>
-                                            <TrashIcon className="size-4" /> Supprimer
-                                        </Button>
-                                    )}
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-2 text-center">Format PNG recommandé.</p>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-
-                {/* --- TAB: FINANCE --- */}
-                <TabsContent value="finance">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><CreditCardIcon className="size-5 text-indigo-500" /> Coordonnées Bancaires</CardTitle>
-                                <CardDescription>Pour les virements sur vos factures.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Titulaire du compte</Label>
-                                    <Input value={settings.banque_titulaire} onChange={(e) => handleChange("banque_titulaire", e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Nom de la Banque</Label>
-                                    <Input value={settings.banque_nom} onChange={(e) => handleChange("banque_nom", e.target.value)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>IBAN</Label>
-                                    <Input value={settings.iban} onChange={(e) => handleChange("iban", e.target.value)} className="font-mono text-primary" placeholder="FR76..." />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>BIC / SWIFT</Label>
-                                    <Input value={settings.bic} onChange={(e) => handleChange("bic", e.target.value)} className="font-mono" />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><SettingsIcon className="size-5 text-indigo-500" /> Politique Tarifaire</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="bg-muted/50 p-4 rounded-lg space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <Label className="font-semibold text-indigo-900">Assujetti à la TVA ?</Label>
-                                        <Switch
-                                            checked={settings.tva_active}
-                                            onCheckedChange={(checked) => handleChange("tva_active", checked)}
+                    {/* --- TAB: IDENTITÉ --- */}
+                    <TabsContent value="identite">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <Card className="md:col-span-2">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><BuildingIcon className="size-5 text-indigo-500" /> Informations Société</CardTitle>
+                                    <CardDescription>Apparaît sur tous vos documents.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label>Nom Commercial / Raison Sociale</Label>
+                                        <Input
+                                            value={settings.nom_societe}
+                                            onChange={(e) => handleChange("nom_societe", e.target.value)}
+                                            className="font-bold text-lg"
                                         />
                                     </div>
-                                    {settings.tva_active && (
-                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                                            <Label>Taux par défaut (%)</Label>
-                                            <Input
-                                                type="number"
-                                                value={settings.tva_taux}
-                                                onChange={(e) => handleChange("tva_taux", e.target.value)}
-                                                className="w-24 text-center font-bold"
-                                            />
+                                    <div className="space-y-2">
+                                        <Label>SIRET</Label>
+                                        <Input value={settings.siret} onChange={(e) => handleChange("siret", e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>TVA Intracommunautaire</Label>
+                                        <Input value={settings.tva_intra} onChange={(e) => handleChange("tva_intra", e.target.value)} placeholder="FR..." />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Email Contact</Label>
+                                        <Input value={settings.email_contact} onChange={(e) => handleChange("email_contact", e.target.value)} type="email" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Téléphone</Label>
+                                        <Input value={settings.telephone_contact} onChange={(e) => handleChange("telephone_contact", e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Code NAF (APE)</Label>
+                                        <Input value={settings.code_naf} onChange={(e) => handleChange("code_naf", e.target.value)} placeholder="Ex: 7739Z" />
+                                    </div>
+                                    <div className="space-y-2 md:col-span-2">
+                                        <Label>Adresse</Label>
+                                        <Input value={settings.adresse} onChange={(e) => handleChange("adresse", e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Code Postal</Label>
+                                        <Input value={settings.code_postal} onChange={(e) => handleChange("code_postal", e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Ville</Label>
+                                        <Input value={settings.ville} onChange={(e) => handleChange("ville", e.target.value)} />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><CameraIcon className="size-5 text-indigo-500" /> Logo</CardTitle>
+                                </CardHeader>
+                                <CardContent className="flex flex-col items-center justify-center p-6">
+                                    <div className="w-full h-32 bg-slate-50 border-2 border-dashed rounded-lg flex items-center justify-center mb-4 overflow-hidden relative">
+                                        {settings.logo_url || settings.logo_base64 ? (
+                                            <img src={settings.logo_url || settings.logo_base64} alt="Logo" className="max-h-full max-w-full object-contain" />
+                                        ) : (
+                                            <span className="text-slate-400 italic text-sm">Aucun logo</span>
+                                        )}
+                                    </div>
+                                    <div className="w-full space-y-2">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            ref={logoInputRef}
+                                            onChange={handleLogoUpload}
+                                        />
+                                        <Button variant="outline" className="w-full gap-2" onClick={triggerLogoInput}>
+                                            <UploadIcon className="size-4" /> Importer
+                                        </Button>
+                                        {(settings.logo_url || settings.logo_base64) && (
+                                            <Button variant="ghost" className="w-full text-red-500 hover:text-red-700 hover:bg-red-50 gap-2" onClick={removeLogo}>
+                                                <TrashIcon className="size-4" /> Supprimer
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    {(settings.logo_url || settings.logo_base64) && (
+                                        <div className="w-full mt-4 p-3 bg-slate-50 rounded-lg border border-slate-100">
+                                            <Label className="text-xs font-semibold mb-2 block">Taille du logo (pixels)</Label>
+                                            <div className="flex items-center gap-3">
+                                                <Input
+                                                    type="number"
+                                                    value={settings.logo_width || 100}
+                                                    onChange={(e) => handleChange("logo_width", parseInt(e.target.value) || 0)}
+                                                    className="h-8 w-24"
+                                                    min="20"
+                                                    max="500"
+                                                />
+                                                <span className="text-xs text-muted-foreground whitespace-nowrap">px de large</span>
+                                            </div>
                                         </div>
                                     )}
-                                </div>
 
-                                <div className="bg-muted/50 p-4 rounded-lg space-y-4">
-                                    <Label className="font-semibold text-indigo-900">Acompte par défaut</Label>
-                                    <div className="flex items-center gap-4">
-                                        <RadioGroup
-                                            value={settings.acompte_type}
-                                            onValueChange={(val) => handleChange("acompte_type", val)}
-                                            className="flex gap-2"
+                                    <p className="text-xs text-muted-foreground mt-2 text-center">Format PNG recommandé.</p>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
+
+                    {/* --- TAB: EMAILS --- */}
+                    <TabsContent value="emails">
+                        <Card className="mb-6 bg-blue-50/50 border-blue-100">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="flex items-center gap-2 text-blue-800 text-base"><CameraIcon className="size-5 text-blue-500" /> Variables Disponibles</CardTitle>
+                                <Button variant="outline" size="sm" onClick={() => setIsTagsModalOpen(true)} className="h-8 gap-2 border-blue-200 text-blue-700 hover:bg-blue-100">
+                                    <SettingsIcon className="size-3" /> Gérer les balises
+                                </Button>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-xs text-blue-600 mb-3 flex items-center gap-1">
+                                    <InfoIcon className="size-3" />
+                                    Glissez-déposez ces variables dans les champs ci-dessous pour les insérer.
+                                </p>
+                                <div className="flex flex-wrap gap-2 text-sm">
+                                    {ALL_TAGS.filter(tag => (settings.enabled_email_tags || []).includes(tag.id)).map(tag => (
+                                        <div
+                                            key={tag.id}
+                                            draggable
+                                            onDragStart={(e) => e.dataTransfer.setData("text/plain", tag.id)}
+                                            className="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full font-semibold border border-indigo-200 cursor-grab active:cursor-grabbing hover:bg-indigo-200 hover:shadow-sm transition-all select-none"
+                                            title="Glisser pour insérer"
                                         >
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="percent" id="acompte-percent" />
-                                                <Label htmlFor="acompte-percent">%</Label>
+                                            {tag.label}
+                                        </div>
+                                    ))}
+                                    {(settings.enabled_email_tags || []).length === 0 && (
+                                        <p className="text-xs italic text-blue-400 py-2">Aucune balise activée. Cliquez sur "Gérer les balises" pour en ajouter.</p>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {/* DEVIS */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-indigo-700">
+                                        <FileTextIcon className="size-5" /> Email Devis
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Sujet</Label>
+                                        <Input
+                                            value={settings.email_devis_subject}
+                                            onChange={(e) => handleChange("email_devis_subject", e.target.value)}
+                                            placeholder="Sujet du mail..."
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Message (HTML)</Label>
+                                        <RichTextEditor
+                                            value={settings.email_devis_body || ""}
+                                            onChange={(html) => handleChange("email_devis_body", html)}
+                                            placeholder="Corps du mail..."
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* CONTRAT */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-purple-700">
+                                        <FileIcon className="size-5" /> Email Contrat
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Sujet</Label>
+                                        <Input
+                                            value={settings.email_contrat_subject}
+                                            onChange={(e) => handleChange("email_contrat_subject", e.target.value)}
+                                            placeholder="Sujet du mail..."
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Message (HTML)</Label>
+                                        <RichTextEditor
+                                            value={settings.email_contrat_body || ""}
+                                            onChange={(html) => handleChange("email_contrat_body", html)}
+                                            placeholder="Corps du mail..."
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* FACTURE */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-emerald-700">
+                                        <CreditCardIcon className="size-5" /> Email Facture
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Sujet</Label>
+                                        <Input
+                                            value={settings.email_facture_subject}
+                                            onChange={(e) => handleChange("email_facture_subject", e.target.value)}
+                                            placeholder="Sujet du mail..."
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Message (HTML)</Label>
+                                        <RichTextEditor
+                                            value={settings.email_facture_body || ""}
+                                            onChange={(html) => handleChange("email_facture_body", html)}
+                                            placeholder="Corps du mail..."
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
+
+                    {/* --- TAB: FINANCE --- */}
+                    <TabsContent value="finance">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><CreditCardIcon className="size-5 text-indigo-500" /> Coordonnées Bancaires</CardTitle>
+                                    <CardDescription>Pour les virements sur vos factures.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Titulaire du compte</Label>
+                                        <Input value={settings.banque_titulaire} onChange={(e) => handleChange("banque_titulaire", e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Nom de la Banque</Label>
+                                        <Input value={settings.banque_nom} onChange={(e) => handleChange("banque_nom", e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>IBAN</Label>
+                                        <Input value={settings.iban} onChange={(e) => handleChange("iban", e.target.value)} className="font-mono text-primary" placeholder="FR76..." />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>BIC / SWIFT</Label>
+                                        <Input value={settings.bic} onChange={(e) => handleChange("bic", e.target.value)} className="font-mono" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><SettingsIcon className="size-5 text-indigo-500" /> Politique Tarifaire</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div className="bg-muted/50 p-4 rounded-lg space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="font-semibold text-indigo-900">Assujetti à la TVA ?</Label>
+                                            <Switch
+                                                checked={settings.tva_active}
+                                                onCheckedChange={(checked) => handleChange("tva_active", checked)}
+                                            />
+                                        </div>
+                                        {settings.tva_active && (
+                                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                                                <Label>Taux par défaut (%)</Label>
+                                                <Input
+                                                    type="number"
+                                                    value={settings.tva_taux}
+                                                    onChange={(e) => handleChange("tva_taux", e.target.value)}
+                                                    className="w-24 text-center font-bold"
+                                                />
                                             </div>
-                                            <div className="flex items-center space-x-2">
-                                                <RadioGroupItem value="fixed" id="acompte-fixed" />
-                                                <Label htmlFor="acompte-fixed">€</Label>
-                                            </div>
-                                        </RadioGroup>
-                                        <div className="relative w-24">
+                                        )}
+                                    </div>
+
+                                    <div className="bg-muted/50 p-4 rounded-lg space-y-4">
+                                        <Label className="font-semibold text-indigo-900">Acompte par défaut</Label>
+                                        <div className="flex items-center gap-4">
+                                            <RadioGroup
+                                                value={settings.acompte_type}
+                                                onValueChange={(val) => handleChange("acompte_type", val)}
+                                                className="flex gap-2"
+                                            >
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="percent" id="r1" />
+                                                    <Label htmlFor="r1" className="cursor-pointer">Pourcent (%)</Label>
+                                                </div>
+                                                <div className="flex items-center space-x-2">
+                                                    <RadioGroupItem value="fixed" id="r2" />
+                                                    <Label htmlFor="r2" className="cursor-pointer">Fixe (€)</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
+                                        <div className="flex items-center gap-2">
                                             <Input
                                                 type="number"
                                                 value={settings.acompte_valeur}
                                                 onChange={(e) => handleChange("acompte_valeur", e.target.value)}
-                                                className="pr-8 text-right font-bold"
+                                                className="w-24 font-bold"
                                             />
-                                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
-                                                {settings.acompte_type === "percent" ? "%" : "€"}
-                                            </span>
+                                            <span className="text-sm font-medium">{settings.acompte_type === 'percent' ? '%' : '€'}</span>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-muted-foreground">Proposé automatiquement lors de la création d'un contrat.</p>
-                                </div>
-
-                                <div className="space-y-2 border-t pt-4">
-                                    <Label className="text-sm font-semibold">Mention TVA / Régime Fiscal</Label>
-                                    <Input
-                                        value={settings.mention_tva}
-                                        onChange={(e) => handleChange("mention_tva", e.target.value)}
-                                        placeholder="Ex: TVA non applicable, art. 293 B du CGI"
-                                    />
-                                    <p className="text-[10px] text-muted-foreground italic">Apparaît en bas des factures.</p>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-sm font-semibold">Pied de page (Mentions légales)</Label>
-                                    <Textarea
-                                        value={settings.footer_facture}
-                                        onChange={(e) => handleChange("footer_facture", e.target.value)}
-                                        placeholder="Ex: Assurance RC Pro n°..."
-                                        rows={3}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-
-                {/* --- TAB: CATALOGUE --- */}
-                <TabsContent value="catalogue">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-6">
-                            <Card>
-                                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                    <div className="space-y-1">
-                                        <CardTitle className="flex items-center gap-2"><StarIcon className="size-5 text-yellow-500" /> Formules (Packages)</CardTitle>
-                                        <CardDescription>Liste des forfaits principaux proposés.</CardDescription>
-                                    </div>
-                                    <Button size="sm" variant="outline" onClick={addOffer} className="rounded-full bg-indigo-50 text-indigo-600 border-indigo-100 hover:bg-indigo-100">
-                                        <PlusIcon className="size-4 mr-1" /> Ajouter
-                                    </Button>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {settings.offres.map((off, index) => (
-                                        <div key={index} className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                                            <div className="relative flex-1">
-                                                <TagIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3 text-slate-400" />
-                                                <Input
-                                                    placeholder="Nom de la formule"
-                                                    className="pl-8 text-sm"
-                                                    value={off.name}
-                                                    onChange={(e) => handleOfferChange(index, "name", e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="relative w-28">
-                                                <Input
-                                                    type="number"
-                                                    placeholder="Prix"
-                                                    className="pr-6 text-right font-mono text-sm"
-                                                    value={off.price}
-                                                    onChange={(e) => handleOfferChange(index, "price", e.target.value)}
-                                                />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">€</span>
-                                            </div>
-                                            <Button size="icon" variant="ghost" className="text-slate-400 hover:text-red-500 hover:bg-red-50" onClick={() => removeOffer(index)}>
-                                                <TrashIcon className="size-4" />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                    {settings.offres.length === 0 && (
-                                        <p className="text-center text-xs text-muted-foreground italic py-4">Aucune formule configurée.</p>
-                                    )}
-                                </CardContent>
-                            </Card>
-
-                            <Card>
-                                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                    <div className="space-y-1">
-                                        <CardTitle className="flex items-center gap-2"><BoxIcon className="size-5 text-pink-500" /> Options (Extras)</CardTitle>
-                                        <CardDescription>Cochez l'œil pour rendre l'option visible par défaut.</CardDescription>
-                                    </div>
-                                    <Button size="sm" variant="outline" onClick={addOption} className="rounded-full bg-pink-50 text-pink-600 border-pink-100 hover:bg-pink-100">
-                                        <PlusIcon className="size-4 mr-1" /> Ajouter
-                                    </Button>
-                                </CardHeader>
-                                <CardContent className="space-y-3">
-                                    {settings.options.map((opt, index) => (
-                                        <div key={index} className="flex items-center gap-2 animate-in fade-in slide-in-from-top-1">
-                                            <div className="relative flex-1">
-                                                <TagIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3 text-slate-400" />
-                                                <Input
-                                                    placeholder="Nom de l'option"
-                                                    className="pl-8 text-sm"
-                                                    value={opt.name}
-                                                    onChange={(e) => handleOptionChange(index, "name", e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="relative w-28">
-                                                <Input
-                                                    type="number"
-                                                    placeholder="Prix"
-                                                    className="pr-6 text-right font-mono text-sm"
-                                                    value={opt.price}
-                                                    onChange={(e) => handleOptionChange(index, "price", e.target.value)}
-                                                />
-                                                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">€</span>
-                                            </div>
-                                            <Button
-                                                size="icon"
-                                                variant="ghost"
-                                                className={`size-9 border transition-colors ${opt.public ? "text-indigo-600 bg-indigo-50 border-indigo-200" : "text-slate-300 bg-slate-50 border-slate-200"}`}
-                                                onClick={() => handleOptionChange(index, "public", !opt.public)}
-                                                title={opt.public ? "Visible par le client" : "Caché par défaut"}
-                                            >
-                                                <EyeIcon className="size-4" />
-                                            </Button>
-                                            <Button size="icon" variant="ghost" className="text-slate-400 hover:text-red-500 hover:bg-red-50" onClick={() => removeOption(index)}>
-                                                <TrashIcon className="size-4" />
-                                            </Button>
-                                        </div>
-                                    ))}
-                                    {settings.options.length === 0 && (
-                                        <p className="text-center text-xs text-muted-foreground italic py-4">Aucune option configurée.</p>
-                                    )}
                                 </CardContent>
                             </Card>
                         </div>
+                    </TabsContent>
 
-                        <div className="space-y-6">
-                            <Card className="h-fit">
+                    {/* --- TAB: CATALOGUE --- */}
+                    <TabsContent value="catalogue">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><TruckIcon className="size-5 text-emerald-500" /> Livraison & Déplacement</CardTitle>
+                                    <div className="flex justify-between items-center">
+                                        <CardTitle className="flex items-center gap-2"><BoxIcon className="size-5 text-indigo-500" /> Vos Offres (Packs)</CardTitle>
+                                        <Button onClick={addOffer} size="sm" variant="outline" className="h-8 gap-1">
+                                            <PlusIcon className="size-3" /> Ajouter
+                                        </Button>
+                                    </div>
+                                    <CardDescription>Liste des forfaits principaux.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="bg-emerald-50 p-4 rounded-lg border border-emerald-100 mb-4">
-                                        <p className="text-xs text-emerald-800 leading-relaxed">
-                                            <strong>Distance & Installation :</strong><br />
-                                            Définissez l'intitulé qui apparaîtra sur vos documents. Le montant exact est à définir lors de l'édition de chaque devis.
-                                        </p>
+                                    {settings.offres.map((offre, index) => (
+                                        <div key={index} className="flex gap-2 items-end p-3 bg-slate-50 rounded-lg border border-slate-100 group">
+                                            <div className="flex-1 space-y-1.5">
+                                                <Label className="text-xs">Nom du pack</Label>
+                                                <Input value={offre.name} onChange={(e) => handleOfferChange(index, "name", e.target.value)} placeholder="Ex: Pack Mariage" />
+                                            </div>
+                                            <div className="w-24 space-y-1.5">
+                                                <Label className="text-xs">Prix (€)</Label>
+                                                <Input type="number" value={offre.price} onChange={(e) => handleOfferChange(index, "price", e.target.value)} placeholder="0" />
+                                            </div>
+                                            <Button variant="ghost" size="icon" className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeOffer(index)}>
+                                                <TrashIcon className="size-4" />
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <div className="flex justify-between items-center">
+                                        <CardTitle className="flex items-center gap-2"><StarIcon className="size-5 text-amber-500" /> Options (Extras)</CardTitle>
+                                        <Button onClick={addOption} size="sm" variant="outline" className="h-8 gap-1">
+                                            <PlusIcon className="size-3" /> Ajouter
+                                        </Button>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Intitulé sur les documents</Label>
+                                    <CardDescription>Suppléments que le client peut choisir.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="bg-indigo-50 p-4 rounded-lg mb-4 flex items-center justify-between">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-indigo-900">Libellé Frais de Livraison</Label>
+                                            <p className="text-[10px] text-indigo-600">Comment appeler les frais de déplacement.</p>
+                                        </div>
                                         <Input
                                             value={settings.label_livraison}
                                             onChange={(e) => handleChange("label_livraison", e.target.value)}
-                                            className="font-medium"
-                                            placeholder='Ex: "Frais de déplacement", "Livraison & Installation"...'
+                                            className="w-48 bg-white border-indigo-100"
+                                        />
+                                    </div>
+
+                                    {settings.options.map((option, index) => (
+                                        <div key={index} className="space-y-3 p-3 bg-slate-50 rounded-lg border border-slate-100 group">
+                                            <div className="flex gap-2 items-end">
+                                                <div className="flex-1 space-y-1.5">
+                                                    <Input value={option.name} onChange={(e) => handleOptionChange(index, "name", e.target.value)} placeholder="Nom de l'option" />
+                                                </div>
+                                                <div className="w-24 space-y-1.5">
+                                                    <Input type="number" value={option.price} onChange={(e) => handleOptionChange(index, "price", e.target.value)} placeholder="0" />
+                                                </div>
+                                                <Button variant="ghost" size="icon" className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeOption(index)}>
+                                                    <TrashIcon className="size-4" />
+                                                </Button>
+                                            </div>
+                                            <div className="flex items-center gap-2 px-1">
+                                                <Switch
+                                                    id={`public-${index}`}
+                                                    checked={option.public}
+                                                    onCheckedChange={(val) => handleOptionChange(index, "public", val)}
+                                                    className="scale-75"
+                                                />
+                                                <Label htmlFor={`public-${index}`} className="text-[11px] text-muted-foreground cursor-pointer">Visible sur le questionnaire client</Label>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </TabsContent>
+
+                    {/* --- TAB: WORKFLOW --- */}
+                    <TabsContent value="workflow">
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><SlidersIcon className="size-5 text-indigo-500" /> Étapes du Dossier</CardTitle>
+                                <CardDescription>Personnalisez les étapes de votre pipeline commercial.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4 max-w-lg">
+                                {settings.workflow_steps.map((step, index) => (
+                                    <div key={index} className="flex gap-3 items-center">
+                                        <div className="size-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0">{index + 1}</div>
+                                        <Input
+                                            value={step}
+                                            onChange={(e) => handleWorkflowStepChange(index, e.target.value)}
+                                        />
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="text-red-400"
+                                            onClick={() => {
+                                                const newSteps = settings.workflow_steps.filter((_, i) => i !== index)
+                                                handleChange("workflow_steps", newSteps)
+                                            }}
+                                        >
+                                            <XIcon className="size-4" />
+                                        </Button>
+                                    </div>
+                                ))}
+                                <Button
+                                    variant="outline"
+                                    className="w-full border-dashed"
+                                    onClick={() => handleChange("workflow_steps", [...settings.workflow_steps, "Nouvelle étape"])}
+                                >
+                                    <PlusIcon className="size-4 mr-2" /> Ajouter une étape
+                                </Button>
+
+                                <Separator className="my-6" />
+
+                                <div className="space-y-4">
+                                    <Label className="font-bold flex items-center gap-2"><CheckCircleIcon className="size-4 text-emerald-500" /> Message de Confirmation</Label>
+                                    <CardDescription>Affiché au client après la signature du contrat ou validation du questionnaire.</CardDescription>
+                                    <Textarea
+                                        value={settings.msg_success}
+                                        onChange={(e) => handleChange("msg_success", e.target.value)}
+                                        placeholder="Merci ! Votre réservation est bien confirmée..."
+                                        rows={4}
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </TabsContent>
+
+                    {/* --- TAB: DOCUMENTS --- */}
+                    <TabsContent value="documents">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><FileTextIcon className="size-5 text-indigo-500" /> Mentions Légales</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div className="space-y-2">
+                                        <Label>Mention TVA (Pied de facture)</Label>
+                                        <Input value={settings.mention_tva} onChange={(e) => handleChange("mention_tva", e.target.value)} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Conditions de Paiement / Retard</Label>
+                                        <Textarea value={settings.mention_paiement} onChange={(e) => handleChange("mention_paiement", e.target.value)} rows={3} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Pied de page (Facture / Devis)</Label>
+                                        <Input value={settings.footer_facture} onChange={(e) => handleChange("footer_facture", e.target.value)} placeholder="Ex: SARL au capital de 1000€..." />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><PenToolIcon className="size-5 text-indigo-500" /> Signature & CGV</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    <div className="bg-slate-50 p-4 rounded-lg border space-y-4">
+                                        <div className="flex items-center justify-between">
+                                            <Label className="font-semibold text-indigo-900">Activer Signature en ligne</Label>
+                                            <Switch
+                                                checked={settings.feature_sign_quote}
+                                                onCheckedChange={(checked) => handleChange("feature_sign_quote", checked)}
+                                            />
+                                        </div>
+
+                                        <Label className="block pt-2">Votre Signature par défaut</Label>
+                                        <div className="h-32 bg-white border border-dashed rounded flex items-center justify-center mb-2 overflow-hidden relative group">
+                                            {settings.signature_base64 ? (
+                                                <>
+                                                    <img src={settings.signature_base64} alt="Signature" className="max-h-full max-w-full object-contain" />
+                                                    <Button variant="destructive" size="icon" className="absolute top-1 right-1 size-7 opacity-0 group-hover:opacity-100 transition-opacity" onClick={removeSignature}>
+                                                        <TrashIcon className="size-3" />
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <span className="text-slate-300 text-xs italic">Aucune signature enregistrée</span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={() => setIsSigModalOpen(true)}>
+                                                <PenToolIcon className="size-3" /> Dessiner
+                                            </Button>
+                                            <Button variant="outline" size="sm" className="flex-1 gap-2" onClick={triggerSignatureInput}>
+                                                <UploadIcon className="size-3" /> Importer
+                                            </Button>
+                                            <input type="file" accept="image/*" ref={signatureInputRef} onChange={handleSignatureUpload} className="hidden" />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Conditions Générales de Vente (CGV)</Label>
+                                        <Textarea
+                                            value={settings.cgv_text}
+                                            onChange={(e) => handleChange("cgv_text", e.target.value)}
+                                            rows={8}
+                                            className="text-xs font-mono"
+                                            placeholder="Texte complet de vos CGV qui apparaîtra sur le contrat..."
+                                        />
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="md:col-span-2">
+                                <CardHeader>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <ListIcon className="size-5 text-indigo-500" />
+                                            <CardTitle>Annexe (Questionnaire Client)</CardTitle>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Label htmlFor="annexe-active">Activer</Label>
+                                            <Switch
+                                                id="annexe-active"
+                                                checked={settings.annexe_active}
+                                                onCheckedChange={(v) => handleChange("annexe_active", v)}
+                                            />
+                                        </div>
+                                    </div>
+                                    <CardDescription>Le client peut remplir ces informations lors de la signature.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Titre de l'annexe</Label>
+                                        <Input
+                                            value={settings.annexe_titre}
+                                            onChange={(e) => handleChange("annexe_titre", e.target.value)}
+                                            placeholder="Ex: INFORMATIONS LOGISTIQUES"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Contenu / Consignes de l'annexe</Label>
+                                        <Textarea
+                                            value={settings.annexe_texte}
+                                            onChange={(e) => handleChange("annexe_texte", e.target.value)}
+                                            rows={5}
+                                            placeholder="Veuillez préciser l'étage, l'accès parking, etc..."
                                         />
                                     </div>
                                 </CardContent>
                             </Card>
                         </div>
-                    </div>
-                </TabsContent>
+                    </TabsContent>
+                </Tabs>
+            )}
 
-                {/* --- TAB: WORKFLOW --- */}
-                <TabsContent value="workflow">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2"><SlidersIcon className="size-5 text-indigo-500" /> Suivi des dossiers</CardTitle>
-                            <CardDescription>Personnalisez les étapes de votre checklist.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                            <div className="bg-slate-50 p-6 rounded-xl border flex justify-between items-center text-center">
-                                {settings.workflow_steps.map((step, index) => (
-                                    <div key={index} className="flex-1 px-2 relative group">
-                                        <div className="size-8 mx-auto rounded-full bg-white border-2 border-indigo-500 flex items-center justify-center text-sm font-bold text-indigo-600 mb-2 shadow-sm">
-                                            {index + 1}
-                                        </div>
-                                        <div className="text-xs font-medium truncate">{step || `Étape ${index + 1}`}</div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {settings.workflow_steps.map((step, index) => (
-                                    <div key={index} className="space-y-2">
-                                        <Label className="text-indigo-600 font-bold">Étape {index + 1}</Label>
-                                        <Input
-                                            value={step}
-                                            onChange={(e) => handleWorkflowStepChange(index, e.target.value)}
-                                            placeholder={`Ex: Étape ${index + 1}`}
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-
-                            <Separator />
-
-                            <div className="space-y-4">
-                                <h3 className="font-semibold flex items-center gap-2"><SettingsIcon className="size-4" /> Automatisation</h3>
-
-                                <div className="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100 flex items-center justify-between">
-                                    <div>
-                                        <div className="font-medium text-indigo-900">Relance de Devis</div>
-                                        <div className="text-xs text-indigo-700">Notification si un devis reste sans réponse.</div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <Input
-                                                type="number"
-                                                className="w-16 text-center h-8"
-                                                value={settings.relance_devis_days}
-                                                onChange={(e) => handleChange("relance_devis_days", e.target.value)}
-                                            />
-                                            <span className="text-xs font-medium">jours</span>
-                                        </div>
-                                        <Switch
-                                            checked={settings.relance_devis_active}
-                                            onCheckedChange={(checked) => handleChange("relance_devis_active", checked)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="bg-indigo-50/50 p-4 rounded-lg border border-indigo-100 flex items-center justify-between">
-                                    <div>
-                                        <div className="font-medium text-indigo-900">Relance de Contrat</div>
-                                        <div className="text-xs text-indigo-700">Alerte si un contrat n'est pas signé.</div>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                        <div className="flex items-center gap-2">
-                                            <Input
-                                                type="number"
-                                                className="w-16 text-center h-8"
-                                                value={settings.relance_contrat_days}
-                                                onChange={(e) => handleChange("relance_contrat_days", e.target.value)}
-                                            />
-                                            <span className="text-xs font-medium">jours</span>
-                                        </div>
-                                        <Switch
-                                            checked={settings.relance_contrat_active}
-                                            onCheckedChange={(checked) => handleChange("relance_contrat_active", checked)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 border-t pt-4">
-                                    <Label className="font-semibold text-slate-700">Message de confirmation</Label>
-                                    <Textarea
-                                        value={settings.msg_success}
-                                        onChange={(e) => handleChange("msg_success", e.target.value)}
-                                        placeholder="Merci ! Nous avons bien reçu votre demande..."
-                                        rows={3}
-                                    />
-                                    <p className="text-[10px] text-slate-500 italic">Affiché après une réservation réussie.</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                {/* --- TAB: DOCUMENTS --- */}
-                <TabsContent value="documents">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><FileIcon className="size-5 text-indigo-500" /> Textes Légaux</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label>Instructions de Paiement</Label>
-                                    <Textarea
-                                        rows={4}
-                                        placeholder="Merci de régler l'acompte sous 7 jours..."
-                                        value={settings.mention_paiement}
-                                        onChange={(e) => handleChange("mention_paiement", e.target.value)}
-                                    />
-                                    <p className="text-xs text-muted-foreground">Affiché sur les factures/devis.</p>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Conditions Générales (CGV)</Label>
-                                    <Textarea
-                                        rows={8}
-                                        value={settings.cgv_text}
-                                        onChange={(e) => handleChange("cgv_text", e.target.value)}
-                                        placeholder="Article 1..."
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><FileTextIcon className="size-5 text-indigo-500" /> Signature</CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex flex-col items-center justify-center p-6 space-y-4">
-                                <p className="text-sm text-center text-muted-foreground">Votre signature pour les documents.</p>
-                                <div className="w-full h-32 bg-slate-50 border-2 border-dashed rounded-lg flex items-center justify-center overflow-hidden relative">
-                                    {settings.signature_base64 ? (
-                                        <img src={settings.signature_base64} alt="Signature" className="max-h-full max-w-full object-contain" />
-                                    ) : (
-                                        <span className="text-slate-400 italic text-sm">Aucune signature</span>
-                                    )}
-                                </div>
-                                <div className="flex gap-2 w-full flex-col sm:flex-row">
-                                    <Button variant="default" className="flex-1 bg-indigo-600 hover:bg-indigo-700 gap-2" onClick={() => setIsSigModalOpen(true)}>
-                                        <PenToolIcon className="size-4" /> Dessiner
-                                    </Button>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="hidden"
-                                        ref={signatureInputRef}
-                                        onChange={handleSignatureUpload}
-                                    />
-                                    <Button variant="outline" className="flex-1 gap-2" onClick={triggerSignatureInput}>
-                                        <UploadIcon className="size-4" /> Importer
-                                    </Button>
-                                </div>
-                                {settings.signature_base64 && (
-                                    <Button variant="ghost" className="w-full text-red-500 hover:text-red-700 hover:bg-red-50 gap-2" onClick={removeSignature}>
-                                        <TrashIcon className="size-4" /> Supprimer la signature
-                                    </Button>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        <Card className="md:col-span-2 shadow-sm border-indigo-100">
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="flex items-center gap-2"><FileTextIcon className="size-5 text-indigo-500" /> Signature des devis</CardTitle>
-                                <Switch
-                                    checked={settings.feature_sign_quote}
-                                    onCheckedChange={(checked) => handleChange("feature_sign_quote", checked)}
-                                />
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                    Permet au client de signer électroniquement ses devis en ligne ("Bon pour accord"). Cela transforme automatiquement le devis en contrat une fois signé.
-                                </p>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="md:col-span-2">
-                            <CardHeader className="flex flex-row items-center justify-between border-b pb-4 mb-4">
-                                <div className="space-y-1">
-                                    <CardTitle className="flex items-center gap-2 font-bold"><PenToolIcon className="size-5 text-indigo-500" /> Annexe Optionnelle</CardTitle>
-                                    <CardDescription>Ajoutez une page supplémentaire à vos contrats.</CardDescription>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-xs font-bold text-indigo-600">Activer</span>
-                                    <Switch
-                                        checked={settings.annexe_active}
-                                        onCheckedChange={(checked) => handleChange("annexe_active", checked)}
-                                    />
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                {settings.annexe_active && (
-                                    <div className="space-y-6 animate-in fade-in slide-in-from-top-2">
-                                        <div className="space-y-2">
-                                            <Label>Titre de l'annexe</Label>
-                                            <Input
-                                                value={settings.annexe_titre}
-                                                onChange={(e) => handleChange("annexe_titre", e.target.value)}
-                                                placeholder="Ex: ANNEXE TECHNIQUE"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Texte de l'annexe</Label>
-                                            <Textarea
-                                                value={settings.annexe_texte}
-                                                onChange={(e) => handleChange("annexe_texte", e.target.value)}
-                                                rows={5}
-                                                placeholder="Contenu de votre annexe..."
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                                {!settings.annexe_active && (
-                                    <p className="text-center text-sm text-muted-foreground italic py-8">
-                                        L'annexe est désactivée. Activez-la pour configurer une page supplémentaire.
-                                    </p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-                </TabsContent>
-            </Tabs>
-
-            {/* Signature Dialog */}
+            {/* Signature Draw Modal */}
             <Dialog open={isSigModalOpen} onOpenChange={setIsSigModalOpen}>
-                <DialogContent className="sm:max-w-md">
+                <DialogContent className="sm:max-w-[450px]">
                     <DialogHeader>
-                        <DialogTitle>Dessinez votre signature</DialogTitle>
-                        <DialogDescription>
-                            Utilisez votre souris ou le doigt (mobile) pour signer ci-dessous.
-                        </DialogDescription>
+                        <DialogTitle>Dessiner votre signature</DialogTitle>
                     </DialogHeader>
-                    <div className="border-2 border-dashed border-indigo-200 rounded-xl bg-slate-50 touch-none overflow-hidden cursor-crosshair h-[200px] flex items-center justify-center">
+                    <div className="bg-white border rounded-lg overflow-hidden touch-none p-4">
                         <canvas
                             ref={canvasRef}
                             onMouseDown={startDrawing}
@@ -988,17 +1091,59 @@ export default function PersonnalisationPage() {
                             onTouchStart={startDrawing}
                             onTouchMove={draw}
                             onTouchEnd={stopDrawing}
-                            className="bg-transparent"
+                            className="w-full h-[200px] border border-dashed border-slate-200 bg-slate-50 rounded"
                         />
                     </div>
-                    <DialogFooter className="flex flex-row justify-between sm:justify-between items-center sm:space-x-2">
-                        <Button variant="ghost" onClick={clearCanvas} className="text-red-500 hover:text-red-700 hover:bg-red-50 gap-2">
+                    <DialogFooter className="flex gap-2">
+                        <Button variant="ghost" className="gap-2" onClick={clearCanvas}>
                             <EraserIcon className="size-4" /> Effacer
                         </Button>
-                        <div className="flex gap-2">
-                            <Button variant="outline" onClick={() => setIsSigModalOpen(false)}>Annuler</Button>
-                            <Button onClick={saveCanvasSignature}>Valider</Button>
-                        </div>
+                        <Button className="bg-indigo-600 hover:bg-indigo-700 gap-2" onClick={saveCanvasSignature}>
+                            <CheckIcon className="size-4" /> Enregistrer la signature
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+            {/* Modal: Gérer les balises */}
+            <Dialog open={isTagsModalOpen} onOpenChange={setIsTagsModalOpen}>
+                <DialogContent className="max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Gérer les balises email</DialogTitle>
+                        <DialogDescription>
+                            Sélectionnez les variables que vous souhaitez voir apparaître dans votre barre d'outils personnalisation.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="grid grid-cols-1 gap-3 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                        {ALL_TAGS.map((tag) => {
+                            const isEnabled = (settings.enabled_email_tags || []).includes(tag.id);
+                            return (
+                                <div
+                                    key={tag.id}
+                                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${isEnabled ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-slate-50 border-slate-100 opacity-60'}`}
+                                >
+                                    <div className="flex flex-col">
+                                        <span className={`text-sm font-bold ${isEnabled ? 'text-indigo-900' : 'text-slate-500'}`}>{tag.label}</span>
+                                        <code className="text-[10px] text-slate-400">{tag.id}</code>
+                                    </div>
+                                    <Switch
+                                        checked={isEnabled}
+                                        onCheckedChange={(checked) => {
+                                            const current = settings.enabled_email_tags || [];
+                                            if (checked) {
+                                                handleChange("enabled_email_tags", [...current, tag.id]);
+                                            } else {
+                                                handleChange("enabled_email_tags", current.filter(id => id !== tag.id));
+                                            }
+                                        }}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    <DialogFooter>
+                        <Button onClick={() => setIsTagsModalOpen(false)} className="w-full bg-indigo-600 hover:bg-indigo-700"> Terminer </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

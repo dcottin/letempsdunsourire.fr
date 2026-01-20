@@ -42,7 +42,7 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
     }
 
     // Default logo if none provided
-    const logoSrc = settings?.logo_base64 || null
+    const logoSrc = settings?.logo_url || settings?.logo_base64 || null
     const signatureSrc = settings?.signature_base64 || null
 
     const renderCGV = (text: string) => {
@@ -261,7 +261,9 @@ export function ContractPreview({ data, settings, id, isInvoice, mode }: Contrac
                         </div>
                         {data.acompte_recu && parseFloat(data.acompte_recu) > 0 && (
                             <div className={`flex justify-between text-sm pt-1 ${data.acompte_paye ? "text-emerald-600" : "text-slate-500 italic"}`}>
-                                <span>{data.acompte_paye ? "Acompte reçu" : "Acompte à régler (30%)"}</span>
+                                <span>
+                                    {data.acompte_paye ? `Acompte reçu${data.acompte_methode ? ` (${data.acompte_methode})` : ""}` : "Acompte à régler (30%)"}
+                                </span>
                                 <span>{data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu).toFixed(2)} €</span>
                             </div>
                         )}

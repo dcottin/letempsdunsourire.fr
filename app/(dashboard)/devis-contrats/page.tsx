@@ -61,6 +61,11 @@ export default function DevisContratsPage() {
     const [validatingDevisId, setValidatingDevisId] = useState<string | null>(null)
     const [isMounted, setIsMounted] = useState(false)
 
+    // Payment Dialog State
+    const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false)
+    const [paymentContext, setPaymentContext] = useState<{ item: any; field: 'acompte_paye' | 'solde_paye'; table: 'contrats' } | null>(null)
+    const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>("")
+
     useEffect(() => {
         setIsMounted(true)
     }, [])
@@ -295,12 +300,55 @@ export default function DevisContratsPage() {
 
     const handleToggleChecklist = async (item: any, field: string, table: "devis" | "contrats") => {
         const newValue = !item[field]
+
+        // If checking a payment field, open dialog instead of direct toggle
+        if (newValue && (field === 'acompte_paye' || field === 'solde_paye') && table === 'contrats') {
+            setPaymentContext({ item, field, table })
+            setSelectedPaymentMethod("")
+            setIsPaymentDialogOpen(true)
+            return
+        }
+
         const updateState = (prev: any[]) => prev.map(d => d.id === item.id ? { ...d, [field]: newValue, data: { ...d.data, [field]: newValue } } : d)
         if (table === "devis") setDevisList(updateState)
         else setContratsList(updateState)
 
         const { error } = await supabase.from(table).update({ data: { ...item.data, [field]: newValue } }).eq('id', item.id)
         if (error) alert("Erreur lors de la mise à jour")
+    }
+
+    const handleConfirmPayment = async () => {
+        if (!paymentContext || !selectedPaymentMethod) return
+
+        const { item, field, table } = paymentContext
+        const methodField = field === 'acompte_paye' ? 'acompte_methode' : 'solde_methode'
+        const dateField = field === 'acompte_paye' ? 'acompte_date' : 'solde_date'
+        const now = format(new Date(), "yyyy-MM-dd'T'HH:mm")
+
+        const updateState = (prev: any[]) => prev.map(d =>
+            d.id === item.id
+                ? {
+                    ...d,
+                    [field]: true,
+                    [methodField]: selectedPaymentMethod,
+                    [dateField]: now,
+                    data: { ...d.data, [field]: true, [methodField]: selectedPaymentMethod, [dateField]: now }
+                }
+                : d
+        )
+
+        setContratsList(updateState)
+
+        const { error } = await supabase.from(table).update({
+            data: { ...item.data, [field]: true, [methodField]: selectedPaymentMethod, [dateField]: now }
+        }).eq('id', item.id)
+
+        if (error) {
+            alert("Erreur lors de la mise à jour du paiement")
+        } else {
+            setIsPaymentDialogOpen(false)
+            setPaymentContext(null)
+        }
     }
 
     const handleValidateDevis = async (devis: Devis) => {
@@ -492,6 +540,46 @@ export default function DevisContratsPage() {
                 </DialogContent>
             </Dialog>
 
+            <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle>Mode de paiement</DialogTitle>
+                        <DialogDescription>
+                            Sélectionnez le mode de paiement pour {paymentContext?.field === 'acompte_paye' ? "l'acompte" : "le solde"}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-3 py-4">
+
+                        {[
+                            { value: "Especes", label: "Espèces" },
+                            { value: "Virement", label: "Virement" },
+                            { value: "Cheque", label: "Chèque" },
+                            { value: "PayPal", label: "PayPal" }
+                        ].map((method) => (
+                            <Button
+                                key={method.value}
+                                variant={selectedPaymentMethod === method.value ? "default" : "outline"}
+                                className={`justify-start h-12 text-sm ${selectedPaymentMethod === method.value ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
+                                onClick={() => setSelectedPaymentMethod(method.value)}
+                            >
+                                <div className={`size-3 rounded-full mr-3 ${selectedPaymentMethod === method.value ? "bg-white" : "border border-slate-300"}`} />
+                                {method.label}
+                            </Button>
+                        ))}
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => { setIsPaymentDialogOpen(false); setPaymentContext(null); }}>Annuler</Button>
+                        <Button
+                            className="bg-indigo-600 hover:bg-indigo-700"
+                            disabled={!selectedPaymentMethod}
+                            onClick={handleConfirmPayment}
+                        >
+                            Valider le paiement
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <div className="w-full mt-4">
                 <div className="space-y-8">
                     {/* DEVIS EN COURS */}
@@ -606,11 +694,17 @@ export default function DevisContratsPage() {
                                                         <div title="Contrat Signé" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'contrat_signe', 'contrats')}>
                                                             {contrat.contrat_signe ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                                                         </div>
-                                                        <div title="Acompte Reçu" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'acompte_paye', 'contrats')}>
+                                                        <div title={`Acompte Reçu ${contrat.data?.acompte_methode ? `(${contrat.data.acompte_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'acompte_paye', 'contrats')}>
                                                             {contrat.acompte_paye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                                            {contrat.acompte_paye && contrat.data?.acompte_methode && (
+                                                                <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.acompte_methode.substring(0, 3)}</span>
+                                                            )}
                                                         </div>
-                                                        <div title="Solde Reçu" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'solde_paye', 'contrats')}>
+                                                        <div title={`Solde Reçu ${contrat.data?.solde_methode ? `(${contrat.data.solde_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'solde_paye', 'contrats')}>
                                                             {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                                            {contrat.solde_paye && contrat.data?.solde_methode && (
+                                                                <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.solde_methode.substring(0, 3)}</span>
+                                                            )}
                                                         </div>
                                                         {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
                                                             <div title="Design Validé" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'design_valide', 'contrats')}>

@@ -20,6 +20,7 @@ import {
     MapIcon,
     CalendarIcon,
     Camera,
+    EuroIcon,
 } from "lucide-react"
 
 import {
@@ -106,6 +107,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Statistiques",
             url: "/statistiques",
             icon: LayersIcon,
+        },
+        {
+            title: "Finance",
+            url: "/finance",
+            icon: EuroIcon,
         },
         {
             title: "Contrats",
@@ -231,6 +237,7 @@ function NavMain({
                                 <Link href={item.url}>
                                     {item.title === "Devis & Contrats" && <PanelLeftIcon />}
                                     {item.title === "Statistiques" && <DatabaseIcon />}
+                                    {item.title === "Finance" && <EuroIcon />}
                                     {item.title === "Planification" && <MapIcon />}
                                     {item.title === "Calendrier" && <CalendarIcon />}
                                     {item.title === "Personnalisation" && <SettingsIcon />}
@@ -391,24 +398,7 @@ function NavUser({
                                 </div>
                             </div>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuGroup>
-                            <DropdownMenuItem>
-                                <UserCircleIcon
-                                />
-                                Account
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <CreditCardIcon
-                                />
-                                Billing
-                            </DropdownMenuItem>
-                            <DropdownMenuItem>
-                                <BellIcon
-                                />
-                                Notifications
-                            </DropdownMenuItem>
-                        </DropdownMenuGroup>
+
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => logout()} className="text-red-600 focus:text-red-600 cursor-pointer">
                             <LogOutIcon />

@@ -54,7 +54,10 @@ const DEFAULT_SETTINGS = {
         { name: "Prestige", price: "350" }
     ],
     options: [],
-    label_livraison: "Frais de déplacement"
+    label_livraison: "Frais de déplacement",
+    logo_base64: "",
+    logo_url: "",
+    logo_width: 100
 }
 
 const formSchema = z.object({
@@ -70,7 +73,7 @@ const formSchema = z.object({
     heure_debut: z.string().nullable().default(""),
     date_fin: z.string().nullable().default(""),
     heure_fin: z.string().nullable().default(""),
-    lieu: z.string().min(2, "Le lieu est requis"),
+    lieu: z.string().nullable().default(""),
     texte_libre: z.string().nullable().default(""),
     equipment_id: z.string().nullable().optional(),
     offre: z.string().min(1, "L'offre est requise"),
@@ -83,8 +86,12 @@ const formSchema = z.object({
     remise: z.string().nullable().default("0"),
     acompte_recu: z.string().nullable().default("0"),
     acompte_paye: z.boolean().default(false),
+    acompte_methode: z.string().nullable().optional(),
+    acompte_date: z.string().nullable().optional(),
     contrat_signe: z.boolean().default(false),
     solde_paye: z.boolean().default(false),
+    solde_methode: z.string().nullable().optional(),
+    solde_date: z.string().nullable().optional(),
     design_valide: z.boolean().default(false),
     etat: z.string().default("Contact"),
     note_interne: z.string().nullable().default(""),
@@ -124,8 +131,12 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             remise: "0",
             acompte_recu: "0",
             acompte_paye: false,
+            acompte_methode: "",
+            acompte_date: "",
             contrat_signe: false,
             solde_paye: false,
+            solde_methode: "",
+            solde_date: "",
             design_valide: false,
             nom_client: "",
             email_client: "",
@@ -153,6 +164,30 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             form.reset(sanitizedInitialData)
         }
     }, [sanitizedInitialData, form])
+
+    // Auto-set payment dates when switches are toggled on
+    const acomptePaye = form.watch("acompte_paye")
+    const soldePaye = form.watch("solde_paye")
+
+    React.useEffect(() => {
+        if (acomptePaye && !form.getValues("acompte_date")) {
+            // Set current datetime (YYYY-MM-DDThh:mm)
+            // Set current datetime (YYYY-MM-DDThh:mm)
+            const now = format(new Date(), "yyyy-MM-dd'T'HH:mm")
+            form.setValue("acompte_date", now, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+        }
+    }, [acomptePaye, form])
+
+    React.useEffect(() => {
+        if (soldePaye && !form.getValues("solde_date")) {
+            // Set current datetime (YYYY-MM-DDThh:mm)
+            // Set current datetime (YYYY-MM-DDThh:mm)
+            const now = format(new Date(), "yyyy-MM-dd'T'HH:mm")
+            form.setValue("solde_date", now, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+        }
+    }, [soldePaye, form])
+
+
 
     const [isSaving, setIsSaving] = React.useState(false)
 
@@ -237,8 +272,13 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
         const table = internalMode === "devis" ? "devis" : "contrats"
 
         // For contracts, we ensure the 'etat' is properly set if not already
+        // Force-read key dates and methods to ensure they are saved
         const finalValues = {
             ...values,
+            acompte_date: values.acompte_date || form.getValues("acompte_date"),
+            solde_date: values.solde_date || form.getValues("solde_date"),
+            acompte_methode: values.acompte_methode || form.getValues("acompte_methode"),
+            solde_methode: values.solde_methode || form.getValues("solde_methode"),
             etat: values.etat || (internalMode === "contrat" ? "Validé" : "Contact")
         }
 
@@ -684,6 +724,65 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
         }
     }
 
+
+    const computedEmail = React.useMemo(() => {
+        const type = emailType;
+        let rawSubject = "";
+        let rawBody = "";
+
+        if (type === "devis") {
+            rawSubject = statusSettings?.email_devis_subject || "Votre Devis - {{company_name}}";
+            rawBody = statusSettings?.email_devis_body || "Bonjour {{client_name}},\n\nVoici le devis {{doc_number}} concernant votre événement.\n\nCordialement,\n{{company_name}}";
+        } else if (type === "invoice") {
+            rawSubject = statusSettings?.email_facture_subject || "Votre Facture - {{company_name}}";
+            rawBody = statusSettings?.email_facture_body || "Bonjour {{client_name}},\n\nVoici la facture {{doc_number}}.\n\nCordialement,\n{{company_name}}";
+        } else {
+            // contract
+            rawSubject = statusSettings?.email_contrat_subject || "Votre Contrat - {{company_name}}";
+            rawBody = statusSettings?.email_contrat_body || "Bonjour {{client_name}},\n\nVoici le contrat {{doc_number}}. Merci de le signer pour valider la réservation.\n\nCordialement,\n{{company_name}}";
+        }
+
+        const replacements: Record<string, string> = {
+            "{{client_name}}": form.getValues("nom_client") || "Client",
+            "{{client_phone}}": form.getValues("telephone_client") || "",
+            "{{client_email}}": form.getValues("email_client") || "",
+            "{{client_address}}": form.getValues("adresse_client") || "",
+            "{{doc_number}}": generateReference(type === "contract" ? "contrat" : type),
+            "{{doc_type}}": type === "invoice" ? "Facture" : (type === "devis" ? "Devis" : "Contrat"),
+            "{{company_name}}": statusSettings?.nom_societe || "Mon Entreprise",
+            "{{event_date}}": (() => {
+                const d = form.getValues("date_debut");
+                return d ? format(new Date(d), "dd/MM/yyyy") : "Date non définie";
+            })(),
+            "{{event_time}}": form.getValues("heure_debut") || "",
+            "{{event_end_time}}": form.getValues("heure_fin") || "",
+            "{{event_location}}": form.getValues("lieu") || "Lieu non défini",
+            "{{total_amount}}": `${parseFloat(form.getValues("prix_total") || "0").toFixed(2)}€`,
+            "{{deposit_amount}}": (() => {
+                const acc = form.getValues("acompte_recu");
+                return acc ? `${parseFloat(acc).toFixed(2)}€` : "0.00€";
+            })(),
+            "{{balance_amount}}": (parseFloat(form.getValues("prix_total") || "0") - parseFloat(form.getValues("acompte_recu") || "0")).toFixed(2) + "€",
+            "{{company_logo}}": (statusSettings as any)?.logo_url
+                ? `<img src="${(statusSettings as any).logo_url}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />`
+                : ((statusSettings as any)?.logo_base64 ? `<img src="${(statusSettings as any).logo_base64}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />` : ""),
+        };
+
+        // Debug logo availability
+        // console.log("Logo available for email:", !!(statusSettings as any)?.logo_base64);
+
+        let subject = rawSubject;
+        let body = rawBody;
+
+        Object.entries(replacements).forEach(([key, value]) => {
+            // Use replaceAll if env supports it, or simple regex
+            subject = subject.split(key).join(value);
+            body = body.split(key).join(value);
+        });
+
+        return { subject, body };
+    }, [emailType, statusSettings, form.watch("nom_client"), form.watch("date_debut"), internalMode])
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit, (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
@@ -897,7 +996,8 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                     open={showEmail}
                     onOpenChange={setShowEmail}
                     defaultEmail={form.watch("email_client") || ""}
-                    defaultSubject={`${internalMode === "contrat" ? "Contrat" : "Devis"} - ${form.watch("nom_evenement") || "Événement"}`}
+                    defaultSubject={computedEmail.subject}
+                    defaultMessage={computedEmail.body}
                     onSend={handleSendEmail}
                 />
 
@@ -944,7 +1044,15 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 <FormItem>
                                     <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Téléphone</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="06 12 34 56 78" {...field} />
+                                        <Input
+                                            placeholder="06 12 34 56 78"
+                                            {...field}
+                                            onChange={(e) => {
+                                                const value = e.target.value.replace(/\D/g, "");
+                                                const formatted = value.match(/.{1,2}/g)?.join(" ") || value;
+                                                field.onChange(formatted.substring(0, 14)); // Limit to standard FR format length + spaces
+                                            }}
+                                        />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -1379,42 +1487,116 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                             />
 
                             {/* Swich 2: Acompte Reçu */}
-                            <FormField
-                                control={form.control}
-                                name="acompte_paye"
-                                render={({ field }: { field: any }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-white p-3 shadow-sm">
-                                        <div className="space-y-0.5">
+                            <div className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm">
+                                <FormField
+                                    control={form.control}
+                                    name="acompte_paye"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between space-y-0">
                                             <FormLabel className="text-xs font-medium">Acompte Reçu</FormLabel>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                {form.watch("acompte_paye") && (
+                                    <>
+                                        <FormField
+                                            control={form.control}
+                                            name="acompte_methode"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="h-8 text-xs w-full">
+                                                                <SelectValue placeholder="Mode de paiement" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value="Especes">Espèces</SelectItem>
+                                                            <SelectItem value="Virement">Virement</SelectItem>
+                                                            <SelectItem value="Cheque">Chèque</SelectItem>
+                                                            <SelectItem value="PayPal">PayPal</SelectItem>
+                                                            <SelectItem value="CB">Mettle / CB</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="acompte_date"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input type="datetime-local" className="h-8 text-xs" {...field} value={field.value || ""} />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </>
                                 )}
-                            />
+                            </div>
 
                             {/* Swich 3: Solde Reçu */}
-                            <FormField
-                                control={form.control}
-                                name="solde_paye"
-                                render={({ field }: { field: any }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-white p-3 shadow-sm">
-                                        <div className="space-y-0.5">
+                            <div className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm">
+                                <FormField
+                                    control={form.control}
+                                    name="solde_paye"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between space-y-0">
                                             <FormLabel className="text-xs font-medium">Solde Reçu</FormLabel>
-                                        </div>
-                                        <FormControl>
-                                            <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        </FormControl>
-                                    </FormItem>
+                                            <FormControl>
+                                                <Switch
+                                                    checked={field.value}
+                                                    onCheckedChange={field.onChange}
+                                                />
+                                            </FormControl>
+                                        </FormItem>
+                                    )}
+                                />
+                                {form.watch("solde_paye") && (
+                                    <>
+                                        <FormField
+                                            control={form.control}
+                                            name="solde_methode"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                                                        <FormControl>
+                                                            <SelectTrigger className="h-8 text-xs w-full">
+                                                                <SelectValue placeholder="Mode de paiement" />
+                                                            </SelectTrigger>
+                                                        </FormControl>
+                                                        <SelectContent>
+                                                            <SelectItem value="Especes">Espèces</SelectItem>
+                                                            <SelectItem value="Virement">Virement</SelectItem>
+                                                            <SelectItem value="Cheque">Chèque</SelectItem>
+                                                            <SelectItem value="PayPal">PayPal</SelectItem>
+                                                            <SelectItem value="CB">Mettle / CB</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name="solde_date"
+                                            render={({ field }) => (
+                                                <FormItem>
+                                                    <FormControl>
+                                                        <Input type="datetime-local" className="h-8 text-xs" {...field} value={field.value || ""} />
+                                                    </FormControl>
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </>
                                 )}
-                            />
+                            </div>
 
                             {/* Switch 4: Design Validé (Conditional) */}
                             {form.watch("selected_options")?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
