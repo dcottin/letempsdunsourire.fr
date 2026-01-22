@@ -69,10 +69,13 @@ type Settings = {
     label_livraison: string
 
     // Emails
+    email_devis_name?: string
     email_devis_subject: string
     email_devis_body: string
+    email_contrat_name?: string
     email_contrat_subject: string
     email_contrat_body: string
+    email_facture_name?: string
     email_facture_subject: string
     email_facture_body: string
     enabled_email_tags?: string[]
@@ -122,10 +125,13 @@ const defaultSettings: Settings = {
     ],
     options: [],
     label_livraison: "Frais de déplacement",
+    email_devis_name: "Modèle standard Devis",
     email_devis_subject: "Votre Devis - {{company_name}}",
     email_devis_body: "Bonjour {{client_name}},\n\nVoici le devis {{doc_number}} concernant votre événement.\n\nCordialement,\n{{company_name}}",
+    email_contrat_name: "Modèle standard Contrat",
     email_contrat_subject: "Votre Contrat - {{company_name}}",
     email_contrat_body: "Bonjour {{client_name}},\n\nVoici le contrat {{doc_number}}. Merci de le signer pour valider la réservation.\n\nCordialement,\n{{company_name}}",
+    email_facture_name: "Modèle standard Facture",
     email_facture_subject: "Votre Facture - {{company_name}}",
     email_facture_body: "Bonjour {{client_name}},\n\nVoici la facture {{doc_number}}.\n\nCordialement,\n{{company_name}}",
     enabled_email_tags: [
@@ -718,64 +724,86 @@ export default function PersonnalisationPage() {
                                             </Button>
                                         </div>
 
-                                        <div className="grid grid-cols-1 gap-6">
-                                            {/* Default Devis */}
-                                            <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10">
-                                                <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">PAR DÉFAUT</div>
-                                                <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
-                                                        <Input
-                                                            value={settings.email_devis_subject}
-                                                            onChange={(e) => handleChange("email_devis_subject", e.target.value)}
-                                                            className="font-medium bg-white"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
-                                                        <RichTextEditor
-                                                            value={settings.email_devis_body || ""}
-                                                            onChange={(html) => handleChange("email_devis_body", html)}
-                                                        />
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
+                                        <Tabs defaultValue="default" className="w-full">
+                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
+                                                <TabsTrigger value="default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    {settings.email_devis_name || "Par défaut"}
+                                                </TabsTrigger>
+                                                {(settings.mail_templates || []).filter(t => t.type === "devis").map(template => (
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-4 py-2 font-bold shadow-none h-10">
+                                                        {template.name}
+                                                    </TabsTrigger>
+                                                ))}
+                                            </TabsList>
 
-                                            {/* Custom Devis Templates */}
-                                            {(settings.mail_templates || []).filter(t => t.type === "devis").map((template) => (
-                                                <Card key={template.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
-                                                    <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
-                                                        <div className="flex items-center gap-2 flex-1">
+                                            <TabsContent value="default" className="mt-0">
+                                                <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10">
+                                                    <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
+                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
                                                             <Input
-                                                                value={template.name}
-                                                                onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
-                                                                className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
-                                                                placeholder="Nom du modèle"
-                                                            />
-                                                            <TagIcon className="size-3 text-slate-300" />
-                                                        </div>
-                                                        <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
-                                                            <TrashIcon className="size-4" />
-                                                        </Button>
-                                                    </CardHeader>
-                                                    <CardContent className="p-4 pt-0 space-y-3">
-                                                        <div className="space-y-1">
-                                                            <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
-                                                            <Input
-                                                                value={template.subject}
-                                                                onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                className="h-8 text-xs"
+                                                                value={settings.email_devis_name}
+                                                                onChange={(e) => handleChange("email_devis_name", e.target.value)}
+                                                                className="font-bold bg-white border-dashed border-indigo-200"
+                                                                placeholder="Nom du modèle par défaut"
                                                             />
                                                         </div>
-                                                        <RichTextEditor
-                                                            value={template.body || ""}
-                                                            onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                            minHeight="150px"
-                                                        />
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
+                                                            <Input
+                                                                value={settings.email_devis_subject}
+                                                                onChange={(e) => handleChange("email_devis_subject", e.target.value)}
+                                                                className="font-medium bg-white"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                            <RichTextEditor
+                                                                value={settings.email_devis_body || ""}
+                                                                onChange={(html) => handleChange("email_devis_body", html)}
+                                                            />
+                                                        </div>
                                                     </CardContent>
                                                 </Card>
+                                            </TabsContent>
+
+                                            {(settings.mail_templates || []).filter(t => t.type === "devis").map((template) => (
+                                                <TabsContent key={template.id} value={template.id} className="mt-0">
+                                                    <Card className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
+                                                        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 bg-slate-50/50">
+                                                            <div className="flex items-center gap-2 flex-1">
+                                                                <Input
+                                                                    value={template.name}
+                                                                    onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                                    className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
+                                                                    placeholder="Nom du modèle"
+                                                                />
+                                                                <TagIcon className="size-3 text-slate-300" />
+                                                            </div>
+                                                            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
+                                                                <TrashIcon className="size-4" />
+                                                            </Button>
+                                                        </CardHeader>
+                                                        <CardContent className="p-4 pt-4 space-y-3">
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
+                                                                <Input
+                                                                    value={template.subject}
+                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
+                                                                    className="h-8 text-xs font-medium"
+                                                                />
+                                                            </div>
+                                                            <RichTextEditor
+                                                                value={template.body || ""}
+                                                                onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                                minHeight="150px"
+                                                            />
+                                                        </CardContent>
+                                                    </Card>
+                                                </TabsContent>
                                             ))}
-                                        </div>
+                                        </Tabs>
                                     </TabsContent>
 
                                     {/* CONTRAT TAB */}
@@ -790,63 +818,86 @@ export default function PersonnalisationPage() {
                                             </Button>
                                         </div>
 
-                                        <div className="grid grid-cols-1 gap-6">
-                                            {/* Default Contrat */}
-                                            <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10">
-                                                <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">PAR DÉFAUT</div>
-                                                <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
-                                                        <Input
-                                                            value={settings.email_contrat_subject}
-                                                            onChange={(e) => handleChange("email_contrat_subject", e.target.value)}
-                                                            className="font-medium bg-white"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
-                                                        <RichTextEditor
-                                                            value={settings.email_contrat_body || ""}
-                                                            onChange={(html) => handleChange("email_contrat_body", html)}
-                                                        />
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
+                                        <Tabs defaultValue="default" className="w-full">
+                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
+                                                <TabsTrigger value="default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    {settings.email_contrat_name || "Par défaut"}
+                                                </TabsTrigger>
+                                                {(settings.mail_templates || []).filter(t => t.type === "contrat").map(template => (
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-4 py-2 font-bold shadow-none h-10">
+                                                        {template.name}
+                                                    </TabsTrigger>
+                                                ))}
+                                            </TabsList>
 
-                                            {(settings.mail_templates || []).filter(t => t.type === "contrat").map((template) => (
-                                                <Card key={template.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
-                                                    <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
-                                                        <div className="flex items-center gap-2 flex-1">
+                                            <TabsContent value="default" className="mt-0">
+                                                <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10">
+                                                    <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
+                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
                                                             <Input
-                                                                value={template.name}
-                                                                onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
-                                                                className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
-                                                                placeholder="Nom du modèle"
-                                                            />
-                                                            <TagIcon className="size-3 text-slate-300" />
-                                                        </div>
-                                                        <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
-                                                            <TrashIcon className="size-4" />
-                                                        </Button>
-                                                    </CardHeader>
-                                                    <CardContent className="p-4 pt-0 space-y-3">
-                                                        <div className="space-y-1">
-                                                            <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
-                                                            <Input
-                                                                value={template.subject}
-                                                                onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                className="h-8 text-xs"
+                                                                value={settings.email_contrat_name}
+                                                                onChange={(e) => handleChange("email_contrat_name", e.target.value)}
+                                                                className="font-bold bg-white border-dashed border-purple-200"
+                                                                placeholder="Nom du modèle par défaut"
                                                             />
                                                         </div>
-                                                        <RichTextEditor
-                                                            value={template.body || ""}
-                                                            onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                            minHeight="150px"
-                                                        />
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
+                                                            <Input
+                                                                value={settings.email_contrat_subject}
+                                                                onChange={(e) => handleChange("email_contrat_subject", e.target.value)}
+                                                                className="font-medium bg-white"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                            <RichTextEditor
+                                                                value={settings.email_contrat_body || ""}
+                                                                onChange={(html) => handleChange("email_contrat_body", html)}
+                                                            />
+                                                        </div>
                                                     </CardContent>
                                                 </Card>
+                                            </TabsContent>
+
+                                            {(settings.mail_templates || []).filter(t => t.type === "contrat").map((template) => (
+                                                <TabsContent key={template.id} value={template.id} className="mt-0">
+                                                    <Card key={template.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
+                                                        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 bg-slate-50/50">
+                                                            <div className="flex items-center gap-2 flex-1">
+                                                                <Input
+                                                                    value={template.name}
+                                                                    onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                                    className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
+                                                                    placeholder="Nom du modèle"
+                                                                />
+                                                                <TagIcon className="size-3 text-slate-300" />
+                                                            </div>
+                                                            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
+                                                                <TrashIcon className="size-4" />
+                                                            </Button>
+                                                        </CardHeader>
+                                                        <CardContent className="p-4 pt-4 space-y-3">
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
+                                                                <Input
+                                                                    value={template.subject}
+                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
+                                                                    className="h-8 text-xs font-medium"
+                                                                />
+                                                            </div>
+                                                            <RichTextEditor
+                                                                value={template.body || ""}
+                                                                onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                                minHeight="150px"
+                                                            />
+                                                        </CardContent>
+                                                    </Card>
+                                                </TabsContent>
                                             ))}
-                                        </div>
+                                        </Tabs>
                                     </TabsContent>
 
                                     {/* FACTURE TAB */}
@@ -861,62 +912,86 @@ export default function PersonnalisationPage() {
                                             </Button>
                                         </div>
 
-                                        <div className="grid grid-cols-1 gap-6">
-                                            <Card className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10">
-                                                <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg">PAR DÉFAUT</div>
-                                                <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
-                                                        <Input
-                                                            value={settings.email_facture_subject}
-                                                            onChange={(e) => handleChange("email_facture_subject", e.target.value)}
-                                                            className="font-medium bg-white"
-                                                        />
-                                                    </div>
-                                                    <div className="space-y-2">
-                                                        <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
-                                                        <RichTextEditor
-                                                            value={settings.email_facture_body || ""}
-                                                            onChange={(html) => handleChange("email_facture_body", html)}
-                                                        />
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
+                                        <Tabs defaultValue="default" className="w-full">
+                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
+                                                <TabsTrigger value="default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    {settings.email_facture_name || "Par défaut"}
+                                                </TabsTrigger>
+                                                {(settings.mail_templates || []).filter(t => t.type === "facture").map(template => (
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-4 py-2 font-bold shadow-none h-10">
+                                                        {template.name}
+                                                    </TabsTrigger>
+                                                ))}
+                                            </TabsList>
 
-                                            {(settings.mail_templates || []).filter(t => t.type === "facture").map((template) => (
-                                                <Card key={template.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
-                                                    <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0">
-                                                        <div className="flex items-center gap-2 flex-1">
+                                            <TabsContent value="default" className="mt-0">
+                                                <Card className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10">
+                                                    <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
+                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
                                                             <Input
-                                                                value={template.name}
-                                                                onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
-                                                                className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
-                                                                placeholder="Nom du modèle"
-                                                            />
-                                                            <TagIcon className="size-3 text-slate-300" />
-                                                        </div>
-                                                        <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
-                                                            <TrashIcon className="size-4" />
-                                                        </Button>
-                                                    </CardHeader>
-                                                    <CardContent className="p-4 pt-0 space-y-3">
-                                                        <div className="space-y-1">
-                                                            <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
-                                                            <Input
-                                                                value={template.subject}
-                                                                onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                className="h-8 text-xs"
+                                                                value={settings.email_facture_name}
+                                                                onChange={(e) => handleChange("email_facture_name", e.target.value)}
+                                                                className="font-bold bg-white border-dashed border-emerald-200"
+                                                                placeholder="Nom du modèle par défaut"
                                                             />
                                                         </div>
-                                                        <RichTextEditor
-                                                            value={template.body || ""}
-                                                            onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                            minHeight="150px"
-                                                        />
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
+                                                            <Input
+                                                                value={settings.email_facture_subject}
+                                                                onChange={(e) => handleChange("email_facture_subject", e.target.value)}
+                                                                className="font-medium bg-white"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                            <RichTextEditor
+                                                                value={settings.email_facture_body || ""}
+                                                                onChange={(html) => handleChange("email_facture_body", html)}
+                                                            />
+                                                        </div>
                                                     </CardContent>
                                                 </Card>
+                                            </TabsContent>
+
+                                            {(settings.mail_templates || []).filter(t => t.type === "facture").map((template) => (
+                                                <TabsContent key={template.id} value={template.id} className="mt-0">
+                                                    <Card key={template.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
+                                                        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 bg-slate-50/50">
+                                                            <div className="flex items-center gap-2 flex-1">
+                                                                <Input
+                                                                    value={template.name}
+                                                                    onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                                    className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
+                                                                    placeholder="Nom du modèle"
+                                                                />
+                                                                <TagIcon className="size-3 text-slate-300" />
+                                                            </div>
+                                                            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
+                                                                <TrashIcon className="size-4" />
+                                                            </Button>
+                                                        </CardHeader>
+                                                        <CardContent className="p-4 pt-4 space-y-3">
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
+                                                                <Input
+                                                                    value={template.subject}
+                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
+                                                                    className="h-8 text-xs font-medium"
+                                                                />
+                                                            </div>
+                                                            <RichTextEditor
+                                                                value={template.body || ""}
+                                                                onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                                minHeight="150px"
+                                                            />
+                                                        </CardContent>
+                                                    </Card>
+                                                </TabsContent>
                                             ))}
-                                        </div>
+                                        </Tabs>
                                     </TabsContent>
                                 </Tabs>
                             </div>
