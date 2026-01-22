@@ -1,12 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Use service role key to bypass RLS for public signature lookup
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
 export async function GET(
     request: NextRequest,
     { params }: { params: Promise<{ token: string }> }
@@ -18,6 +12,13 @@ export async function GET(
     }
 
     try {
+        // Create Supabase admin client at request time (not module level)
+        // This avoids build-time errors when env vars aren't available
+        const supabaseAdmin = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+        )
+
         // Search in both tables and multiple token fields
         const tables = ['contrats', 'devis']
         const tokenFields = ['access_token_contrat', 'access_token_devis', 'access_token']
