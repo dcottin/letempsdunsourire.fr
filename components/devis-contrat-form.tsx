@@ -933,8 +933,8 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                             </Tabs>
                         </div>
 
-                        <div className="flex flex-wrap justify-between items-center no-print gap-3">
-                            <div className="flex items-center gap-3">
+                        <div className="flex flex-wrap justify-between items-center no-print gap-2 sm:gap-3">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                                 <Button
                                     type="button"
                                     variant="default"
@@ -954,26 +954,32 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         }
                                     }}
                                     disabled={isSaving}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-2"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
                                 >
-                                    <span className="relative flex h-3 w-3 mr-1">
+                                    <span className="relative flex h-2 w-2 sm:h-3 sm:w-3 mr-0.5 sm:mr-1">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-white"></span>
                                     </span>
-                                    Signature electronique
+                                    <span className="hidden sm:inline">Signature électronique</span>
+                                    <span className="sm:hidden">Signer</span>
                                 </Button>
 
                                 <Button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-2 px-4 uppercase text-[10px] tracking-wider"
+                                    className="h-8 sm:h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 px-2 sm:px-4 uppercase text-[9px] sm:text-[10px] tracking-wider"
                                 >
                                     {isSaving ? (
                                         <>
-                                            <Loader2Icon className="size-3 animate-spin" /> ENREGISTREMENT...
+                                            <Loader2Icon className="size-3 animate-spin" />
+                                            <span className="hidden sm:inline">ENREGISTREMENT...</span>
+                                            <span className="sm:hidden">...</span>
                                         </>
                                     ) : (
-                                        "Enregistrer les modifications"
+                                        <>
+                                            <span className="hidden sm:inline">Enregistrer les modifications</span>
+                                            <span className="sm:hidden">Enregistrer</span>
+                                        </>
                                     )}
                                 </Button>
                             </div>
