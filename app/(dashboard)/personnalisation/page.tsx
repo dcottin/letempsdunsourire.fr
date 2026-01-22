@@ -61,6 +61,7 @@ type Settings = {
     annexe_texte: string
     annexe_logo_base64?: string
     rib_text?: string
+    rib_url?: string
 
     // Catalogue
     offres: { name: string; price: string }[]
@@ -101,6 +102,7 @@ const defaultSettings: Settings = {
     mention_tva: "TVA non applicable, art. 293 B du CGI",
     footer_facture: "",
     rib_text: "",
+    rib_url: "",
     workflow_steps: ["Contrat signé", "Questionnaire reçu", "Design validé", "Matériel prêt"],
     msg_success: "",
     relance_devis_active: false,
@@ -166,6 +168,7 @@ export default function PersonnalisationPage() {
     const [isMounted, setIsMounted] = useState(false)
 
     const logoInputRef = useRef<HTMLInputElement>(null)
+    const ribInputRef = useRef<HTMLInputElement>(null)
     const signatureInputRef = useRef<HTMLInputElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [isDrawing, setIsDrawing] = useState(false)
@@ -391,6 +394,41 @@ export default function PersonnalisationPage() {
         handleChange("logo_base64", undefined)
         handleChange("logo_url", undefined)
     }
+
+    // --- RIB UPLOAD ---
+    const handleRibUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        try {
+            const fileExt = file.name.split('.').pop()
+            const fileName = `rib-${Date.now()}.${fileExt}`
+            const filePath = `${fileName}`
+
+            const { error: uploadError } = await supabase.storage
+                .from('assets')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: false
+                })
+
+            if (uploadError) throw uploadError
+
+            const { data } = supabase.storage
+                .from('assets')
+                .getPublicUrl(filePath)
+
+            if (data?.publicUrl) {
+                handleChange("rib_url", data.publicUrl)
+            }
+        } catch (error: any) {
+            console.error("RIB upload failed", error)
+            alert(`Erreur upload RIB: ${error.message}`)
+        }
+    }
+
+    const triggerRibInput = () => ribInputRef.current?.click()
+    const removeRib = () => handleChange("rib_url", undefined)
 
     // --- SIGNATURE UPLOAD ---
     const handleSignatureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -944,18 +982,53 @@ export default function PersonnalisationPage() {
                                         <Input value={settings.bic} onChange={(e) => handleChange("bic", e.target.value)} className="font-mono" />
                                     </div>
                                     <Separator className="my-2" />
-                                    <div className="space-y-2">
-                                        <Label className="flex items-center gap-2 text-indigo-600 font-bold uppercase text-[10px] tracking-wider">
-                                            <FileIcon className="size-3" /> Informations RIB (Affichage Facture)
-                                        </Label>
-                                        <Textarea
-                                            value={settings.rib_text || ""}
-                                            onChange={(e) => handleChange("rib_text", e.target.value)}
-                                            placeholder="Coller ici vos coordonnées complètes ou mentions spéciales RIB..."
-                                            rows={4}
-                                            className="text-xs bg-slate-50 border-indigo-100 focus:border-indigo-300"
-                                        />
-                                        <p className="text-[10px] text-slate-400">Ce texte apparaîtra en bas de vos factures pour faciliter les virements.</p>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2 text-indigo-600 font-bold uppercase text-[10px] tracking-wider">
+                                                <FileIcon className="size-3" /> Informations RIB (Texte manuel)
+                                            </Label>
+                                            <Textarea
+                                                value={settings.rib_text || ""}
+                                                onChange={(e) => handleChange("rib_text", e.target.value)}
+                                                placeholder="Coller ici vos coordonnées complètes ou mentions spéciales RIB..."
+                                                rows={4}
+                                                className="text-xs bg-slate-50 border-indigo-100 focus:border-indigo-300"
+                                            />
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label className="flex items-center gap-2 text-indigo-600 font-bold uppercase text-[10px] tracking-wider">
+                                                <UploadIcon className="size-3" /> Fichier RIB (Upload)
+                                            </Label>
+                                            <input
+                                                type="file"
+                                                accept=".pdf,image/*"
+                                                className="hidden"
+                                                ref={ribInputRef}
+                                                onChange={handleRibUpload}
+                                            />
+                                            <div className="flex flex-col gap-2">
+                                                {settings.rib_url ? (
+                                                    <div className="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                                                        <a href={settings.rib_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs font-medium text-indigo-700 hover:underline">
+                                                            <FileIcon className="size-4" /> Voir le RIB actuel
+                                                        </a>
+                                                        <Button variant="ghost" size="icon" onClick={removeRib} className="h-8 w-8 text-red-500 hover:bg-red-50">
+                                                            <TrashIcon className="size-4" />
+                                                        </Button>
+                                                    </div>
+                                                ) : (
+                                                    <Button variant="outline" onClick={triggerRibInput} className="w-full gap-2 border-dashed h-20 text-slate-500 hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 transition-all">
+                                                        <UploadIcon className="size-5" />
+                                                        <div className="flex flex-col items-start text-left">
+                                                            <span className="font-bold">Importer votre RIB</span>
+                                                            <span className="text-[10px] opacity-70">PDF ou Image supportés</span>
+                                                        </div>
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p className="text-[10px] text-slate-400">Le RIB ou texte RIB apparaîtra selon votre configuration sur les documents.</p>
                                     </div>
                                 </CardContent>
                             </Card>
