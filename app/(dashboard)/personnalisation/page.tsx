@@ -78,8 +78,11 @@ type Settings = {
     email_facture_name?: string
     email_facture_subject: string
     email_facture_body: string
+    email_signature_name?: string
+    email_signature_subject: string
+    email_signature_body: string
     enabled_email_tags?: string[]
-    mail_templates?: { id: string; name: string; subject: string; body: string; type: "devis" | "contrat" | "facture" }[]
+    mail_templates?: { id: string; name: string; subject: string; body: string; type: "devis" | "contrat" | "facture" | "signature" }[]
 }
 
 const defaultSettings: Settings = {
@@ -134,6 +137,9 @@ const defaultSettings: Settings = {
     email_facture_name: "Modèle standard Facture",
     email_facture_subject: "Votre Facture - {{company_name}}",
     email_facture_body: "Bonjour {{client_name}},\n\nVoici la facture {{doc_number}}.\n\nCordialement,\n{{company_name}}",
+    email_signature_name: "Confirmation de signature",
+    email_signature_subject: "Contrat signé - {{company_name}}",
+    email_signature_body: "Bonjour {{client_name}},\n\nNous vous confirmons que votre contrat {{doc_number}} a bien été signé électroniquement.\n\nDate de l'événement : {{event_date}}\nLieu : {{event_location}}\n\nMerci pour votre confiance !\n\nCordialement,\n{{company_name}}",
     enabled_email_tags: [
         "{{client_name}}",
         "{{doc_number}}",
@@ -142,7 +148,8 @@ const defaultSettings: Settings = {
         "{{event_location}}",
         "{{deposit_amount}}",
         "{{balance_amount}}",
-        "{{company_logo}}"
+        "{{company_logo}}",
+        "{{signature_date}}"
     ],
     mail_templates: []
 }
@@ -163,6 +170,7 @@ const ALL_TAGS = [
     { id: "{{deposit_amount}}", label: "Montant Acompte" },
     { id: "{{balance_amount}}", label: "Montant Solde" },
     { id: "{{company_logo}}", label: "Logo Entreprise" },
+    { id: "{{signature_date}}", label: "Date de signature" },
 ]
 
 
@@ -267,13 +275,19 @@ export default function PersonnalisationPage() {
     }
 
     // --- MAIL TEMPLATES ---
-    const addMailTemplate = (type: "devis" | "contrat" | "facture" = "devis") => {
+    const addMailTemplate = (type: "devis" | "contrat" | "facture" | "signature" = "devis") => {
+        const typeLabels = {
+            devis: "Modèle Devis",
+            contrat: "Modèle Contrat",
+            facture: "Modèle Facture",
+            signature: "Modèle Signature"
+        }
         const newTemplate = {
             id: Math.random().toString(36).substring(2, 9),
-            name: type === "devis" ? "Modèle Devis" : type === "contrat" ? "Modèle Contrat" : "Modèle Facture",
+            name: typeLabels[type],
             subject: "Sujet du mail",
             body: "Corps du mail...",
-            type: type as "devis" | "contrat" | "facture"
+            type: type as "devis" | "contrat" | "facture" | "signature"
         }
         setSettings(prev => ({
             ...prev,
@@ -700,7 +714,7 @@ export default function PersonnalisationPage() {
                             {/* Left: Main Content (Large Editor Area) */}
                             <div className="flex-1 min-w-0">
                                 <Tabs defaultValue="devis" className="w-full">
-                                    <TabsList className="grid grid-cols-3 mb-8 bg-slate-100 p-1 h-12 rounded-xl">
+                                    <TabsList className="grid grid-cols-4 mb-8 bg-slate-100 p-1 h-12 rounded-xl">
                                         <TabsTrigger value="devis" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm gap-2 font-bold">
                                             <FileTextIcon className="size-4" /> <span className="hidden sm:inline">Devis</span>
                                         </TabsTrigger>
@@ -709,6 +723,9 @@ export default function PersonnalisationPage() {
                                         </TabsTrigger>
                                         <TabsTrigger value="facture" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm gap-2 font-bold">
                                             <CreditCardIcon className="size-4" /> <span className="hidden sm:inline">Facture</span>
+                                        </TabsTrigger>
+                                        <TabsTrigger value="signature" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-pink-600 data-[state=active]:shadow-sm gap-2 font-bold">
+                                            <PenToolIcon className="size-4" /> <span className="hidden sm:inline">Signature</span>
                                         </TabsTrigger>
                                     </TabsList>
 
@@ -750,7 +767,7 @@ export default function PersonnalisationPage() {
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
                                                             <Input
                                                                 value={settings.email_devis_subject}
                                                                 onChange={(e) => handleChange("email_devis_subject", e.target.value)}
@@ -770,35 +787,38 @@ export default function PersonnalisationPage() {
 
                                             {(settings.mail_templates || []).filter(t => t.type === "devis").map((template) => (
                                                 <TabsContent key={template.id} value={template.id} className="mt-0">
-                                                    <Card className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
-                                                        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 bg-slate-50/50">
-                                                            <div className="flex items-center gap-2 flex-1">
-                                                                <Input
-                                                                    value={template.name}
-                                                                    onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
-                                                                    className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
-                                                                    placeholder="Nom du modèle"
-                                                                />
-                                                                <TagIcon className="size-3 text-slate-300" />
+                                                    <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10 min-h-[300px]">
+                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1 space-y-2">
+                                                                    <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
+                                                                    <Input
+                                                                        value={template.name}
+                                                                        onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                                        className="font-bold bg-white border-dashed border-indigo-200"
+                                                                        placeholder="Nom du modèle"
+                                                                    />
+                                                                </div>
+                                                                <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8 ml-2" onClick={() => removeMailTemplate(template.id)}>
+                                                                    <TrashIcon className="size-4" />
+                                                                </Button>
                                                             </div>
-                                                            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
-                                                                <TrashIcon className="size-4" />
-                                                            </Button>
-                                                        </CardHeader>
-                                                        <CardContent className="p-4 pt-4 space-y-3">
-                                                            <div className="space-y-1">
-                                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
                                                                 <Input
                                                                     value={template.subject}
                                                                     onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                    className="h-8 text-xs font-medium"
+                                                                    className="font-medium bg-white"
                                                                 />
                                                             </div>
-                                                            <RichTextEditor
-                                                                value={template.body || ""}
-                                                                onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                                minHeight="150px"
-                                                            />
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                                <RichTextEditor
+                                                                    value={template.body || ""}
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                                    minHeight="150px"
+                                                                />
+                                                            </div>
                                                         </CardContent>
                                                     </Card>
                                                 </TabsContent>
@@ -844,7 +864,7 @@ export default function PersonnalisationPage() {
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
                                                             <Input
                                                                 value={settings.email_contrat_subject}
                                                                 onChange={(e) => handleChange("email_contrat_subject", e.target.value)}
@@ -864,35 +884,38 @@ export default function PersonnalisationPage() {
 
                                             {(settings.mail_templates || []).filter(t => t.type === "contrat").map((template) => (
                                                 <TabsContent key={template.id} value={template.id} className="mt-0">
-                                                    <Card key={template.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
-                                                        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 bg-slate-50/50">
-                                                            <div className="flex items-center gap-2 flex-1">
-                                                                <Input
-                                                                    value={template.name}
-                                                                    onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
-                                                                    className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
-                                                                    placeholder="Nom du modèle"
-                                                                />
-                                                                <TagIcon className="size-3 text-slate-300" />
+                                                    <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10 min-h-[300px]">
+                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1 space-y-2">
+                                                                    <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
+                                                                    <Input
+                                                                        value={template.name}
+                                                                        onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                                        className="font-bold bg-white border-dashed border-purple-200"
+                                                                        placeholder="Nom du modèle"
+                                                                    />
+                                                                </div>
+                                                                <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8 ml-2" onClick={() => removeMailTemplate(template.id)}>
+                                                                    <TrashIcon className="size-4" />
+                                                                </Button>
                                                             </div>
-                                                            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
-                                                                <TrashIcon className="size-4" />
-                                                            </Button>
-                                                        </CardHeader>
-                                                        <CardContent className="p-4 pt-4 space-y-3">
-                                                            <div className="space-y-1">
-                                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
                                                                 <Input
                                                                     value={template.subject}
                                                                     onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                    className="h-8 text-xs font-medium"
+                                                                    className="font-medium bg-white"
                                                                 />
                                                             </div>
-                                                            <RichTextEditor
-                                                                value={template.body || ""}
-                                                                onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                                minHeight="150px"
-                                                            />
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                                <RichTextEditor
+                                                                    value={template.body || ""}
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                                    minHeight="150px"
+                                                                />
+                                                            </div>
                                                         </CardContent>
                                                     </Card>
                                                 </TabsContent>
@@ -938,7 +961,7 @@ export default function PersonnalisationPage() {
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l'email</Label>
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
                                                             <Input
                                                                 value={settings.email_facture_subject}
                                                                 onChange={(e) => handleChange("email_facture_subject", e.target.value)}
@@ -958,35 +981,135 @@ export default function PersonnalisationPage() {
 
                                             {(settings.mail_templates || []).filter(t => t.type === "facture").map((template) => (
                                                 <TabsContent key={template.id} value={template.id} className="mt-0">
-                                                    <Card key={template.id} className="border-slate-200 shadow-sm hover:shadow-md transition-all group overflow-hidden bg-white/50">
-                                                        <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between space-y-0 bg-slate-50/50">
-                                                            <div className="flex items-center gap-2 flex-1">
-                                                                <Input
-                                                                    value={template.name}
-                                                                    onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
-                                                                    className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-slate-700 bg-transparent w-full"
-                                                                    placeholder="Nom du modèle"
-                                                                />
-                                                                <TagIcon className="size-3 text-slate-300" />
+                                                    <Card key={template.id} className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10 min-h-[300px]">
+                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1 space-y-2">
+                                                                    <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
+                                                                    <Input
+                                                                        value={template.name}
+                                                                        onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                                        className="font-bold bg-white border-dashed border-emerald-200"
+                                                                        placeholder="Nom du modèle"
+                                                                    />
+                                                                </div>
+                                                                <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8 ml-2" onClick={() => removeMailTemplate(template.id)}>
+                                                                    <TrashIcon className="size-4" />
+                                                                </Button>
                                                             </div>
-                                                            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8" onClick={() => removeMailTemplate(template.id)}>
-                                                                <TrashIcon className="size-4" />
-                                                            </Button>
-                                                        </CardHeader>
-                                                        <CardContent className="p-4 pt-4 space-y-3">
-                                                            <div className="space-y-1">
-                                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
                                                                 <Input
                                                                     value={template.subject}
                                                                     onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                    className="h-8 text-xs font-medium"
+                                                                    className="font-medium bg-white"
                                                                 />
                                                             </div>
-                                                            <RichTextEditor
-                                                                value={template.body || ""}
-                                                                onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                                minHeight="150px"
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                                <RichTextEditor
+                                                                    value={template.body || ""}
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                                    minHeight="150px"
+                                                                />
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </TabsContent>
+                                            ))}
+                                        </Tabs>
+                                    </TabsContent>
+
+                                    {/* SIGNATURE TAB */}
+                                    <TabsContent value="signature" className="space-y-6">
+                                        <div className="flex items-center justify-between border-b pb-4">
+                                            <div>
+                                                <h3 className="text-xl font-bold text-pink-900 uppercase tracking-tight">E-mails Signature</h3>
+                                                <p className="text-xs text-slate-500">Envoyés lors de la confirmation de signature électronique.</p>
+                                            </div>
+                                            <Button onClick={() => addMailTemplate("signature")} size="sm" className="bg-pink-600 hover:bg-pink-700 font-bold gap-2">
+                                                <PlusIcon className="size-4" /> Ajouter
+                                            </Button>
+                                        </div>
+
+                                        <Tabs defaultValue="signature-default" className="w-full">
+                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
+                                                <TabsTrigger value="signature-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-pink-600 border-b-2 border-transparent data-[state=active]:border-pink-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    {settings.email_signature_name || "Par défaut"}
+                                                </TabsTrigger>
+                                                {(settings.mail_templates || []).filter(t => t.type === "signature").map(template => (
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-pink-600 border-b-2 border-transparent data-[state=active]:border-pink-600 px-4 py-2 font-bold shadow-none h-10">
+                                                        {template.name}
+                                                    </TabsTrigger>
+                                                ))}
+                                            </TabsList>
+
+                                            <TabsContent value="signature-default" className="mt-0">
+                                                <Card className="border-pink-200 shadow-md relative overflow-hidden ring-2 ring-pink-500/10 min-h-[300px]">
+                                                    <div className="absolute top-0 right-0 bg-pink-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
+                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
+                                                            <Input
+                                                                value={settings.email_signature_name}
+                                                                onChange={(e) => handleChange("email_signature_name", e.target.value)}
+                                                                className="font-bold bg-white border-dashed border-pink-200"
+                                                                placeholder="Nom du modèle par défaut"
                                                             />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
+                                                            <Input
+                                                                value={settings.email_signature_subject}
+                                                                onChange={(e) => handleChange("email_signature_subject", e.target.value)}
+                                                                className="font-medium bg-white"
+                                                            />
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                            <RichTextEditor
+                                                                value={settings.email_signature_body || ""}
+                                                                onChange={(html) => handleChange("email_signature_body", html)}
+                                                            />
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </TabsContent>
+
+                                            {(settings.mail_templates || []).filter(t => t.type === "signature").map((template) => (
+                                                <TabsContent key={template.id} value={template.id} className="mt-0">
+                                                    <Card className="border-pink-200 shadow-md relative overflow-hidden ring-2 ring-pink-500/10 min-h-[300px]">
+                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex-1 space-y-2">
+                                                                    <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
+                                                                    <Input
+                                                                        value={template.name}
+                                                                        onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                                        className="font-bold bg-white border-dashed border-pink-200"
+                                                                        placeholder="Nom du modèle"
+                                                                    />
+                                                                </div>
+                                                                <Button variant="ghost" size="icon" className="text-slate-300 hover:text-red-500 h-8 w-8 ml-2" onClick={() => removeMailTemplate(template.id)}>
+                                                                    <TrashIcon className="size-4" />
+                                                                </Button>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
+                                                                <Input
+                                                                    value={template.subject}
+                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
+                                                                    className="font-medium bg-white"
+                                                                />
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Message</Label>
+                                                                <RichTextEditor
+                                                                    value={template.body || ""}
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                                    minHeight="150px"
+                                                                />
+                                                            </div>
                                                         </CardContent>
                                                     </Card>
                                                 </TabsContent>
@@ -1010,7 +1133,7 @@ export default function PersonnalisationPage() {
                                     <CardContent className="p-4 space-y-4 max-h-[400px] xl:max-h-[600px] overflow-y-auto custom-scrollbar">
                                         <p className="text-[10px] text-slate-500 italic">
                                             <InfoIcon className="inline size-3 mr-1" />
-                                            Glissez une balise dans l'éditeur pour l'insérer.
+                                            Glissez une balise dans l&apos;éditeur pour l&apos;insérer.
                                         </p>
                                         <div className="flex flex-wrap xl:flex-col gap-2">
                                             {ALL_TAGS.filter(tag => (settings.enabled_email_tags || []).includes(tag.id)).map(tag => (
@@ -1398,7 +1521,7 @@ export default function PersonnalisationPage() {
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label>Titre de l'annexe</Label>
+                                        <Label>Titre de l&apos;annexe</Label>
                                         <Input
                                             value={settings.annexe_titre}
                                             onChange={(e) => handleChange("annexe_titre", e.target.value)}
@@ -1406,7 +1529,7 @@ export default function PersonnalisationPage() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>Contenu / Consignes de l'annexe</Label>
+                                        <Label>Contenu / Consignes de l&apos;annexe</Label>
                                         <Textarea
                                             value={settings.annexe_texte}
                                             onChange={(e) => handleChange("annexe_texte", e.target.value)}
@@ -1456,7 +1579,7 @@ export default function PersonnalisationPage() {
                     <DialogHeader>
                         <DialogTitle>Gérer les balises email</DialogTitle>
                         <DialogDescription>
-                            Sélectionnez les variables que vous souhaitez voir apparaître dans votre barre d'outils personnalisation.
+                            Sélectionnez les variables que vous souhaitez voir apparaître dans votre barre d&apos;outils personnalisation.
                         </DialogDescription>
                     </DialogHeader>
 
