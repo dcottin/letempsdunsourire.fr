@@ -300,17 +300,17 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     .variable-badge {
                         background-color: #eef2ff;
                         color: #4338ca;
-                        padding: 0px 8px;
-                        border-radius: 6px;
-                        font-weight: 700;
+                        padding: 0px 4px;
+                        border-radius: 4px;
                         border: 1px solid #c7d2fe;
-                        font-size: 0.9em;
-                        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-                        margin: 0 2px;
-                        user-select: all;
+                        font-size: inherit;
+                        font-family: inherit;
+                        font-weight: inherit;
+                        box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.05);
+                        margin: 0 1px;
                         display: inline-block;
-                        line-height: 1.5;
-                        vertical-align: middle;
+                        line-height: inherit;
+                        vertical-align: baseline;
                     }
                     .variable-badge:hover {
                         background-color: #e0e7ff;
@@ -334,6 +334,7 @@ const Variable = Node.create({
     selectable: true,
     draggable: true,
     atom: true,
+    marks: '_', // Allow marks like bold, italic, etc.
 
     addAttributes() {
         return {
@@ -347,8 +348,19 @@ const Variable = Node.create({
                 parseHTML: element => element.getAttribute('data-label'),
                 renderHTML: attributes => ({ 'data-label': attributes.label }),
             },
+            // Allow styling attributes to pass through
+            style: {
+                default: null,
+                parseHTML: element => element.getAttribute('style'),
+                renderHTML: attributes => attributes.style ? { style: attributes.style } : {},
+            }
         }
     },
+
+    // ... rest of file (adjusting CSS in the style block below this node definition if needed, but I'll do it in a separate edit or same if range covers it)
+    // Wait, the CSS is in the Render method of RichTextEditor component, not here.
+    // I need to target the CSS block in `RichTextEditor` component for the font-weight.
+    // Let me split this. First update the Node definition.
 
     parseHTML() {
         return [

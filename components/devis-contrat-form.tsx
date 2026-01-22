@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import {
     CalendarIcon, UserIcon, CalendarDaysIcon, EuroIcon, FileTextIcon, CameraIcon, Bot, Loader2Icon, RefreshCw,
-    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon
+    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2
 } from "lucide-react"
 import { format, addDays } from "date-fns"
 
@@ -77,6 +77,7 @@ const formSchema = z.object({
     heure_debut: z.string().nullable().default(""),
     date_fin: z.string().nullable().default(""),
     heure_fin: z.string().nullable().default(""),
+    date_installation: z.string().nullable().default(""),
     lieu: z.string().nullable().default(""),
     texte_libre: z.string().nullable().default(""),
     equipment_id: z.string().nullable().optional(),
@@ -156,6 +157,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             heure_debut: "",
             date_fin: "",
             heure_fin: "",
+            date_installation: "",
             lieu: "",
             texte_libre: "",
             equipment_id: "",
@@ -195,21 +197,29 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
         }
     }, [soldePaye, form])
 
-    // Auto-set Date Fin to J+1 when Date Debut is set
     const watchedDateDebutForAuto = form.watch("date_debut")
     React.useEffect(() => {
-        if (watchedDateDebutForAuto && !form.getValues("date_fin")) {
-            try {
-                const dateDebut = new Date(watchedDateDebutForAuto)
-                if (!isNaN(dateDebut.getTime())) {
-                    const dateFin = addDays(dateDebut, 1)
-                    form.setValue("date_fin", format(dateFin, "yyyy-MM-dd"), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+        // Only auto-fill if it's a NEW record (no initialData ID) 
+        // and we have a start date to copy from
+        if (!initialData?.id && watchedDateDebutForAuto) {
+            // Auto-set Date Installation if not set
+            if (!form.getValues("date_installation")) {
+                form.setValue("date_installation", watchedDateDebutForAuto, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+            }
+            // Auto-set Date Fin to J+1 if not set
+            if (!form.getValues("date_fin")) {
+                try {
+                    const dateDebut = new Date(watchedDateDebutForAuto)
+                    if (!isNaN(dateDebut.getTime())) {
+                        const dateFin = addDays(dateDebut, 1)
+                        form.setValue("date_fin", format(dateFin, "yyyy-MM-dd"), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
+                    }
+                } catch (e) {
+                    console.error("Error setting auto date_fin", e)
                 }
-            } catch (e) {
-                console.error("Error setting auto date_fin", e)
             }
         }
-    }, [watchedDateDebutForAuto, form])
+    }, [watchedDateDebutForAuto, form, initialData?.id])
 
 
 
@@ -450,6 +460,13 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                 // Ensure access_tokens are present for both devis and contrats in JSON data
                 access_token_devis: initialData?.data?.access_token_devis || (currentMode === 'devis' ? (initialData?.data?.access_token || initialData?.access_token || generateUUID()) : (initialData?.data?.access_token_devis || generateUUID())),
                 access_token_contrat: initialData?.data?.access_token_contrat || (currentMode === 'contrat' ? (initialData?.data?.access_token || initialData?.access_token || generateUUID()) : (initialData?.data?.access_token_contrat || generateUUID())),
+
+                // Explicitly set dates to null if empty string to ensure they are cleared in DB
+                date_installation: finalValues.date_installation || null,
+                heure_debut: finalValues.heure_debut || null,
+                date_fin: finalValues.date_fin || null,
+                heure_fin: finalValues.heure_fin || null,
+
                 // Keep legacy token for backward compatibility
                 access_token: initialData?.data?.access_token || initialData?.access_token || generateUUID(),
                 // Robust reset if flag is unchecked
@@ -686,7 +703,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             return crypto.randomUUID();
         }
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
     }
@@ -1074,8 +1091,8 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                             </TabsTrigger>
                             <TabsTrigger value="details" className="flex items-center justify-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[9px] sm:text-xs uppercase tracking-wider px-1">
                                 <CalendarDaysIcon className="size-3.5 hidden sm:block" />
-                                <span className="hidden sm:inline">Matériel & Tarifs</span>
-                                <span className="sm:hidden">Matériel</span>
+                                <span className="hidden sm:inline">Évènement & Tarifs</span>
+                                <span className="sm:hidden">Evènement</span>
                             </TabsTrigger>
                             <TabsTrigger value="livraison" className="flex items-center justify-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[9px] sm:text-xs uppercase tracking-wider px-1">
                                 <TruckIcon className="size-3.5 hidden sm:block" />
@@ -1515,10 +1532,36 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-lg font-semibold flex items-center gap-2">
                                         <CalendarDaysIcon className="size-5 text-primary" />
-                                        Matériel & Tarifs
+                                        Évènement & Tarifs
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="date_debut"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="uppercase text-xs font-bold text-primary">Date de l&apos;évènement</FormLabel>
+                                                <FormControl>
+                                                    <Input type="date" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="lieu"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="uppercase text-xs font-bold text-primary">Lieu de prestation</FormLabel>
+                                                <FormControl>
+                                                    <Input placeholder="Ex: Salle des fêtes..." {...field} value={field.value || ""} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
                                     <FormField
                                         control={form.control}
                                         name="nom_evenement"
@@ -1829,167 +1872,193 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 <CardHeader className="pb-3">
                                     <CardTitle className="text-lg font-semibold flex items-center gap-2">
                                         <TruckIcon className="size-5 text-emerald-600" />
-                                        Livraison & Retrait
+                                        Logistique
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-4">
-                                        <h3 className="text-sm font-bold uppercase text-emerald-800 border-b pb-1">Installation</h3>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <FormField
-                                                control={form.control}
-                                                name="date_debut"
-                                                render={({ field }: { field: any }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-xs uppercase font-bold text-muted-foreground">Date Début</FormLabel>
-                                                        <FormControl>
-                                                            <Input type="date" {...field} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="heure_debut"
-                                                render={({ field }: { field: any }) => {
-                                                    const [h, m] = (field.value || "08:00").split(":")
-                                                    return (
-                                                        <FormItem className="flex flex-col">
-                                                            <FormLabel className="text-xs uppercase font-bold text-muted-foreground">Heure</FormLabel>
-                                                            <div className="flex items-center gap-1">
-                                                                <Select
-                                                                    onValueChange={(val) => field.onChange(`${val}:${m}`)}
-                                                                    value={h}
-                                                                >
-                                                                    <FormControl>
-                                                                        <SelectTrigger className="bg-white w-[70px]">
-                                                                            <SelectValue placeholder="HH" />
-                                                                        </SelectTrigger>
-                                                                    </FormControl>
-                                                                    <SelectContent className="max-h-[200px]">
-                                                                        {Array.from({ length: 24 }).map((_, i) => {
-                                                                            const val = i.toString().padStart(2, "0")
-                                                                            return <SelectItem key={val} value={val}>{val}</SelectItem>
-                                                                        })}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                                <span className="font-bold">:</span>
-                                                                <Select
-                                                                    onValueChange={(val) => field.onChange(`${h}:${val}`)}
-                                                                    value={m}
-                                                                >
-                                                                    <FormControl>
-                                                                        <SelectTrigger className="bg-white w-[70px]">
-                                                                            <SelectValue placeholder="mm" />
-                                                                        </SelectTrigger>
-                                                                    </FormControl>
-                                                                    <SelectContent>
-                                                                        {["00", "15", "30", "45"].map((val) => (
-                                                                            <SelectItem key={val} value={val}>{val}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
+                                <CardContent className="space-y-8">
+                                    {/* --- PARTIE 2: INSTALLATION ET RETRAIT --- */}
+
+                                    {/* --- PARTIE 2: INSTALLATION ET RETRAIT --- */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                                        {/* Installation */}
+                                        <div className="space-y-4 p-4 rounded-xl bg-slate-50/50 border border-slate-100">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2">
+                                                    <div className="size-1.5 rounded-full bg-emerald-500" />
+                                                    Installation
+                                                </h3>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-6 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                                    onClick={() => {
+                                                        form.setValue("date_installation", "", { shouldDirty: true, shouldValidate: true });
+                                                        form.setValue("heure_debut", "", { shouldDirty: true, shouldValidate: true });
+                                                    }}
+                                                    title="Effacer installation"
+                                                >
+                                                    <Trash2 className="size-3" />
+                                                </Button>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="date_installation"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Date d&apos;installation</FormLabel>
+                                                            <FormControl>
+                                                                <Input type="date" {...field} value={field.value || ""} className="bg-white border-emerald-100 h-10 text-xs" />
+                                                            </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
-                                                    )
-                                                }}
-                                            />
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="heure_debut"
+                                                    render={({ field }) => {
+                                                        const val = field.value || ""
+                                                        const [h, m] = val.includes(":") ? val.split(":") : ["", ""]
+                                                        return (
+                                                            <FormItem className="flex flex-col">
+                                                                <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Heure d&apos;arrivée</FormLabel>
+                                                                <div className="flex items-center gap-1 mt-1">
+                                                                    <Select onValueChange={(val) => field.onChange(`${val}:${m}`)} value={h}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="bg-white h-10 font-bold border-emerald-100 text-xs">
+                                                                                <SelectValue placeholder="HH" />
+                                                                            </SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent className="max-h-[200px]">
+                                                                            {Array.from({ length: 24 }).map((_, i) => {
+                                                                                const val = i.toString().padStart(2, "0")
+                                                                                return <SelectItem key={val} value={val}>{val}h</SelectItem>
+                                                                            })}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                    <span className="font-bold text-slate-300">:</span>
+                                                                    <Select onValueChange={(val) => field.onChange(`${h}:${val}`)} value={m}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="bg-white h-10 font-bold border-emerald-100 text-xs">
+                                                                                <SelectValue placeholder="mm" />
+                                                                            </SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent>
+                                                                            {["00", "15", "30", "45"].map((val) => (
+                                                                                <SelectItem key={val} value={val}>{val}</SelectItem>
+                                                                            ))}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </div>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="space-y-4">
-                                        <h3 className="text-sm font-bold uppercase text-red-800 border-b pb-1">Désinstallation</h3>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <FormField
-                                                control={form.control}
-                                                name="date_fin"
-                                                render={({ field }: { field: any }) => (
-                                                    <FormItem>
-                                                        <FormLabel className="text-xs uppercase font-bold text-muted-foreground">Date Fin</FormLabel>
-                                                        <FormControl>
-                                                            <Input type="date" {...field} value={field.value || ""} />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            <FormField
-                                                control={form.control}
-                                                name="heure_fin"
-                                                render={({ field }: { field: any }) => {
-                                                    const [h, m] = (field.value || "08:00").split(":")
-                                                    return (
-                                                        <FormItem className="flex flex-col">
-                                                            <FormLabel className="text-xs uppercase font-bold text-muted-foreground">Heure</FormLabel>
-                                                            <div className="flex items-center gap-1">
-                                                                <Select
-                                                                    onValueChange={(val) => field.onChange(`${val}:${m}`)}
-                                                                    value={h}
-                                                                >
-                                                                    <FormControl>
-                                                                        <SelectTrigger className="bg-white w-[70px]">
-                                                                            <SelectValue placeholder="HH" />
-                                                                        </SelectTrigger>
-                                                                    </FormControl>
-                                                                    <SelectContent className="max-h-[200px]">
-                                                                        {Array.from({ length: 24 }).map((_, i) => {
-                                                                            const val = i.toString().padStart(2, "0")
-                                                                            return <SelectItem key={val} value={val}>{val}</SelectItem>
-                                                                        })}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                                <span className="font-bold">:</span>
-                                                                <Select
-                                                                    onValueChange={(val) => field.onChange(`${h}:${val}`)}
-                                                                    value={m}
-                                                                >
-                                                                    <FormControl>
-                                                                        <SelectTrigger className="bg-white w-[70px]">
-                                                                            <SelectValue placeholder="mm" />
-                                                                        </SelectTrigger>
-                                                                    </FormControl>
-                                                                    <SelectContent>
-                                                                        {["00", "15", "30", "45"].map((val) => (
-                                                                            <SelectItem key={val} value={val}>{val}</SelectItem>
-                                                                        ))}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
+                                        {/* Retrait */}
+                                        <div className="space-y-4 p-4 rounded-xl bg-slate-50/50 border border-slate-100">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <h3 className="text-[11px] font-black uppercase text-slate-500 flex items-center gap-2">
+                                                    <div className="size-1.5 rounded-full bg-red-400" />
+                                                    Retrait / Fin
+                                                </h3>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-6 text-slate-400 hover:text-red-500 hover:bg-red-50"
+                                                    onClick={() => {
+                                                        form.setValue("date_fin", "", { shouldDirty: true, shouldValidate: true });
+                                                        form.setValue("heure_fin", "", { shouldDirty: true, shouldValidate: true });
+                                                    }}
+                                                    title="Effacer retrait"
+                                                >
+                                                    <Trash2 className="size-3" />
+                                                </Button>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="date_fin"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Date de retrait</FormLabel>
+                                                            <FormControl>
+                                                                <Input type="date" {...field} value={field.value || ""} className="bg-white border-red-100 h-10 text-xs" />
+                                                            </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
-                                                    )
-                                                }}
-                                            />
+                                                    )}
+                                                />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="heure_fin"
+                                                    render={({ field }) => {
+                                                        const val = field.value || ""
+                                                        const [h, m] = val.includes(":") ? val.split(":") : ["", ""]
+                                                        return (
+                                                            <FormItem className="flex flex-col">
+                                                                <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Heure de retrait</FormLabel>
+                                                                <div className="flex items-center gap-1 mt-1">
+                                                                    <Select onValueChange={(val) => field.onChange(`${val}:${m}`)} value={h}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="bg-white h-10 font-bold border-red-100 text-xs">
+                                                                                <SelectValue placeholder="HH" />
+                                                                            </SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent className="max-h-[200px]">
+                                                                            {Array.from({ length: 24 }).map((_, i) => {
+                                                                                const val = i.toString().padStart(2, "0")
+                                                                                return <SelectItem key={val} value={val}>{val}h</SelectItem>
+                                                                            })}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                    <span className="font-bold text-slate-300">:</span>
+                                                                    <Select onValueChange={(val) => field.onChange(`${h}:${val}`)} value={m}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="bg-white h-10 font-bold border-red-100 text-xs">
+                                                                                <SelectValue placeholder="mm" />
+                                                                            </SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent>
+                                                                            {["00", "15", "30", "45"].map((val) => (
+                                                                                <SelectItem key={val} value={val}>{val}</SelectItem>
+                                                                            ))}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </div>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )
+                                                    }}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-
-                                    <FormField
-                                        control={form.control}
-                                        name="lieu"
-                                        render={({ field }: { field: any }) => (
-                                            <FormItem className="md:col-span-2">
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Lieu de prestation</FormLabel>
-                                                <FormControl>
-                                                    <Textarea placeholder="Ex: Salle des fêtes, 12 rue de la mairie..." {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
 
                                     <FormField
                                         control={form.control}
                                         name="texte_libre"
-                                        render={({ field }: { field: any }) => (
-                                            <FormItem className="md:col-span-2">
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground flex items-center gap-1">
-                                                    <FileTextIcon className="size-3" />
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="text-xs uppercase font-bold text-slate-500 flex items-center gap-1.5">
+                                                    <FileTextIcon className="size-3.5 text-indigo-400" />
                                                     Notes logistiques / Infos accès
                                                 </FormLabel>
                                                 <FormControl>
-                                                    <Textarea placeholder="Ex: Code Wifi, Digicode, Contact sur place..." {...field} />
+                                                    <Textarea
+                                                        placeholder="Ex: Code Wifi, Digicode, Stationnement, Etage, Contact technique..."
+                                                        className="min-h-[120px] bg-slate-50/30 focus:bg-white transition-all border-slate-200 resize-none"
+                                                        {...field}
+                                                        value={field.value || ""}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>

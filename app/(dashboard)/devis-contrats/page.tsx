@@ -747,6 +747,7 @@ export default function DevisContratsPage() {
                                             <TableRow className="bg-slate-50/50">
                                                 <TableHead onClick={() => handleSort('id', 'devis')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
                                                 <TableHead onClick={() => handleSort('date_debut', 'devis')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
+                                                <TableHead className="min-w-[140px]">LIVRAISON</TableHead>
                                                 <TableHead onClick={() => handleSort('nom_client', 'devis')} className="cursor-pointer hover:bg-slate-100">CLIENT</TableHead>
                                                 <TableHead className="w-[120px]">OFFRE</TableHead>
                                                 <TableHead>MATÉRIEL</TableHead>
@@ -764,6 +765,23 @@ export default function DevisContratsPage() {
                                                 <TableRow key={devis.id} className="hover:bg-slate-50/50">
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
+                                                    <TableCell className="text-xs leading-tight">
+                                                        {devis.date_installation ? (
+                                                            <div className="flex flex-col items-start px-1">
+                                                                <div className="flex items-center gap-1 whitespace-nowrap">
+                                                                    <span className="text-[9px] text-muted-foreground">{format(new Date(devis.date_installation), 'dd/MM/yy')}</span>
+                                                                    <span className="text-[10px] text-indigo-600 font-bold">{devis.heure_debut || "8:00"}</span>
+                                                                </div>
+                                                                {devis.lieu && (
+                                                                    <span className="text-[9px] text-slate-400 italic mt-0.5 line-clamp-1" title={devis.lieu}>
+                                                                        {devis.lieu}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="text-slate-300 italic text-[10px]">Non définie</span>
+                                                        )}
+                                                    </TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-col">
                                                             <div className="font-medium text-sm">{devis.nom_client}</div>
@@ -848,10 +866,10 @@ export default function DevisContratsPage() {
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                 <TableCell className="text-xs leading-tight">
-                                                    {contrat.date_debut ? (
-                                                        <div className="flex flex-col items-start px-2">
+                                                    {contrat.date_installation ? (
+                                                        <div className="flex flex-col items-start px-1">
                                                             <div className="flex items-center gap-1 whitespace-nowrap">
-                                                                <span className="text-[9px] text-muted-foreground">{format(new Date(contrat.date_debut), 'dd/MM/yy')}</span>
+                                                                <span className="text-[9px] text-muted-foreground">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
                                                                 <span className="text-[10px] text-indigo-600 font-bold">{contrat.heure_debut || "8:00"}</span>
                                                             </div>
                                                             {contrat.lieu && (
@@ -866,7 +884,9 @@ export default function DevisContratsPage() {
                                                                 </a>
                                                             )}
                                                         </div>
-                                                    ) : "-"}
+                                                    ) : (
+                                                        <span className="text-slate-300 italic text-[10px] px-1">Non définie</span>
+                                                    )}
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col">
@@ -981,10 +1001,10 @@ export default function DevisContratsPage() {
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell className="text-xs leading-tight">
-                                                        {contrat.date_debut ? (
-                                                            <div className="flex flex-col items-start px-2">
+                                                        {contrat.date_installation ? (
+                                                            <div className="flex flex-col items-start px-1">
                                                                 <div className="flex items-center gap-1 whitespace-nowrap">
-                                                                    <span className="text-[9px] text-muted-foreground/70">{format(new Date(contrat.date_debut), 'dd/MM/yy')}</span>
+                                                                    <span className="text-[9px] text-muted-foreground/70">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
                                                                     <span className="text-[10px] text-indigo-500 font-bold">{contrat.heure_debut || "8:00"}</span>
                                                                 </div>
                                                                 {contrat.lieu && (
@@ -999,7 +1019,9 @@ export default function DevisContratsPage() {
                                                                     </a>
                                                                 )}
                                                             </div>
-                                                        ) : "-"}
+                                                        ) : (
+                                                            <span className="text-slate-300 italic text-[10px] px-1">Non définie</span>
+                                                        )}
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-col">
@@ -1050,7 +1072,7 @@ export default function DevisContratsPage() {
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     )
 }
