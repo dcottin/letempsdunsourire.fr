@@ -33,9 +33,10 @@ export async function proxy(request: NextRequest) {
 
     const isLoginPage = request.nextUrl.pathname === '/login'
     const isReservationPage = request.nextUrl.pathname.startsWith('/reservation')
+    const isSignPage = request.nextUrl.pathname.startsWith('/sign')
 
-    // Let reservation page and static files pass
-    if (isReservationPage) {
+    // Let reservation page, sign page, and static files pass
+    if (isReservationPage || isSignPage) {
         return supabaseResponse
     }
 
