@@ -697,8 +697,8 @@ export default function PersonnalisationPage() {
                     {/* --- TAB: EMAILS --- */}
                     <TabsContent value="emails" className="mt-6">
                         <div className="flex flex-col xl:flex-row gap-8 items-start relative">
-                            {/* Left: Main Content */}
-                            <div className="flex-1 w-full xl:max-w-[calc(100%-320px)]">
+                            {/* Left: Main Content (Large Editor Area) */}
+                            <div className="flex-1 w-full xl:max-w-[calc(100%-280px)]">
                                 <Tabs defaultValue="devis" className="w-full">
                                     <TabsList className="grid grid-cols-3 mb-8 bg-slate-100 p-1 h-12 rounded-xl">
                                         <TabsTrigger value="devis" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm gap-2 font-bold">
@@ -997,7 +997,7 @@ export default function PersonnalisationPage() {
                             </div>
 
                             {/* Right: Sticky Tags Sidebar (Top on Mobile) */}
-                            <div className="w-full xl:w-80 xl:sticky xl:top-24 space-y-4 order-first xl:order-last">
+                            <div className="w-full xl:w-[260px] xl:sticky xl:top-24 space-y-4 order-first xl:order-last shrink-0">
                                 <Card className="bg-white shadow-xl border-indigo-100 overflow-hidden">
                                     <div className="bg-indigo-600 p-4 flex items-center justify-between">
                                         <h4 className="text-white font-bold flex items-center gap-2 text-sm">
@@ -1018,10 +1018,10 @@ export default function PersonnalisationPage() {
                                                     key={tag.id}
                                                     draggable
                                                     onDragStart={(e) => e.dataTransfer.setData("text/plain", tag.id)}
-                                                    className="group flex flex-col p-2 rounded-lg border border-indigo-50 bg-indigo-50/50 hover:bg-indigo-600 hover:border-indigo-600 transition-all cursor-grab active:cursor-grabbing shadow-sm"
+                                                    className="group flex flex-col p-1.5 px-2 rounded-md border border-indigo-50 bg-indigo-50/50 hover:bg-indigo-600 hover:border-indigo-600 transition-all cursor-grab active:cursor-grabbing shadow-sm"
                                                 >
-                                                    <span className="text-[11px] font-bold text-indigo-900 group-hover:text-white transition-colors">{tag.label}</span>
-                                                    <code className="text-[9px] text-indigo-400 group-hover:text-indigo-100 transition-colors">{tag.id}</code>
+                                                    <span className="text-[10px] font-bold text-indigo-900 group-hover:text-white transition-colors truncate">{tag.label}</span>
+                                                    <code className="text-[8px] text-indigo-400 group-hover:text-indigo-100 transition-colors opacity-70">{tag.id}</code>
                                                 </div>
                                             ))}
                                         </div>
