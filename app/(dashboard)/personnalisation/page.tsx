@@ -74,6 +74,7 @@ type Settings = {
     email_facture_subject: string
     email_facture_body: string
     enabled_email_tags?: string[]
+    mail_templates?: { id: string; name: string; subject: string; body: string; type: "devis" | "contrat" | "facture" }[]
 }
 
 const defaultSettings: Settings = {
@@ -132,7 +133,8 @@ const defaultSettings: Settings = {
         "{{deposit_amount}}",
         "{{balance_amount}}",
         "{{company_logo}}"
-    ]
+    ],
+    mail_templates: []
 }
 
 const ALL_TAGS = [
@@ -251,6 +253,35 @@ export default function PersonnalisationPage() {
         const newOptions = [...settings.options]
         newOptions[index] = { ...newOptions[index], [field]: value }
         setSettings(prev => ({ ...prev, options: newOptions }))
+    }
+
+    // --- MAIL TEMPLATES ---
+    const addMailTemplate = () => {
+        const newTemplate = {
+            id: Math.random().toString(36).substring(2, 9),
+            name: "Nouveau template",
+            subject: "Sujet du mail",
+            body: "Corps du mail...",
+            type: "devis" as const
+        }
+        setSettings(prev => ({
+            ...prev,
+            mail_templates: [...(prev.mail_templates || []), newTemplate]
+        }))
+    }
+
+    const removeMailTemplate = (id: string) => {
+        setSettings(prev => ({
+            ...prev,
+            mail_templates: (prev.mail_templates || []).filter(t => t.id !== id)
+        }))
+    }
+
+    const handleMailTemplateChange = (id: string, field: string, value: any) => {
+        setSettings(prev => ({
+            ...prev,
+            mail_templates: (prev.mail_templates || []).map(t => t.id === id ? { ...t, [field]: value } : t)
+        }))
     }
 
     const handleSave = async () => {
@@ -731,6 +762,85 @@ export default function PersonnalisationPage() {
                                     </div>
                                 </CardContent>
                             </Card>
+                        </div>
+
+                        {/* --- MAIL TEMPLATES SECTION --- */}
+                        <div className="mt-12 space-y-6">
+                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                <div>
+                                    <h3 className="text-lg font-bold flex items-center gap-2">
+                                        <ListIcon className="size-5 text-indigo-600" />
+                                        Modèles d'emails additionnels
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground">Créez des variantes pour vos différents besoins.</p>
+                                </div>
+                                <Button onClick={addMailTemplate} size="sm" variant="outline" className="gap-2 border-indigo-200 text-indigo-600 hover:bg-indigo-50">
+                                    <PlusIcon className="size-4" /> Ajouter un modèle
+                                </Button>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {(settings.mail_templates || []).map((template) => (
+                                    <Card key={template.id} className="border-indigo-100 shadow-sm hover:shadow-md transition-all group overflow-hidden">
+                                        <div className="h-1.5 w-full bg-indigo-500" />
+                                        <CardHeader className="pb-3 flex flex-row items-start justify-between space-y-0">
+                                            <div className="space-y-1 w-full mr-4">
+                                                <Input
+                                                    value={template.name}
+                                                    onChange={(e) => handleMailTemplateChange(template.id, "name", e.target.value)}
+                                                    className="h-8 font-bold border-none p-0 focus-visible:ring-0 text-indigo-900 bg-transparent"
+                                                    placeholder="Nom du modèle"
+                                                />
+                                                <div className="flex items-center gap-1.5 pt-1">
+                                                    <select
+                                                        value={template.type}
+                                                        onChange={(e) => handleMailTemplateChange(template.id, "type", e.target.value)}
+                                                        className="text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded outline-none border-none cursor-pointer"
+                                                    >
+                                                        <option value="devis">Devis</option>
+                                                        <option value="contrat">Contrat</option>
+                                                        <option value="facture">Facture</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="text-slate-300 hover:text-red-500 h-8 w-8 -mr-2"
+                                                onClick={() => removeMailTemplate(template.id)}
+                                            >
+                                                <TrashIcon className="size-4" />
+                                            </Button>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Sujet</Label>
+                                                <Input
+                                                    value={template.subject}
+                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
+                                                    className="h-8 text-xs bg-slate-50/50"
+                                                />
+                                            </div>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] uppercase font-bold text-slate-400">Message (HTML)</Label>
+                                                <RichTextEditor
+                                                    value={template.body || ""}
+                                                    onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
+                                                    placeholder="Corps du mail..."
+                                                />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+
+                                {(settings.mail_templates || []).length === 0 && (
+                                    <div className="md:col-span-2 lg:col-span-3 py-12 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center bg-slate-50/50">
+                                        <MailIcon className="size-10 text-slate-200 mb-3" />
+                                        <p className="text-slate-400 font-medium">Aucun modèle additionnel créé.</p>
+                                        <p className="text-slate-400 text-xs">Cliquez sur le bouton "Ajouter" pour créer un nouveau modèle.</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </TabsContent>
 

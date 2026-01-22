@@ -44,35 +44,35 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
     return (
         <div className="bg-white text-slate-800 font-sans max-w-4xl mx-auto shadow-sm border rounded-xl overflow-hidden print:shadow-none print:border-none">
             {/* Header / Brand */}
-            <div className="p-8 md:p-12 bg-slate-50/30">
-                <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                    <div className="space-y-4">
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight italic" style={{ fontFamily: "'Dancing Script', cursive" }}>
+            <div className="p-8 md:p-12 bg-slate-50/30 font-sans">
+                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
+                    <div className="space-y-4 text-center md:text-left">
+                        <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight italic" style={{ fontFamily: "'Dancing Script', cursive" }}>
                             {isInvoice ? "Facture" : (mode === 'contrat' ? "Contrat de location" : "Devis")}
                         </h1>
-                        <div className="flex items-center gap-2">
-                            <span className="px-3 py-1 bg-slate-200 text-slate-600 rounded-full text-xs font-bold tracking-widest uppercase">
+                        <div className="flex items-center justify-center md:justify-start gap-2">
+                            <span className="px-3 py-1 bg-slate-200 text-slate-600 rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase">
                                 Réf: {generateReference()}
                             </span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end text-right gap-4">
+                    <div className="flex flex-col items-center md:items-end text-center md:text-right gap-4">
                         {(settings?.logo_url || settings?.logo_base64) && (
                             <img
                                 src={settings.logo_url || settings.logo_base64}
                                 alt={settings.nom_societe}
-                                className="max-h-24 w-auto object-contain"
+                                className="max-h-20 md:max-h-24 w-auto object-contain"
                                 style={{ maxWidth: settings.logo_width || 150 }}
                             />
                         )}
                         <div className="space-y-1">
                             <p className="font-bold text-slate-900">{settings?.nom_societe || "Mon Entreprise"}</p>
-                            <p className="text-sm text-slate-500">{settings?.adresse}</p>
-                            <p className="text-sm text-slate-500">{settings?.code_postal} {settings?.ville}</p>
-                            <p className="text-sm text-slate-500">{settings?.email_contact}</p>
-                            <p className="text-sm text-slate-500">{settings?.telephone_contact}</p>
-                            {settings?.siret && <p className="text-sm text-slate-500 tracking-tight">SIRET: {settings.siret}</p>}
+                            <p className="text-xs md:text-sm text-slate-500">{settings?.adresse}</p>
+                            <p className="text-xs md:text-sm text-slate-500">{settings?.code_postal} {settings?.ville}</p>
+                            <p className="text-xs md:text-sm text-slate-500">{settings?.email_contact}</p>
+                            <p className="text-xs md:text-sm text-slate-500">{settings?.telephone_contact}</p>
+                            {settings?.siret && <p className="text-[10px] md:text-sm text-slate-500 tracking-tight">SIRET: {settings.siret}</p>}
                         </div>
                     </div>
                 </div>

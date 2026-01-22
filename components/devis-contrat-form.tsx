@@ -961,52 +961,126 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 </Button>
                             </div>
 
-                            <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm ml-auto">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
-                                    className="gap-2 text-indigo-600 hover:bg-white hover:shadow-sm h-8 px-3 font-semibold transition-all"
-                                >
-                                    <EyeIcon className="size-4" /> {internalMode === 'contrat' ? 'Contrat' : 'Devis'}
-                                </Button>
-                                <div className="w-px h-4 bg-slate-200 mx-0.5" />
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={(e) => { e.preventDefault(); handleDownloadPDF('contract'); }}
-                                    className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-white hover:shadow-sm transition-all"
-                                    title="Générer PDF"
-                                >
-                                    <DownloadIcon className="size-3.5" />
-                                </Button>
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={(e) => { e.preventDefault(); setEmailType('contract'); setShowEmail(true); }}
-                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-white hover:shadow-sm transition-all"
-                                    title="Envoyer mail"
-                                >
-                                    <SendIcon className="size-3.5" />
-                                </Button>
+                            <div className="flex overflow-x-auto no-scrollbar items-center gap-2 ml-auto pb-1 -mr-2 pr-2">
+                                {/* DEVIS GROUP */}
+                                <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm shrink-0">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => { e.preventDefault(); setShowDevisPreview(true); }}
+                                        className="gap-1.5 text-slate-600 hover:bg-white hover:text-indigo-600 hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
+                                    >
+                                        <FileTextIcon className="size-3" /> DEVIS
+                                    </Button>
+                                    <div className="w-px h-3 bg-slate-200 mx-0.5" />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => { e.preventDefault(); handleDownloadPDF('devis'); }}
+                                        className="h-7 w-7 text-slate-400 hover:text-slate-900 transition-all"
+                                        title="Télécharger Devis"
+                                    >
+                                        <DownloadIcon className="size-3" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => { e.preventDefault(); setEmailType('devis'); setShowEmail(true); }}
+                                        className="h-7 w-7 text-emerald-500 hover:text-emerald-600 transition-all"
+                                        title="Envoyer Devis"
+                                    >
+                                        <SendIcon className="size-3" />
+                                    </Button>
+                                </div>
+
+                                {/* CONTRAT GROUP */}
+                                <div className="inline-flex items-center gap-0.5 bg-indigo-50/50 p-1 rounded-lg border border-indigo-100 shadow-sm shrink-0">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
+                                        className="gap-1.5 text-indigo-600 hover:bg-white hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
+                                    >
+                                        <ScrollTextIcon className="size-3" /> CONTRAT
+                                    </Button>
+                                    <div className="w-px h-3 bg-slate-200 mx-0.5" />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => { e.preventDefault(); handleDownloadPDF('contract'); }}
+                                        className="h-7 w-7 text-indigo-400 hover:text-indigo-600 transition-all"
+                                        title="Télécharger Contrat"
+                                    >
+                                        <DownloadIcon className="size-3" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => { e.preventDefault(); setEmailType('contract'); setShowEmail(true); }}
+                                        className="h-7 w-7 text-emerald-500 hover:text-emerald-600 transition-all"
+                                        title="Envoyer Contrat"
+                                    >
+                                        <SendIcon className="size-3" />
+                                    </Button>
+                                </div>
+
+                                {/* FACTURE GROUP */}
+                                <div className="inline-flex items-center gap-0.5 bg-emerald-50/50 p-1 rounded-lg border border-emerald-100 shadow-sm shrink-0">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => { e.preventDefault(); setShowFacturePreview(true); }}
+                                        className="gap-1.5 text-emerald-600 hover:bg-white hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
+                                    >
+                                        <EuroIcon className="size-3" /> FACTURE
+                                    </Button>
+                                    <div className="w-px h-3 bg-slate-200 mx-0.5" />
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => { e.preventDefault(); handleDownloadPDF('invoice'); }}
+                                        className="h-7 w-7 text-emerald-400 hover:text-emerald-600 transition-all"
+                                        title="Télécharger Facture"
+                                    >
+                                        <DownloadIcon className="size-3" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={(e) => { e.preventDefault(); setEmailType('invoice'); setShowEmail(true); }}
+                                        className="h-7 w-7 text-emerald-500 hover:text-emerald-600 transition-all"
+                                        title="Envoyer Facture"
+                                    >
+                                        <SendIcon className="size-3" />
+                                    </Button>
+                                </div>
                             </div>
                         </div>
 
-                        <TabsList className="grid grid-cols-3 w-full h-11 bg-slate-100/50 p-1 rounded-xl mt-2">
-                            <TabsTrigger value="infos" className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[10px] sm:text-xs uppercase tracking-wider">
-                                <UserIcon className="size-3.5" />
-                                Infos & Suivi
+                        <TabsList className="grid grid-cols-3 w-full h-10 md:h-11 bg-slate-100/50 p-1 rounded-xl mt-2">
+                            <TabsTrigger value="infos" className="flex items-center justify-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[9px] sm:text-xs uppercase tracking-wider px-1">
+                                <UserIcon className="size-3.5 hidden sm:block" />
+                                <span className="hidden sm:inline">Infos & Suivi</span>
+                                <span className="sm:hidden">Infos</span>
                             </TabsTrigger>
-                            <TabsTrigger value="details" className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[10px] sm:text-xs uppercase tracking-wider">
-                                <CalendarDaysIcon className="size-3.5" />
-                                Matériel & Tarifs
+                            <TabsTrigger value="details" className="flex items-center justify-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[9px] sm:text-xs uppercase tracking-wider px-1">
+                                <CalendarDaysIcon className="size-3.5 hidden sm:block" />
+                                <span className="hidden sm:inline">Matériel & Tarifs</span>
+                                <span className="sm:hidden">Matériel</span>
                             </TabsTrigger>
-                            <TabsTrigger value="livraison" className="flex items-center justify-center gap-2 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[10px] sm:text-xs uppercase tracking-wider">
-                                <TruckIcon className="size-3.5" />
-                                Logistique
+                            <TabsTrigger value="livraison" className="flex items-center justify-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[9px] sm:text-xs uppercase tracking-wider px-1">
+                                <TruckIcon className="size-3.5 hidden sm:block" />
+                                <span className="hidden sm:inline">Logistique</span>
+                                <span className="sm:hidden">Logis.</span>
                             </TabsTrigger>
                         </TabsList>
                     </div>

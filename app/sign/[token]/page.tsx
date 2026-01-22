@@ -121,6 +121,11 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
         fetchSettings()
     }, [token])
 
+    // Scroll to top when changing steps (crucial for mobile)
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' })
+    }, [step])
+
     const handleClear = () => {
         sigCanvas.current?.clear()
     }
@@ -343,19 +348,29 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
         <div className="min-h-screen bg-slate-50 py-8 px-4">
             <div className="max-w-4xl mx-auto space-y-6">
 
-                {/* Header with Stepper */}
-                <div className="flex flex-col gap-6">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900">
+                {/* Header with logo & Stepper */}
+                <div className="flex flex-col gap-6 text-center">
+                    {settings?.logo_url && (
+                        <div className="flex justify-center mb-2">
+                            <img
+                                src={settings.logo_url}
+                                alt="Logo"
+                                className="max-h-16 w-auto object-contain"
+                            />
+                        </div>
+                    )}
+
+                    <div className="flex flex-col md:flex-row md:justify-between items-center gap-4">
+                        <div className="text-center md:text-left">
+                            <h1 className="text-xl md:text-2xl font-bold text-slate-900 leading-tight">
                                 {step === 1 && (contract._forcedMode === 'contrat' ? '1. Votre Contrat' : '1. Votre Devis')}
                                 {step === 2 && "2. Conditions Générales (CGV)"}
                                 {step === 3 && "3. Validation & Signature"}
                             </h1>
-                            <p className="text-slate-500 text-sm">
+                            <p className="text-slate-500 text-xs mt-1">
                                 {step === 1 && "Relisez les détails de votre prestation."}
-                                {step === 2 && "Prenez connaissance de nos conditions générales de vente."}
-                                {step === 3 && "Finalisez votre accord en signant le document."}
+                                {step === 2 && "Prenez connaissance de nos conditions générales."}
+                                {step === 3 && "Finalisez votre accord en signant."}
                             </p>
                         </div>
                         <div className="flex items-center gap-2">

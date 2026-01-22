@@ -586,8 +586,8 @@ export default function DevisContratsPage() {
                                 key={tab.id}
                                 onClick={() => setDateFilter(tab.id)}
                                 className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all border ${dateFilter === tab.id
-                                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 scale-105'
-                                        : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
+                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 scale-105'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
                                     }`}
                             >
                                 {tab.label}
@@ -596,8 +596,8 @@ export default function DevisContratsPage() {
                         <button
                             onClick={() => setIsCustomDateDialogOpen(true)}
                             className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all border flex items-center gap-1.5 ${dateFilter === 'custom'
-                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 scale-105'
-                                    : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 scale-105'
+                                : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
                                 }`}
                         >
                             <CalendarIcon className="size-3" />
@@ -821,14 +821,14 @@ export default function DevisContratsPage() {
                             <ScrollTextIcon className="size-5 text-indigo-500" /> Contrats en cours ({activeContrats.length})
                         </h3>
                         {showActiveContrats && (
-                            <div className="rounded-md border bg-white shadow-sm overflow-hidden">
+                            <div className="rounded-md border bg-white shadow-sm overflow-x-auto">
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-slate-50/50">
                                             <TableHead onClick={() => handleSort('id', 'contrat')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
                                             <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
-                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="text-center cursor-pointer hover:bg-slate-100">LIVRAISON</TableHead>
-                                            <TableHead onClick={() => handleSort('nom_client', 'contrat')} className="cursor-pointer hover:bg-slate-100">CLIENT</TableHead>
+                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 min-w-[140px]">LIVRAISON</TableHead>
+                                            <TableHead onClick={() => handleSort('nom_client', 'contrat')} className="cursor-pointer hover:bg-slate-100 min-w-[160px]">CLIENT</TableHead>
                                             <TableHead className="w-[120px]">OFFRE</TableHead>
                                             <TableHead>MATÉRIEL</TableHead>
                                             <TableHead onClick={() => handleSort('prix_total', 'contrat')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
@@ -847,10 +847,10 @@ export default function DevisContratsPage() {
                                             <TableRow key={contrat.id} className="hover:bg-slate-50/50">
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                <TableCell className="text-xs text-center leading-tight">
+                                                <TableCell className="text-xs leading-tight">
                                                     {contrat.date_debut ? (
-                                                        <div className="flex flex-col items-center">
-                                                            <div className="flex items-center gap-1 justify-center whitespace-nowrap">
+                                                        <div className="flex flex-col items-start px-2">
+                                                            <div className="flex items-center gap-1 whitespace-nowrap">
                                                                 <span className="text-[9px] text-muted-foreground">{format(new Date(contrat.date_debut), 'dd/MM/yy')}</span>
                                                                 <span className="text-[10px] text-indigo-600 font-bold">{contrat.heure_debut || "8:00"}</span>
                                                             </div>
@@ -859,7 +859,7 @@ export default function DevisContratsPage() {
                                                                     href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="text-[9px] text-slate-500 italic mt-0.5 max-w-[120px] hover:underline hover:text-indigo-600 block"
+                                                                    className="text-[9px] text-slate-500 italic mt-0.5 hover:underline hover:text-indigo-600 block break-words max-w-[130px]"
                                                                     title="Ouvrir dans Waze"
                                                                 >
                                                                     {contrat.lieu}
@@ -954,14 +954,14 @@ export default function DevisContratsPage() {
                                 <Archive className="size-4" /> Archives ({archivedContrats.length})
                             </h3>
                             {showArchivedContrats && (
-                                <div className="rounded-md border bg-slate-50/30 overflow-hidden">
+                                <div className="rounded-md border bg-slate-50/30 overflow-x-auto">
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
                                                 <TableHead onClick={() => handleSort('id', 'archive')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
                                                 <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
-                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="text-center cursor-pointer hover:bg-slate-100">LIVRAISON</TableHead>
-                                                <TableHead onClick={() => handleSort('nom_client', 'archive')} className="cursor-pointer hover:bg-slate-100">CLIENT</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 min-w-[140px]">LIVRAISON</TableHead>
+                                                <TableHead onClick={() => handleSort('nom_client', 'archive')} className="cursor-pointer hover:bg-slate-100 min-w-[160px]">CLIENT</TableHead>
                                                 <TableHead className="w-[120px]">OFFRE</TableHead>
                                                 <TableHead>MATÉRIEL</TableHead>
                                                 <TableHead onClick={() => handleSort('prix_total', 'archive')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
@@ -980,10 +980,10 @@ export default function DevisContratsPage() {
                                                 <TableRow key={contrat.id} className="opacity-70 h-10 hover:opacity-100 transition-opacity">
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                    <TableCell className="text-xs text-center leading-tight">
+                                                    <TableCell className="text-xs leading-tight">
                                                         {contrat.date_debut ? (
-                                                            <div className="flex flex-col items-center">
-                                                                <div className="flex items-center gap-1 justify-center whitespace-nowrap">
+                                                            <div className="flex flex-col items-start px-2">
+                                                                <div className="flex items-center gap-1 whitespace-nowrap">
                                                                     <span className="text-[9px] text-muted-foreground/70">{format(new Date(contrat.date_debut), 'dd/MM/yy')}</span>
                                                                     <span className="text-[10px] text-indigo-500 font-bold">{contrat.heure_debut || "8:00"}</span>
                                                                 </div>
@@ -992,7 +992,7 @@ export default function DevisContratsPage() {
                                                                         href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
-                                                                        className="text-[9px] text-slate-400 italic mt-0.5 max-w-[120px] hover:underline hover:text-indigo-400 block"
+                                                                        className="text-[9px] text-slate-400 italic mt-0.5 hover:underline hover:text-indigo-400 block break-words max-w-[130px]"
                                                                         title="Ouvrir dans Waze"
                                                                     >
                                                                         {contrat.lieu}
