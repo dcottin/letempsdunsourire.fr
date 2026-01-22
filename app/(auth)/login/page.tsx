@@ -6,8 +6,7 @@ import { login } from './actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertCircle, Lock, Mail, Loader2, Camera } from 'lucide-react'
+import { AlertCircle, Loader2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 
 export default function LoginPage() {
@@ -48,102 +47,97 @@ function LoginContent() {
     }
 
     const companyName = settings?.nom_societe || "Le Temps d'un Sourire"
-    const logoSrc = settings?.logo_base64 || null
+    const logoSrc = settings?.logo_url || settings?.logo_base64 || null
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-white p-6 relative overflow-hidden font-sans">
-            {/* Minimal Background decor */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-indigo-50/20 via-white to-white"></div>
-
-            <div className="w-full max-w-[420px] relative z-10">
-                <div className="text-center mb-10 flex flex-col items-center">
+        <div className="min-h-screen flex items-center justify-center bg-white p-4 font-sans">
+            <div className="w-full max-w-[500px]">
+                {/* Logo Section */}
+                <div className="text-center mb-8">
                     {logoSrc ? (
-                        <div className="mb-6 transition-transform hover:scale-105 duration-300">
-                            <img
-                                src={logoSrc}
-                                alt="Logo"
-                                className="h-28 w-auto object-contain max-w-[240px] drop-shadow-sm"
-                            />
-                        </div>
+                        <img
+                            src={logoSrc}
+                            alt={companyName}
+                            className="w-3/4 mx-auto object-contain max-h-32"
+                        />
                     ) : (
-                        <div className="mb-6 aspect-square size-16 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-lg flex">
-                            <Camera className="size-8" />
+                        <h1 className="text-3xl font-bold text-indigo-600">{companyName}</h1>
+                    )}
+                </div>
+
+                {/* Login Form */}
+                <form
+                    action={login}
+                    onSubmit={handleSubmit}
+                    className="border border-slate-200 p-8 rounded-2xl shadow-sm bg-white space-y-6"
+                >
+                    {errorMessage && (
+                        <div className="bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl flex items-center gap-3 text-sm">
+                            <AlertCircle className="size-4 shrink-0" />
+                            <p>{errorMessage}</p>
                         </div>
                     )}
 
-                    <h1 className="font-bold text-3xl text-slate-900 tracking-tight font-script mb-1" style={{ fontFamily: 'var(--font-script)' }}>
-                        {companyName}
-                    </h1>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold">Plateforme de Gestion</p>
-                </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="email" className="text-sm font-medium text-slate-700">
+                            Email
+                        </Label>
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            placeholder="votre@email.com"
+                            required
+                            className="h-12 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                            defaultValue="contact@letempsdunsourire.fr"
+                        />
+                    </div>
 
-                <Card className="border-none shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white rounded-[24px] overflow-hidden">
-                    <CardHeader className="pt-8 px-8 pb-2 text-center">
-                        <CardTitle className="text-xl font-bold text-slate-800">Se connecter</CardTitle>
-                        <CardDescription className="text-slate-400 mt-1 text-xs">
-                            Accédez à votre espace administrateur
-                        </CardDescription>
-                    </CardHeader>
-                    <form action={login} onSubmit={handleSubmit}>
-                        <CardContent className="space-y-4 px-8 pb-6">
-                            {errorMessage && (
-                                <div className="bg-red-50 border border-red-100 text-red-600 px-3 py-2 rounded-xl flex items-center gap-2 text-xs animate-in fade-in zoom-in-95">
-                                    <AlertCircle className="size-3.5 shrink-0" />
-                                    <p className="font-medium">{errorMessage}</p>
-                                </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="password" className="text-sm font-medium text-slate-700">
+                            Mot de passe
+                        </Label>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            required
+                            className="h-12 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                        />
+                    </div>
+
+                    <div className="pt-2">
+                        <Button
+                            type="submit"
+                            className="w-full h-12 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md transition-all active:scale-[0.98]"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <span className="flex items-center gap-2">
+                                    <Loader2 className="size-5 animate-spin" /> Connexion...
+                                </span>
+                            ) : (
+                                'Connexion'
                             )}
+                        </Button>
+                    </div>
+                </form>
 
-                            <div className="space-y-1.5">
-                                <Label htmlFor="email" className="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Email</Label>
-                                <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 pointer-events-none" />
-                                    <Input
-                                        id="email"
-                                        name="email"
-                                        type="email"
-                                        placeholder="admin@example.com"
-                                        required
-                                        className="pl-11 h-11 bg-white border border-slate-200 rounded-xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none text-sm"
-                                        defaultValue="contact@letempsdunsourire.fr"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-slate-400 ml-1">Mot de passe</Label>
-                                <div className="relative focus-within:text-indigo-500">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-slate-300 pointer-events-none transition-colors" />
-                                    <Input
-                                        id="password"
-                                        name="password"
-                                        type="password"
-                                        required
-                                        className="pl-11 h-11 bg-white border border-slate-200 rounded-xl focus-visible:ring-2 focus-visible:ring-indigo-100 focus-visible:border-indigo-200 transition-all shadow-none text-sm"
-                                    />
-                                </div>
-                            </div>
-                        </CardContent>
-                        <CardFooter className="px-8 py-6 bg-white flex justify-center">
-                            <Button type="submit" className="w-full h-12 text-xs font-bold uppercase tracking-widest bg-slate-900 hover:bg-black text-white rounded-xl shadow-lg active:scale-[0.98] transition-all" disabled={isLoading}>
-                                {isLoading ? (
-                                    <>
-                                        <Loader2 className="mr-2 size-5 animate-spin" />
-                                        Vérification...
-                                    </>
-                                ) : (
-                                    'Connexion'
-                                )}
-                            </Button>
-                        </CardFooter>
-                    </form>
-                </Card>
-
-                <div className="mt-12 flex items-center justify-center gap-4 grayscale opacity-40">
-                    <div className="h-[1px] w-8 bg-slate-300"></div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 whitespace-nowrap">
-                        &copy; {new Date().getFullYear()} {companyName}
-                    </p>
-                    <div className="h-[1px] w-8 bg-slate-300"></div>
+                {/* Bottom Links */}
+                <div className="mt-8 text-center space-y-4 text-slate-500">
+                    <p className="text-sm">Merci de vous connecter</p>
+                    <div>
+                        <a
+                            href="#"
+                            className="text-indigo-600 hover:text-indigo-700 font-medium text-sm transition-colors"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                alert("Cette section est réservée aux administrateurs. Pour les clients, veuillez utiliser votre lien personnalisé reçu par email.");
+                            }}
+                        >
+                            Je suis client
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

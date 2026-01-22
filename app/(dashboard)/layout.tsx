@@ -7,6 +7,7 @@ export const dynamic = 'force-dynamic'
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SaveStatusProvider } from "@/context/save-status-context"
 
 export default async function DashboardLayout({
     children,
@@ -36,13 +37,15 @@ export default async function DashboardLayout({
                 } as React.CSSProperties
             }
         >
-            <AppSidebar variant="inset" />
-            <SidebarInset>
-                <SiteHeader />
-                <div className="flex flex-1 flex-col">
-                    {children}
-                </div>
-            </SidebarInset>
+            <SaveStatusProvider>
+                <AppSidebar variant="inset" />
+                <SidebarInset>
+                    <SiteHeader />
+                    <div className="flex flex-1 flex-col">
+                        {children}
+                    </div>
+                </SidebarInset>
+            </SaveStatusProvider>
         </SidebarProvider>
     )
 }

@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog"
 import { DevisContratForm } from "@/components/devis-contrat-form"
 import { supabase } from "@/lib/supabase"
-import { format, isWithinInterval, startOfYear, endOfYear, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay, isAfter } from "date-fns"
+import { format, isWithinInterval, startOfYear, endOfYear, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay, isAfter, startOfWeek, endOfWeek } from "date-fns"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -59,6 +59,7 @@ export default function DevisContratsPage() {
     const [formMode, setFormMode] = useState<"devis" | "contrat">("devis")
     const [editingItem, setEditingItem] = useState<Devis | Contrat | null>(null)
     const [validatingDevisId, setValidatingDevisId] = useState<string | null>(null)
+    const [formSessionId, setFormSessionId] = useState(0)
     const [isMounted, setIsMounted] = useState(false)
 
     // Payment Dialog State
@@ -78,7 +79,9 @@ export default function DevisContratsPage() {
     const [contratsList, setContratsList] = useState<Contrat[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [statusSettings, setStatusSettings] = useState<any>(null)
-    const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({ key: 'date_debut', direction: 'asc' })
+    const [devisSortConfig, setDevisSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({ key: 'date_debut', direction: 'asc' })
+    const [contratSortConfig, setContratSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({ key: 'date_debut', direction: 'asc' })
+    const [archiveSortConfig, setArchiveSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>({ key: 'date_debut', direction: 'asc' })
 
     // Filter State
     const [searchQuery, setSearchQuery] = useState("")
@@ -94,8 +97,12 @@ export default function DevisContratsPage() {
         end: format(new Date(), "yyyy-MM-dd")
     })
 
-    const handleSort = (key: string) => {
-        setSortConfig(current => {
+    // Column resizing logic removed
+
+
+    const handleSort = (key: string, tableType: 'devis' | 'contrat' | 'archive') => {
+        const setter = tableType === 'devis' ? setDevisSortConfig : (tableType === 'contrat' ? setContratSortConfig : setArchiveSortConfig)
+        setter(current => {
             if (current?.key === key) {
                 return { key, direction: current.direction === 'asc' ? 'desc' : 'asc' }
             }
@@ -103,23 +110,23 @@ export default function DevisContratsPage() {
         })
     }
 
-    const sortData = <T extends any>(data: T[]) => {
-        if (!sortConfig) return data
+    const sortData = <T extends any>(data: T[], config: { key: string; direction: 'asc' | 'desc' } | null) => {
+        if (!config) return data
 
         return [...data].sort((a, b) => {
             const itemA = a as any
             const itemB = b as any
 
-            let aValue: any = itemA[sortConfig.key]
-            let bValue: any = itemB[sortConfig.key]
+            let aValue: any = itemA[config.key]
+            let bValue: any = itemB[config.key]
 
-            if (sortConfig.key === 'prix_total') {
+            if (config.key === 'prix_total') {
                 aValue = parseFloat(itemA.prix_total || "0")
                 bValue = parseFloat(itemB.prix_total || "0")
-            } else if (sortConfig.key === 'encaisse') {
+            } else if (config.key === 'encaisse') {
                 aValue = itemA.solde_paye ? parseFloat(itemA.prix_total || "0") : (itemA.acompte_paye ? parseFloat(itemA.acompte_recu || "0") : 0)
                 bValue = itemB.solde_paye ? parseFloat(itemB.prix_total || "0") : (itemB.acompte_paye ? parseFloat(itemB.acompte_recu || "0") : 0)
-            } else if (sortConfig.key === 'reste') {
+            } else if (config.key === 'reste') {
                 const aTotal = parseFloat(itemA.prix_total || "0")
                 const aEncaisse = itemA.solde_paye ? aTotal : (itemA.acompte_paye ? parseFloat(itemA.acompte_recu || "0") : 0)
                 aValue = aTotal - aEncaisse
@@ -129,8 +136,15 @@ export default function DevisContratsPage() {
                 bValue = bTotal - bEncaisse
             }
 
-            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1
-            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1
+            if (config.key === 'date_debut') {
+                const dateTimeA = `${itemA.date_debut || ""} ${itemA.heure_debut || "00:00"}`
+                const dateTimeB = `${itemB.date_debut || ""} ${itemB.heure_debut || "00:00"}`
+                aValue = dateTimeA
+                bValue = dateTimeB
+            }
+
+            if (aValue < bValue) return config.direction === 'asc' ? -1 : 1
+            if (aValue > bValue) return config.direction === 'asc' ? 1 : -1
             return 0
         })
     }
@@ -163,6 +177,11 @@ export default function DevisContratsPage() {
             const date = new Date(dateStr)
 
             switch (dateFilter) {
+                case 'this_week':
+                    return isWithinInterval(date, {
+                        start: startOfWeek(now, { weekStartsOn: 1 }),
+                        end: endOfWeek(now, { weekStartsOn: 1 })
+                    })
                 case 'this_year':
                     return isWithinInterval(date, { start: startOfYear(now), end: endOfYear(now) })
                 case 'this_month':
@@ -185,8 +204,10 @@ export default function DevisContratsPage() {
         })
     }
 
-    const filteredSortedDevis = useMemo(() => applyFilters(sortData(devisList)), [devisList, sortConfig, searchQuery, dateFilter, statusFilter, customDateRange])
-    const filteredSortedContrats = useMemo(() => applyFilters(sortData(contratsList)), [contratsList, sortConfig, searchQuery, dateFilter, statusFilter, customDateRange])
+    const filteredDevis = useMemo(() => applyFilters(devisList), [devisList, searchQuery, dateFilter, statusFilter, customDateRange])
+    const filteredContrats = useMemo(() => applyFilters(contratsList), [contratsList, searchQuery, dateFilter, statusFilter, customDateRange])
+
+    const filteredSortedDevis = useMemo(() => sortData(filteredDevis, devisSortConfig), [filteredDevis, devisSortConfig])
 
     const isArchived = (item: any) => {
         if (!item.date_debut) return false
@@ -195,6 +216,12 @@ export default function DevisContratsPage() {
         today.setHours(0, 0, 0, 0)
         return date < today && !!item.solde_paye
     }
+
+    const activeContrats = useMemo(() => filteredContrats.filter(c => !isArchived(c)), [filteredContrats])
+    const archivedContrats = useMemo(() => filteredContrats.filter(c => isArchived(c)), [filteredContrats])
+
+    const sortedActiveContrats = useMemo(() => sortData(activeContrats, contratSortConfig), [activeContrats, contratSortConfig])
+    const sortedArchivedContrats = useMemo(() => sortData(archivedContrats, archiveSortConfig), [archivedContrats, archiveSortConfig])
 
     const getEquipmentName = (id: string, preference?: string) => {
         const preferences = ['bois', 'blanc', 'noir', 'import']
@@ -205,11 +232,25 @@ export default function DevisContratsPage() {
         return machine ? <Badge variant="outline" className="text-[10px] font-normal">{machine.nom}</Badge> : <span className="text-muted-foreground italic text-xs">Inconnu</span>
     }
 
-    const activeContrats = filteredSortedContrats.filter(c => !isArchived(c))
-    const archivedContrats = filteredSortedContrats.filter(c => isArchived(c))
-
     useEffect(() => {
         fetchData()
+
+        // Real-time subscription to auto-refresh when tables change
+        const channel = (supabase as any)
+            .channel('dashboard-sync')
+            .on('postgres_changes', { event: '*', table: 'devis', schema: 'public' }, () => {
+                console.log("Real-time: devis table changed, refreshing...")
+                fetchData()
+            })
+            .on('postgres_changes', { event: '*', table: 'contrats', schema: 'public' }, () => {
+                console.log("Real-time: contrats table changed, refreshing...")
+                fetchData()
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [])
 
     async function fetchData() {
@@ -247,12 +288,14 @@ export default function DevisContratsPage() {
     const openCreateForm = (mode: "devis" | "contrat") => {
         setFormMode(mode)
         setEditingItem(null)
+        setFormSessionId(prev => prev + 1)
         setIsDialogOpen(true)
     }
 
     const openEditForm = (mode: "devis" | "contrat", item: Devis | Contrat) => {
         setFormMode(mode)
         setEditingItem(item)
+        setFormSessionId(prev => prev + 1)
         setIsDialogOpen(true)
     }
 
@@ -265,7 +308,7 @@ export default function DevisContratsPage() {
         }
     }
 
-    const handleFormSuccess = async (savedRecord: any) => {
+    const handleFormSuccess = async (savedRecord: any, keepOpen: boolean = false) => {
         const mappedItem = { ...savedRecord, ...savedRecord.data }
 
         if (editingItem) {
@@ -295,11 +338,23 @@ export default function DevisContratsPage() {
             if (type === "devis") setDevisList(prev => [mappedItem, ...prev])
             else setContratsList(prev => [mappedItem, ...prev])
         }
-        setIsDialogOpen(false)
+        if (keepOpen) {
+            setEditingItem(mappedItem)
+            // Sync form mode with the new record type to prevent migration loops
+            setFormMode(mappedItem.id.startsWith('D') ? 'devis' : 'contrat')
+        } else {
+            setIsDialogOpen(false)
+        }
     }
 
     const handleToggleChecklist = async (item: any, field: string, table: "devis" | "contrats") => {
         const newValue = !item[field]
+
+        // If checking "contrat_signe" on a devis, trigger the full validation/migration process
+        if (field === 'contrat_signe' && newValue === true && table === 'devis') {
+            handleValidateDevis(item)
+            return
+        }
 
         // If checking a payment field, open dialog instead of direct toggle
         if (newValue && (field === 'acompte_paye' || field === 'solde_paye') && table === 'contrats') {
@@ -363,7 +418,8 @@ export default function DevisContratsPage() {
                 data: {
                     ...devis.data,
                     reference: newId,
-                    etat: "Validé"
+                    etat: "Validé",
+                    contrat_signe: true
                 }
             }
 
@@ -399,6 +455,80 @@ export default function DevisContratsPage() {
         }
     }
 
+    const handleEquipmentChange = async (item: any, table: "devis" | "contrats", newEquipmentId: string) => {
+        const updateState = (prev: any[]) => prev.map(d =>
+            d.id === item.id
+                ? { ...d, equipment_id: newEquipmentId, data: { ...d.data, equipment_id: newEquipmentId } }
+                : d
+        )
+
+        if (table === "devis") setDevisList(updateState)
+        else setContratsList(updateState)
+
+        const { error } = await supabase
+            .from(table)
+            .update({ data: { ...item.data, equipment_id: newEquipmentId } })
+            .eq('id', item.id)
+
+        if (error) {
+            console.error("Error updating equipment:", error)
+            alert("Erreur lors de la mise à jour du matériel")
+            fetchData()
+        }
+    }
+
+    const EquipmentSelector = ({ item, table }: { item: any, table: "devis" | "contrats" }) => {
+        const currentId = item.data?.equipment_id || item.equipment_id || "none"
+
+        return (
+            <Select
+                value={currentId}
+                onValueChange={(val) => handleEquipmentChange(item, table, val)}
+            >
+                <SelectTrigger className="h-7 w-fit min-w-[70px] max-w-[90px] text-[10px] bg-transparent border-slate-200 hover:border-indigo-400 transition-colors px-2">
+                    <SelectValue placeholder="Matériel">
+                        {statusSettings?.materiels?.find((m: any) => m.id === currentId)?.nom || (currentId === "none" ? "-" : currentId)}
+                    </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="none" className="text-[10px]">Aucun</SelectItem>
+                    {statusSettings?.materiels?.map((m: any) => (
+                        <SelectItem key={m.id} value={m.id} className="text-[10px]">
+                            {m.nom}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        )
+    }
+
+    const OfferCell = ({ item }: { item: any }) => {
+        const rawData = item.data || {}
+        const fullOffre = item.offre || rawData.offre || "-"
+        const mainOffre = fullOffre.split(':')[0].trim()
+        const options = item.selected_options || rawData.selected_options || []
+
+        return (
+            <div className="flex flex-col gap-1 py-1">
+                <div className="text-[11px] font-bold text-indigo-700 uppercase tracking-tight leading-none">
+                    {mainOffre}
+                </div>
+                {options.length > 0 && (
+                    <div className="flex flex-col gap-1 mt-1 items-start">
+                        {options.map((opt: any, i: number) => (
+                            <span
+                                key={i}
+                                className="text-[9px] leading-[1.1] px-1.5 py-1 rounded-md bg-slate-100 text-slate-600 font-semibold border border-slate-200"
+                            >
+                                {opt.name}
+                            </span>
+                        ))}
+                    </div>
+                )}
+            </div>
+        )
+    }
+
     const handleDateFilterChange = (val: string) => {
         if (val === "custom") setIsCustomDateDialogOpen(true)
         else setDateFilter(val)
@@ -412,6 +542,7 @@ export default function DevisContratsPage() {
 
     const activeDateLabel = useMemo(() => {
         switch (dateFilter) {
+            case 'this_week': return "Cette semaine"
             case 'this_year': return "Cette année"
             case 'this_month': return "Ce mois-ci"
             case 'last_month': return "Mois dernier"
@@ -438,65 +569,83 @@ export default function DevisContratsPage() {
                 </Button>
             </div>
 
-            {/* Filter Bar */}
-            {isMounted && (
-                <div className="bg-white p-4 rounded-xl border shadow-sm flex flex-col md:flex-row gap-4 items-end md:items-center">
-                    <div className="flex-1 w-full">
-                        <Label className="text-xs text-muted-foreground mb-1 block">Recherche</Label>
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            {/* Sticky Filter Container */}
+            <div className="sticky top-0 z-[40] bg-slate-50/80 backdrop-blur-md -mx-4 px-4 py-3 lg:-mx-6 lg:px-6 border-b border-slate-200/50 space-y-3 shadow-sm">
+                <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">
+                    <div className="flex flex-wrap items-center gap-2">
+                        {[
+                            { id: 'all', label: 'Tout' },
+                            { id: 'this_week', label: 'Cette semaine' },
+                            { id: 'this_month', label: 'Ce mois-ci' },
+                            { id: 'this_year', label: 'Cette année' },
+                            { id: 'last_month', label: 'Dernier mois' },
+                            { id: 'last_3_months', label: '3 mois' },
+                            { id: 'last_6_months', label: '6 mois' },
+                        ].map((tab) => (
+                            <button
+                                key={tab.id}
+                                onClick={() => setDateFilter(tab.id)}
+                                className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all border ${dateFilter === tab.id
+                                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 scale-105'
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
+                                    }`}
+                            >
+                                {tab.label}
+                            </button>
+                        ))}
+                        <button
+                            onClick={() => setIsCustomDateDialogOpen(true)}
+                            className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all border flex items-center gap-1.5 ${dateFilter === 'custom'
+                                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-100 scale-105'
+                                    : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
+                                }`}
+                        >
+                            <CalendarIcon className="size-3" />
+                            {dateFilter === 'custom' ? activeDateLabel : 'Personnalisé...'}
+                        </button>
+                    </div>
+
+                    <div className="flex items-center gap-3 w-full xl:w-auto">
+                        <div className="relative flex-1 xl:w-64">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
                             <Input
-                                placeholder="Client, référence..."
-                                className="pl-9"
+                                placeholder="Rechercher client, réf..."
+                                className="pl-9 bg-white border-slate-200 rounded-lg h-9 text-sm"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
                             {searchQuery && (
-                                <X className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground cursor-pointer hover:text-black" onClick={() => setSearchQuery("")} />
+                                <X className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-slate-400 cursor-pointer hover:text-black" onClick={() => setSearchQuery("")} />
                             )}
                         </div>
-                    </div>
 
-                    <div className="w-full md:w-48">
-                        <Label className="text-xs text-muted-foreground mb-1 block">Période</Label>
-                        <Select value={dateFilter === "custom" ? "custom" : dateFilter} onValueChange={handleDateFilterChange}>
-                            <SelectTrigger className="w-full">
-                                <CalendarIcon className="size-4 mr-2 text-muted-foreground" />
-                                <SelectValue placeholder="Période" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Tout</SelectItem>
-                                <SelectItem value="this_year">Cette année</SelectItem>
-                                <SelectItem value="this_month">Ce mois-ci</SelectItem>
-                                <SelectItem value="last_month">Le mois dernier</SelectItem>
-                                <SelectItem value="last_3_months">3 derniers mois</SelectItem>
-                                <SelectItem value="last_6_months">6 derniers mois</SelectItem>
-                                <SelectItem value="custom">Personnalisée...</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                        <div className="w-32 md:w-48">
+                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                <SelectTrigger className="h-9 bg-white border-slate-200 text-xs">
+                                    <Filter className="size-3.5 mr-2 text-slate-400" />
+                                    <SelectValue placeholder="Statut" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">Tous statuts</SelectItem>
+                                    {availableStatuses.map(s => (
+                                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                    <div className="w-full md:w-48">
-                        <Label className="text-xs text-muted-foreground mb-1 block">Statut</Label>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-full">
-                                <Filter className="size-4 mr-2 text-muted-foreground" />
-                                <SelectValue placeholder="Statut" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">Tous les statuts</SelectItem>
-                                {availableStatuses.map(s => (
-                                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-9 rounded-lg hover:bg-slate-100"
+                            title="Reset"
+                            onClick={() => { setSearchQuery(""); setDateFilter("all"); setStatusFilter("all"); }}
+                        >
+                            <X className="size-4 text-slate-500" />
+                        </Button>
                     </div>
-
-                    <Button variant="ghost" size="icon" className="mb-0.5" title="Réinitialiser les filtres" onClick={() => { setSearchQuery(""); setDateFilter("all"); setStatusFilter("all"); }}>
-                        <X className="size-4" />
-                    </Button>
                 </div>
-            )}
+            </div>
 
             {/* Active Date Indicator */}
             {(dateFilter !== "all" || statusFilter !== "all" || searchQuery) && (
@@ -509,14 +658,16 @@ export default function DevisContratsPage() {
             )}
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[900px] w-full max-h-[90vh] overflow-y-auto">
-                    <DialogHeader className="mb-6">
-                        <DialogTitle className="flex items-center gap-2 text-2xl">
-                            {formMode === "devis" ? <FileTextIcon className="size-6 text-primary" /> : <ScrollTextIcon className="size-6 text-primary" />}
+                <DialogContent className="sm:max-w-[1000px] w-full max-h-[95vh] p-0 overflow-hidden flex flex-col border-none shadow-2xl">
+                    <DialogHeader className="px-6 py-4 border-b bg-white flex-shrink-0 z-50">
+                        <DialogTitle className="flex items-center gap-2 text-2xl font-black tracking-tight text-slate-900">
+                            {formMode === "devis" ? <FileTextIcon className="size-7 text-indigo-600" /> : <ScrollTextIcon className="size-7 text-indigo-600" />}
                             {editingItem ? `Modifier ${formMode === "devis" ? "le Devis" : "le Contrat"}` : `Nouveau ${formMode === "devis" ? "Devis" : "Contrat"}`}
                         </DialogTitle>
                     </DialogHeader>
-                    <DevisContratForm key={editingItem?.id || `${formMode}-${isDialogOpen}`} mode={formMode} initialData={editingItem} onSuccess={handleFormSuccess} />
+                    <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4">
+                        <DevisContratForm key={editingItem?.id || `${formMode}-${isDialogOpen}`} mode={formMode} initialData={editingItem} onSuccess={handleFormSuccess} />
+                    </div>
                 </DialogContent>
             </Dialog>
 
@@ -594,29 +745,42 @@ export default function DevisContratsPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
-                                                <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
-                                                <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                                <TableHead className="w-[120px] text-center">ACTIONS</TableHead>
+                                                <TableHead onClick={() => handleSort('id', 'devis')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'devis')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
+                                                <TableHead onClick={() => handleSort('nom_client', 'devis')} className="cursor-pointer hover:bg-slate-100">CLIENT</TableHead>
+                                                <TableHead className="w-[120px]">OFFRE</TableHead>
+                                                <TableHead>MATÉRIEL</TableHead>
+                                                <TableHead onClick={() => handleSort('prix_total', 'devis')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
+                                                <TableHead className="text-center">SOLDE</TableHead>
+                                                <TableHead className="text-center">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {isLoading ? (
-                                                <TableRow><TableCell colSpan={6} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                             ) : filteredSortedDevis.length === 0 ? (
-                                                <TableRow><TableCell colSpan={6} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
                                             ) : filteredSortedDevis.map((devis) => (
                                                 <TableRow key={devis.id} className="hover:bg-slate-50/50">
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell>
-                                                        <div className="font-medium text-sm">{devis.nom_client}</div>
-                                                        <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{devis.nom_evenement || devis.lieu}</div>
+                                                        <div className="flex flex-col">
+                                                            <div className="font-medium text-sm">{devis.nom_client}</div>
+                                                            {devis.telephone_client && (
+                                                                <a href={`tel:${devis.telephone_client}`} className="text-[10px] text-indigo-500 hover:underline flex items-center gap-1">
+                                                                    <Phone className="size-2.5" />
+                                                                    {devis.telephone_client}
+                                                                </a>
+                                                            )}
+                                                        </div>
                                                     </TableCell>
-                                                    <TableCell>{getEquipmentName(devis.data?.equipment_id)}</TableCell>
+                                                    <TableCell><OfferCell item={devis} /></TableCell>
+                                                    <TableCell><EquipmentSelector item={devis} table="devis" /></TableCell>
                                                     <TableCell className="text-sm font-semibold">{parseFloat(devis.prix_total || "0").toFixed(2)}€</TableCell>
+                                                    <TableCell className="text-sm font-semibold text-center text-red-500">
+                                                        {parseFloat(devis.prix_total || "0").toFixed(2)}€
+                                                    </TableCell>
                                                     <TableCell className="text-center">
                                                         <div className="flex justify-center gap-1 items-center">
                                                             <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("devis", devis)} title="Modifier">
@@ -661,56 +825,107 @@ export default function DevisContratsPage() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-slate-50/50">
-                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
-                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
-                                            <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
-                                            <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
-                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse')}>ENCAISSÉ</TableHead>
-                                            <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100 text-center">SUIVI</TableHead>
-                                            <TableHead className="w-[100px] text-center">ACTIONS</TableHead>
+                                            <TableHead onClick={() => handleSort('id', 'contrat')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
+                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
+                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="text-center cursor-pointer hover:bg-slate-100">LIVRAISON</TableHead>
+                                            <TableHead onClick={() => handleSort('nom_client', 'contrat')} className="cursor-pointer hover:bg-slate-100">CLIENT</TableHead>
+                                            <TableHead className="w-[120px]">OFFRE</TableHead>
+                                            <TableHead>MATÉRIEL</TableHead>
+                                            <TableHead onClick={() => handleSort('prix_total', 'contrat')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
+                                            <TableHead onClick={() => handleSort('encaisse', 'contrat')} className="cursor-pointer hover:bg-slate-100">ENCAISSÉ</TableHead>
+                                            <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('reste', 'contrat')}>SOLDE</TableHead>
+                                            <TableHead className="text-center">SUIVI</TableHead>
+                                            <TableHead className="text-center">ACTIONS</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {isLoading ? (
-                                            <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                            <TableRow><TableCell colSpan={11} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                         ) : activeContrats.length === 0 ? (
-                                            <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground">Aucun contrat trouvé.</TableCell></TableRow>
-                                        ) : activeContrats.map((contrat) => (
+                                            <TableRow><TableCell colSpan={11} className="text-center h-24 text-muted-foreground">Aucun contrat trouvé.</TableCell></TableRow>
+                                        ) : sortedActiveContrats.map((contrat) => (
                                             <TableRow key={contrat.id} className="hover:bg-slate-50/50">
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                <TableCell>
-                                                    <div className="font-medium text-sm">{contrat.nom_client}</div>
-                                                    <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{contrat.nom_evenement || contrat.lieu}</div>
+                                                <TableCell className="text-xs text-center leading-tight">
+                                                    {contrat.date_debut ? (
+                                                        <div className="flex flex-col items-center">
+                                                            <div className="flex items-center gap-1 justify-center whitespace-nowrap">
+                                                                <span className="text-[9px] text-muted-foreground">{format(new Date(contrat.date_debut), 'dd/MM/yy')}</span>
+                                                                <span className="text-[10px] text-indigo-600 font-bold">{contrat.heure_debut || "8:00"}</span>
+                                                            </div>
+                                                            {contrat.lieu && (
+                                                                <a
+                                                                    href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-[9px] text-slate-500 italic mt-0.5 max-w-[120px] hover:underline hover:text-indigo-600 block"
+                                                                    title="Ouvrir dans Waze"
+                                                                >
+                                                                    {contrat.lieu}
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    ) : "-"}
                                                 </TableCell>
-                                                <TableCell>{getEquipmentName(contrat.data?.equipment_id)}</TableCell>
+                                                <TableCell>
+                                                    <div className="flex flex-col">
+                                                        <div className="font-medium text-sm">{contrat.nom_client}</div>
+                                                        {contrat.telephone_client && (
+                                                            <a href={`tel:${contrat.telephone_client}`} className="text-[10px] text-indigo-500 hover:underline flex items-center gap-1">
+                                                                <Phone className="size-2.5" />
+                                                                {contrat.telephone_client}
+                                                            </a>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell><OfferCell item={contrat} /></TableCell>
+                                                <TableCell><EquipmentSelector item={contrat} table="contrats" /></TableCell>
                                                 <TableCell className="text-sm font-semibold">{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
                                                 <TableCell className="text-xs text-emerald-600 font-medium">
                                                     {contrat.solde_paye ? parseFloat(contrat.prix_total || "0").toFixed(2) : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0).toFixed(2)}€
                                                 </TableCell>
+                                                <TableCell className={`text-sm font-bold text-center ${parseFloat(contrat.prix_total || "0") - (contrat.solde_paye ? parseFloat(contrat.prix_total || "0") : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0)) > 0 ? "text-red-500" : "text-emerald-600"}`}>
+                                                    {(parseFloat(contrat.prix_total || "0") - (contrat.solde_paye ? parseFloat(contrat.prix_total || "0") : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0))).toFixed(2)}€
+                                                </TableCell>
                                                 <TableCell>
-                                                    <div className="flex gap-1 justify-center">
-                                                        <div title="Contrat Signé" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'contrat_signe', 'contrats')}>
-                                                            {contrat.contrat_signe ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                                    <div className="flex gap-1 justify-center flex-wrap">
+                                                        {/* Fixed step 0: Contrat Signé */}
+                                                        <div title={statusSettings?.workflow_steps?.[0] || "Contrat Signé"} className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'contrat_signe', 'contrats')}>
+                                                            {(contrat.contrat_signe || contrat.data?.contrat_signe) ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                                                         </div>
-                                                        <div title={`Acompte Reçu ${contrat.data?.acompte_methode ? `(${contrat.data.acompte_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'acompte_paye', 'contrats')}>
+                                                        {/* Fixed step 1: Acompte */}
+                                                        <div title={`${statusSettings?.workflow_steps?.[1] || "Acompte Reçu"} ${contrat.data?.acompte_methode ? `(${contrat.data.acompte_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'acompte_paye', 'contrats')}>
                                                             {contrat.acompte_paye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                                                             {contrat.acompte_paye && contrat.data?.acompte_methode && (
                                                                 <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.acompte_methode.substring(0, 3)}</span>
                                                             )}
                                                         </div>
-                                                        <div title={`Solde Reçu ${contrat.data?.solde_methode ? `(${contrat.data.solde_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'solde_paye', 'contrats')}>
+                                                        {/* Fixed step 2: Solde */}
+                                                        <div title={`${statusSettings?.workflow_steps?.[2] || "Solde Reçu"} ${contrat.data?.solde_methode ? `(${contrat.data.solde_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'solde_paye', 'contrats')}>
                                                             {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                                                             {contrat.solde_paye && contrat.data?.solde_methode && (
                                                                 <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.solde_methode.substring(0, 3)}</span>
                                                             )}
                                                         </div>
-                                                        {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
-                                                            <div title="Design Validé" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'design_valide', 'contrats')}>
-                                                                {contrat.design_valide ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />}
-                                                            </div>
-                                                        )}
+                                                        {/* Dynamic steps from index 3 onwards */}
+                                                        {(statusSettings?.workflow_steps || []).slice(3).map((stepName: string, idx: number) => {
+                                                            const stepIndex = idx + 3
+                                                            const stepKey = String(stepIndex)
+                                                            const isChecked = contrat.data?.workflow_status?.[stepKey] === true
+                                                            return (
+                                                                <div key={stepKey} title={stepName} className="cursor-pointer" onClick={() => {
+                                                                    const currentStatus = contrat.data?.workflow_status || {}
+                                                                    const newStatus = { ...currentStatus, [stepKey]: !isChecked }
+                                                                    // Update via supabase directly
+                                                                    supabase.from('contrats').update({ data: { ...contrat.data, workflow_status: newStatus } }).eq('id', contrat.id).then(() => {
+                                                                        setContratsList(prev => prev.map(c => c.id === contrat.id ? { ...c, data: { ...c.data, workflow_status: newStatus } } : c))
+                                                                    })
+                                                                }}>
+                                                                    {isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                                                </div>
+                                                            )
+                                                        })}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">
@@ -743,37 +958,72 @@ export default function DevisContratsPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('id')}>N°</TableHead>
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('date_debut')}>DATE</TableHead>
-                                                <TableHead className="min-w-[150px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('nom_client')}>CLIENT</TableHead>
-                                                <TableHead className="min-w-[120px]">MATÉRIEL</TableHead>
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('prix_total')}>TOTAL</TableHead>
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse')}>ENCAISSÉ</TableHead>
-                                                <TableHead className="w-[100px] cursor-pointer hover:bg-slate-100 text-center">SUIVI</TableHead>
-                                                <TableHead className="w-[100px] text-center">ACTIONS</TableHead>
+                                                <TableHead onClick={() => handleSort('id', 'archive')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="text-center cursor-pointer hover:bg-slate-100">LIVRAISON</TableHead>
+                                                <TableHead onClick={() => handleSort('nom_client', 'archive')} className="cursor-pointer hover:bg-slate-100">CLIENT</TableHead>
+                                                <TableHead className="w-[120px]">OFFRE</TableHead>
+                                                <TableHead>MATÉRIEL</TableHead>
+                                                <TableHead onClick={() => handleSort('prix_total', 'archive')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
+                                                <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse', 'archive')}>ENCAISSÉ</TableHead>
+                                                <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('reste', 'archive')}>SOLDE</TableHead>
+                                                <TableHead className="text-center">SUIVI</TableHead>
+                                                <TableHead className="text-center">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {isLoading ? (
-                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={11} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                             ) : archivedContrats.length === 0 ? (
-                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground">Aucune archive trouvée.</TableCell></TableRow>
-                                            ) : archivedContrats.map((contrat) => (
+                                                <TableRow><TableCell colSpan={11} className="text-center h-24 text-muted-foreground">Aucune archive trouvée.</TableCell></TableRow>
+                                            ) : sortedArchivedContrats.map((contrat) => (
                                                 <TableRow key={contrat.id} className="opacity-70 h-10 hover:opacity-100 transition-opacity">
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                    <TableCell>
-                                                        <div className="font-medium text-sm">{contrat.nom_client}</div>
-                                                        <div className="text-[10px] text-muted-foreground truncate max-w-[150px]">{contrat.nom_evenement || contrat.lieu}</div>
+                                                    <TableCell className="text-xs text-center leading-tight">
+                                                        {contrat.date_debut ? (
+                                                            <div className="flex flex-col items-center">
+                                                                <div className="flex items-center gap-1 justify-center whitespace-nowrap">
+                                                                    <span className="text-[9px] text-muted-foreground/70">{format(new Date(contrat.date_debut), 'dd/MM/yy')}</span>
+                                                                    <span className="text-[10px] text-indigo-500 font-bold">{contrat.heure_debut || "8:00"}</span>
+                                                                </div>
+                                                                {contrat.lieu && (
+                                                                    <a
+                                                                        href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className="text-[9px] text-slate-400 italic mt-0.5 max-w-[120px] hover:underline hover:text-indigo-400 block"
+                                                                        title="Ouvrir dans Waze"
+                                                                    >
+                                                                        {contrat.lieu}
+                                                                    </a>
+                                                                )}
+                                                            </div>
+                                                        ) : "-"}
                                                     </TableCell>
+                                                    <TableCell>
+                                                        <div className="flex flex-col">
+                                                            <div className="font-medium text-sm">{contrat.nom_client}</div>
+                                                            {contrat.telephone_client && (
+                                                                <a href={`tel:${contrat.telephone_client}`} className="text-[10px] text-indigo-400 hover:underline flex items-center gap-1">
+                                                                    <Phone className="size-2.5" />
+                                                                    {contrat.telephone_client}
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell><OfferCell item={contrat} /></TableCell>
                                                     <TableCell className="text-xs">{getEquipmentName(contrat.data?.equipment_id)}</TableCell>
                                                     <TableCell className="text-xs font-semibold">{parseFloat(contrat.prix_total || "0").toFixed(2)}€</TableCell>
                                                     <TableCell className="text-[10px] text-emerald-600/70 font-medium">
                                                         {contrat.solde_paye ? parseFloat(contrat.prix_total || "0").toFixed(2) : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0).toFixed(2)}€
                                                     </TableCell>
+                                                    <TableCell className={`text-[10px] font-bold text-center ${parseFloat(contrat.prix_total || "0") - (contrat.solde_paye ? parseFloat(contrat.prix_total || "0") : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0)) > 0 ? "text-red-500/70" : "text-emerald-600/70"}`}>
+                                                        {(parseFloat(contrat.prix_total || "0") - (contrat.solde_paye ? parseFloat(contrat.prix_total || "0") : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0))).toFixed(2)}€
+                                                    </TableCell>
                                                     <TableCell>
                                                         <div className="flex gap-1 justify-center scale-90 opacity-60">
-                                                            <div>{contrat.contrat_signe ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
+                                                            <div>{(contrat.contrat_signe || contrat.data?.contrat_signe) ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
                                                             <div>{contrat.acompte_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
                                                             <div>{contrat.solde_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
                                                             {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (

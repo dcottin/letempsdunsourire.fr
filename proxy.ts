@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
     })
@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
         return supabaseResponse
     }
 
-    const ADMIN_EMAIL = 'contact@letempsdunsourire.fr'
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'contact@letempsdunsourire.fr'
 
     // If not logged in and not on login page -> redirect to login
     if (!user && !isLoginPage) {
