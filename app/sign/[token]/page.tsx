@@ -51,48 +51,18 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
     useEffect(() => {
         if (!token) return
 
-        const fetchContract = async () => {
+        const fetchData = async () => {
             try {
-                // Search in both tables and multiple token fields
-                const tables = ['contrats', 'devis'];
-                const tokenFields = ['access_token_contrat', 'access_token_devis', 'access_token'];
+                const response = await fetch(`/api/sign/${token}`)
+                const result = await response.json()
 
-                let foundItem = null;
-                let foundMode: 'devis' | 'contrat' = 'contrat';
-
-                for (const table of tables) {
-                    for (const field of tokenFields) {
-                        const { data, error } = await supabase
-                            .from(table)
-                            .select('*')
-                            .eq(`data->>${field}`, token)
-                            .maybeSingle();
-
-                        if (error) {
-                            console.error(`Error querying ${table} with ${field}:`, error);
-                            continue;
-                        }
-
-                        if (data) {
-                            foundItem = data;
-                            // Determine mode: 
-                            // 1. If token matched 'access_token_devis', it's a devis
-                            // 2. If token matched 'access_token_contrat', it's a contrat
-                            // 3. Fallback to ID prefix if legacy token
-                            if (field === 'access_token_devis') foundMode = 'devis';
-                            else if (field === 'access_token_contrat') foundMode = 'contrat';
-                            else foundMode = data.id?.startsWith('C') ? 'contrat' : 'devis';
-
-                            break;
-                        }
-                    }
-                    if (foundItem) break;
-                }
-
-                if (!foundItem) {
+                if (!response.ok || result.error) {
                     setError("Ce lien est invalide ou a expiré.")
                 } else {
-                    setContract({ ...foundItem, ...foundItem.data, _forcedMode: foundMode })
+                    setContract(result.contract)
+                    if (result.settings) {
+                        setSettings({ ...DEFAULT_SETTINGS, ...result.settings })
+                    }
                 }
             } catch (err) {
                 console.error("Error fetching document:", err)
@@ -102,25 +72,7 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
             }
         }
 
-
-
-        const fetchSettings = async () => {
-            try {
-                const { data: records, error } = await supabase
-                    .from('settings')
-                    .select('*')
-                    .limit(1)
-
-                if (records && records.length > 0) {
-                    setSettings({ ...DEFAULT_SETTINGS, ...records[0].data })
-                }
-            } catch (e) {
-                console.error("Error fetching settings:", e)
-            }
-        }
-
-        fetchContract()
-        fetchSettings()
+        fetchData()
     }, [token])
 
     // Scroll to top when changing steps (crucial for mobile)
