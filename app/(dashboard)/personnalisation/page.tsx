@@ -698,7 +698,7 @@ export default function PersonnalisationPage() {
                     <TabsContent value="emails" className="mt-6">
                         <div className="flex flex-col xl:flex-row gap-8 items-start relative">
                             {/* Left: Main Content (Large Editor Area) */}
-                            <div className="flex-1 w-full xl:max-w-[calc(100%-280px)]">
+                            <div className="flex-1 min-w-0">
                                 <Tabs defaultValue="devis" className="w-full">
                                     <TabsList className="grid grid-cols-3 mb-8 bg-slate-100 p-1 h-12 rounded-xl">
                                         <TabsTrigger value="devis" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm gap-2 font-bold">
@@ -713,7 +713,7 @@ export default function PersonnalisationPage() {
                                     </TabsList>
 
                                     {/* DEVIS TAB */}
-                                    <TabsContent value="devis" className="space-y-6 animate-in fade-in duration-300">
+                                    <TabsContent value="devis" className="space-y-6">
                                         <div className="flex items-center justify-between border-b pb-4">
                                             <div>
                                                 <h3 className="text-xl font-bold text-indigo-900 uppercase tracking-tight">E-mails Devis</h3>
@@ -724,9 +724,9 @@ export default function PersonnalisationPage() {
                                             </Button>
                                         </div>
 
-                                        <Tabs defaultValue="default" className="w-full">
+                                        <Tabs defaultValue="devis-default" className="w-full">
                                             <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
-                                                <TabsTrigger value="default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-4 py-2 font-bold shadow-none h-10">
+                                                <TabsTrigger value="devis-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-4 py-2 font-bold shadow-none h-10">
                                                     {settings.email_devis_name || "Par défaut"}
                                                 </TabsTrigger>
                                                 {(settings.mail_templates || []).filter(t => t.type === "devis").map(template => (
@@ -736,8 +736,8 @@ export default function PersonnalisationPage() {
                                                 ))}
                                             </TabsList>
 
-                                            <TabsContent value="default" className="mt-0">
-                                                <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10">
+                                            <TabsContent value="devis-default" className="mt-0">
+                                                <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10 min-h-[300px]">
                                                     <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
                                                     <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
                                                         <div className="space-y-2">
@@ -807,7 +807,7 @@ export default function PersonnalisationPage() {
                                     </TabsContent>
 
                                     {/* CONTRAT TAB */}
-                                    <TabsContent value="contrat" className="space-y-6 animate-in fade-in duration-300">
+                                    <TabsContent value="contrat" className="space-y-6">
                                         <div className="flex items-center justify-between border-b pb-4">
                                             <div>
                                                 <h3 className="text-xl font-bold text-purple-900 uppercase tracking-tight">E-mails Contrat</h3>
@@ -818,9 +818,9 @@ export default function PersonnalisationPage() {
                                             </Button>
                                         </div>
 
-                                        <Tabs defaultValue="default" className="w-full">
+                                        <Tabs defaultValue="contrat-default" className="w-full">
                                             <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
-                                                <TabsTrigger value="default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-4 py-2 font-bold shadow-none h-10">
+                                                <TabsTrigger value="contrat-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-4 py-2 font-bold shadow-none h-10">
                                                     {settings.email_contrat_name || "Par défaut"}
                                                 </TabsTrigger>
                                                 {(settings.mail_templates || []).filter(t => t.type === "contrat").map(template => (
@@ -830,8 +830,8 @@ export default function PersonnalisationPage() {
                                                 ))}
                                             </TabsList>
 
-                                            <TabsContent value="default" className="mt-0">
-                                                <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10">
+                                            <TabsContent value="contrat-default" className="mt-0">
+                                                <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10 min-h-[300px]">
                                                     <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
                                                     <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
                                                         <div className="space-y-2">
@@ -901,7 +901,7 @@ export default function PersonnalisationPage() {
                                     </TabsContent>
 
                                     {/* FACTURE TAB */}
-                                    <TabsContent value="facture" className="space-y-6 animate-in fade-in duration-300">
+                                    <TabsContent value="facture" className="space-y-6">
                                         <div className="flex items-center justify-between border-b pb-4">
                                             <div>
                                                 <h3 className="text-xl font-bold text-emerald-900 uppercase tracking-tight">E-mails Facture</h3>
@@ -912,9 +912,9 @@ export default function PersonnalisationPage() {
                                             </Button>
                                         </div>
 
-                                        <Tabs defaultValue="default" className="w-full">
+                                        <Tabs defaultValue="facture-default" className="w-full">
                                             <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
-                                                <TabsTrigger value="default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-4 py-2 font-bold shadow-none h-10">
+                                                <TabsTrigger value="facture-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-4 py-2 font-bold shadow-none h-10">
                                                     {settings.email_facture_name || "Par défaut"}
                                                 </TabsTrigger>
                                                 {(settings.mail_templates || []).filter(t => t.type === "facture").map(template => (
@@ -924,8 +924,8 @@ export default function PersonnalisationPage() {
                                                 ))}
                                             </TabsList>
 
-                                            <TabsContent value="default" className="mt-0">
-                                                <Card className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10">
+                                            <TabsContent value="facture-default" className="mt-0">
+                                                <Card className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10 min-h-[300px]">
                                                     <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
                                                     <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
                                                         <div className="space-y-2">
