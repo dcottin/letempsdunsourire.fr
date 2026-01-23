@@ -586,7 +586,13 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             console.error("Save error details:", JSON.stringify(e, null, 2))
             console.error("Save error message:", e.message || e)
             if (isAutoSave) setError(e.message)
-            else alert(`Erreur lors de l'enregistrement: ${e.message || "Erreur inconnue"}`)
+            else {
+                toast({
+                    title: "Erreur d'enregistrement",
+                    description: e.message || "Une erreur est survenue lors de l'enregistrement.",
+                    variant: "destructive"
+                })
+            }
         } finally {
             if (isAutoSave) {
                 isAutoSavingRef.current = false
@@ -1150,44 +1156,65 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         ? (initialData?.data?.access_token_devis || initialData?.access_token_devis)
                                         : (initialData?.data?.access_token_contrat || initialData?.access_token_contrat);
 
-                                    return token && (
-                                        <Button type="button" size="sm" className="px-3" onClick={() => {
-                                            const url = `${window.location.origin}/sign/${token}`
+                                    const [copied, setCopied] = React.useState(false);
 
-                                            const copyToClipboard = async (text: string) => {
-                                                if (navigator.clipboard && window.isSecureContext) {
-                                                    try {
-                                                        await navigator.clipboard.writeText(text)
-                                                        alert("Lien copié !")
-                                                        return
-                                                    } catch (err) {
-                                                        console.error('Clipboard API failed, using fallback', err)
+                                    return token && (
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            className={`px-3 transition-all ${copied ? 'bg-emerald-500 hover:bg-emerald-600' : ''}`}
+                                            onClick={() => {
+                                                const url = `${window.location.origin}/sign/${token}`
+
+                                                const copyToClipboard = async (text: string) => {
+                                                    let success = false;
+                                                    if (navigator.clipboard && window.isSecureContext) {
+                                                        try {
+                                                            await navigator.clipboard.writeText(text)
+                                                            success = true;
+                                                        } catch (err) {
+                                                            console.error('Clipboard API failed, using fallback', err)
+                                                        }
+                                                    }
+
+                                                    if (!success) {
+                                                        const textArea = document.createElement("textarea")
+                                                        textArea.value = text
+                                                        textArea.style.position = "fixed"
+                                                        textArea.style.left = "-9999px"
+                                                        textArea.style.top = "0"
+                                                        document.body.appendChild(textArea)
+                                                        textArea.focus()
+                                                        textArea.select()
+                                                        try {
+                                                            success = document.execCommand('copy')
+                                                        } catch (err) {
+                                                            console.error('Fallback failed', err)
+                                                        }
+                                                        document.body.removeChild(textArea)
+                                                    }
+
+                                                    if (success) {
+                                                        setCopied(true)
+                                                        toast({
+                                                            title: "Lien copié !",
+                                                            description: "Le lien est dans votre presse-papier.",
+                                                        })
+                                                        setTimeout(() => setCopied(false), 2000)
+                                                    } else {
+                                                        toast({
+                                                            title: "Erreur",
+                                                            description: "Impossible de copier le lien.",
+                                                            variant: "destructive"
+                                                        })
                                                     }
                                                 }
 
-                                                // Fallback method
-                                                const textArea = document.createElement("textarea")
-                                                textArea.value = text
-                                                textArea.style.position = "fixed"
-                                                textArea.style.left = "-9999px"
-                                                textArea.style.top = "0"
-                                                document.body.appendChild(textArea)
-                                                textArea.focus()
-                                                textArea.select()
-                                                try {
-                                                    const successful = document.execCommand('copy')
-                                                    if (successful) alert("Lien copié !")
-                                                    else alert("Impossible de copier le lien.")
-                                                } catch (err) {
-                                                    alert("Impossible de copier le lien.")
-                                                }
-                                                document.body.removeChild(textArea)
-                                            }
-
-                                            copyToClipboard(url)
-                                        }}>
+                                                copyToClipboard(url)
+                                            }}
+                                        >
                                             <span className="sr-only">Copier</span>
-                                            <LinkIcon className="h-4 w-4" />
+                                            {copied ? <CheckCircleIcon className="h-4 w-4 text-white" /> : <LinkIcon className="h-4 w-4" />}
                                         </Button>
                                     );
                                 })()}
