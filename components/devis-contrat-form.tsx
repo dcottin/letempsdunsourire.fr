@@ -983,7 +983,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 <Button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="h-8 sm:h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 px-2 sm:px-4 uppercase text-[9px] sm:text-[10px] tracking-wider flex-1 sm:flex-none"
+                                    className="h-8 sm:h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 px-2 sm:px-4 text-xs sm:text-sm flex-1 sm:flex-none"
                                 >
                                     {isSaving ? (
                                         <>
@@ -993,7 +993,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         </>
                                     ) : (
                                         <>
-                                            <span className="hidden sm:inline">Enregistrer les modifications</span>
+                                            <span className="hidden sm:inline">Enregistrer</span>
                                             <span className="sm:hidden">Enregistrer</span>
                                         </>
                                     )}
@@ -2164,14 +2164,14 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         Annuler
                                     </Button>
                                 )}
-                                <Button type="submit" disabled={isSaving} className="min-w-[280px] h-12 shadow-md uppercase text-xs font-bold tracking-widest bg-indigo-600 hover:bg-indigo-700">
+                                <Button type="submit" disabled={isSaving} className="min-w-[280px] h-12 shadow-md text-xs sm:text-sm font-bold bg-indigo-600 hover:bg-indigo-700">
                                     {isSaving ? (
                                         <>
                                             <Loader2Icon className="mr-2 size-4 animate-spin" />
-                                            ENREGISTREMENT...
+                                            Enregistrement...
                                         </>
                                     ) : (
-                                        "ENREGISTRER LES MODIFICATIONS"
+                                        "Enregistrer"
                                     )}
                                 </Button>
                             </div>
