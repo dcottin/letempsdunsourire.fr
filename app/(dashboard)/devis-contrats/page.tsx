@@ -779,7 +779,7 @@ export default function DevisContratsPage() {
             </Dialog>
 
             <Dialog open={isCustomDateDialogOpen} onOpenChange={setIsCustomDateDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]" onOpenAutoFocus={(e) => e.preventDefault()}>
+                <DialogContent className="!inset-auto !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !h-auto !max-h-[90vh] !rounded-xl max-w-[calc(100%-2rem)] sm:max-w-[425px]" onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader><DialogTitle>Période personnalisée</DialogTitle></DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -799,7 +799,7 @@ export default function DevisContratsPage() {
             </Dialog>
 
             <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-                <DialogContent className="sm:max-w-[400px]">
+                <DialogContent className="!inset-auto !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !h-auto !max-h-[90vh] !rounded-xl max-w-[calc(100%-2rem)] sm:max-w-[400px]">
                     <DialogHeader>
                         <DialogTitle>Mode de paiement</DialogTitle>
                         <DialogDescription>
@@ -839,7 +839,7 @@ export default function DevisContratsPage() {
             </Dialog>
 
             <Dialog open={isQuickDeliveryDialogOpen} onOpenChange={setIsQuickDeliveryDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]" onOpenAutoFocus={(e) => e.preventDefault()}>
+                <DialogContent className="!inset-auto !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !h-auto !max-h-[90vh] !rounded-xl max-w-[calc(100%-2rem)] sm:max-w-[425px]" onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle>Modifier la livraison</DialogTitle>
                         <DialogDescription>
