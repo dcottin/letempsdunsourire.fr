@@ -1125,7 +1125,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                     <Dialog open={isSignatureDialogOpen} onOpenChange={(open) => {
                         setIsSignatureDialogOpen(open)
                     }}>
-                        <DialogContent className="sm:max-w-md">
+                        <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
                             <DialogHeader>
                                 <DialogTitle>Lien de Signature Électronique - {internalMode === 'contrat' ? 'Contrat' : 'Devis'}</DialogTitle>
                                 <DialogDescription>
