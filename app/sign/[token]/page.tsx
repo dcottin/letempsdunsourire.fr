@@ -43,6 +43,7 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
     const [step, setStep] = useState<1 | 2 | 3>(1)
     const [sendingEmail, setSendingEmail] = useState(false)
     const [showScrollHint, setShowScrollHint] = useState(true)
+    const [hasReachedBottom, setHasReachedBottom] = useState(false)
 
     const sigCanvas = useRef<SignatureCanvas>(null)
 
@@ -79,21 +80,29 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
 
     // Scroll to top when changing steps (crucial for mobile)
     useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'instant' })
-    }, [step])
-
-    useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 100) {
                 setShowScrollHint(false)
             } else if (window.scrollY === 0) {
                 setShowScrollHint(true)
             }
+
+            // Bottom detection
+            const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
+            if (isBottom) {
+                setHasReachedBottom(true)
+            }
         }
 
         window.addEventListener('scroll', handleScroll)
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
+
+    // Reset bottom reaches when step changes
+    useEffect(() => {
+        setHasReachedBottom(false)
+        window.scrollTo({ top: 0, behavior: 'instant' })
+    }, [step])
 
     const handleClear = () => {
         sigCanvas.current?.clear()
@@ -384,10 +393,13 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                             </div>
                         </div>
 
-                        {/* Sticky Action Bar */}
-                        <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 flex justify-center md:justify-end md:px-8">
-                            <div className="w-full max-w-4xl flex justify-end">
-                                <Button onClick={() => setStep(2)} size="lg" className="bg-indigo-600 hover:bg-indigo-700 shadow-lg text-base px-8 py-6 h-auto">
+                        {/* Sticky Action Bar - Now only visible when reaching bottom */}
+                        <div className={`fixed bottom-0 left-0 w-full bg-white border-t p-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] z-50 flex justify-center md:justify-end md:px-8 transition-all duration-500 transform ${hasReachedBottom ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
+                            <div className="w-full max-w-4xl flex items-center justify-between">
+                                <div className="hidden md:block text-slate-500 text-sm italic">
+                                    Vous avez parcouru l'intégralité du document.
+                                </div>
+                                <Button onClick={() => setStep(2)} size="lg" className="bg-indigo-600 hover:bg-indigo-700 shadow-xl text-base px-8 py-6 h-auto w-full md:w-auto animate-in zoom-in-95 duration-300">
                                     Étape suivante : Lire les CGV
                                 </Button>
                             </div>
@@ -413,10 +425,21 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                                 </div>
                             </CardContent>
                             <CardFooter className="bg-slate-50 p-4 border-t flex justify-between">
-                                <Button variant="outline" onClick={() => setStep(1)}>Retour au contrat</Button>
-                                <Button onClick={() => setStep(3)} className="bg-indigo-600 hover:bg-indigo-700">J'ai lu et j'accepte</Button>
+                                <Button variant="outline" onClick={() => setStep(1)}>Retour</Button>
+                                {/* We hide this button on mobile if the sticky one is used, or keep it as backup */}
+                                <Button onClick={() => setStep(3)} className="bg-indigo-600 hover:bg-indigo-700 hidden md:inline-flex">J'ai lu et j'accepte</Button>
                             </CardFooter>
                         </Card>
+
+                        {/* Sticky Action Bar for CGV */}
+                        <div className={`fixed bottom-0 left-0 w-full bg-white border-t p-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] z-50 flex justify-center md:justify-end md:px-8 transition-all duration-500 transform ${hasReachedBottom ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'}`}>
+                            <div className="w-full max-w-4xl flex items-center justify-between">
+                                <Button variant="ghost" onClick={() => setStep(1)} className="hidden md:flex text-slate-500">Retour au contrat</Button>
+                                <Button onClick={() => setStep(3)} size="lg" className="bg-indigo-600 hover:bg-indigo-700 shadow-xl text-base px-8 py-6 h-auto w-full md:w-auto animate-in zoom-in-95 duration-300">
+                                    J'ai lu et j'accepte les CGV
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -492,6 +515,6 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
