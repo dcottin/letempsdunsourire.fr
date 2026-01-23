@@ -9,7 +9,8 @@ export async function signContract(token: string, signatureBase64: string) {
         return { error: "Token ou signature manquant" }
     }
 
-    const supabase = await createClient()
+    // Use admin client to bypass RLS for public signature links
+    const supabase = await createAdminClient()
 
     // 1. Fetch record by token in any of the potential fields
     const tables = ['contrats', 'devis'];
@@ -111,11 +112,9 @@ export async function signContract(token: string, signatureBase64: string) {
 
     // 4. Create Notification
     try {
-        const adminSupabase = await createAdminClient();
         const docLabel = (table === 'devis' && isDevisToken) ? 'un Devis' : 'un Contrat';
-        const finalId = (table === 'devis' && isDevisToken) ? record.id.replace('D-', 'C-') : record.id;
 
-        await adminSupabase
+        await supabase
             .from('notifications')
             .insert([{
                 message: `Le client ${record.nom_client || 'Inconnu'} a signé ${docLabel} (${record.id})`,
