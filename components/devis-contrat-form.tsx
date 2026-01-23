@@ -952,8 +952,8 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                             </Tabs>
                         </div>
 
-                        <div className="flex flex-wrap justify-between items-center no-print gap-2 sm:gap-3">
-                            <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <div className="flex flex-wrap justify-between items-center no-print gap-3 sm:gap-3">
+                            <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
                                 <Button
                                     type="button"
                                     variant="default"
@@ -973,7 +973,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         }
                                     }}
                                     disabled={isSaving}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 flex-1 sm:flex-none"
                                 >
                                     <span className="relative flex h-2 w-2 sm:h-3 sm:w-3 mr-0.5 sm:mr-1">
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -986,7 +986,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 <Button
                                     type="submit"
                                     disabled={isSaving}
-                                    className="h-8 sm:h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 px-2 sm:px-4 uppercase text-[9px] sm:text-[10px] tracking-wider"
+                                    className="h-8 sm:h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 px-2 sm:px-4 uppercase text-[9px] sm:text-[10px] tracking-wider flex-1 sm:flex-none"
                                 >
                                     {isSaving ? (
                                         <>
@@ -1003,9 +1003,9 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 </Button>
                             </div>
 
-                            <div className="flex overflow-x-auto no-scrollbar items-center gap-2 ml-auto pb-1 -mr-2 pr-2">
+                            <div className="flex overflow-x-auto no-scrollbar items-center gap-2 w-full sm:w-auto sm:ml-auto pb-1 -mx-2 px-2 sm:mx-0 sm:px-0">
                                 {/* DEVIS GROUP */}
-                                <div className="inline-flex items-center gap-0.5 bg-slate-50 p-1 rounded-lg border border-slate-200 shadow-sm shrink-0">
+                                <div className="inline-flex items-center gap-0 bg-slate-50 p-0.5 sm:p-1 rounded-lg border border-slate-200 shadow-sm shrink-0">
                                     <Button
                                         type="button"
                                         variant="ghost"
@@ -1013,7 +1013,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         onClick={(e) => { e.preventDefault(); setShowDevisPreview(true); }}
                                         className="gap-1.5 text-slate-600 hover:bg-white hover:text-indigo-600 hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
                                     >
-                                        <FileTextIcon className="size-3" /> DEVIS
+                                        <FileTextIcon className="size-3" /> <span className="hidden min-[380px]:inline">DEVIS</span>
                                     </Button>
                                     <div className="w-px h-3 bg-slate-200 mx-0.5" />
                                     <Button
@@ -1039,7 +1039,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 </div>
 
                                 {/* CONTRAT GROUP */}
-                                <div className="inline-flex items-center gap-0.5 bg-indigo-50/50 p-1 rounded-lg border border-indigo-100 shadow-sm shrink-0">
+                                <div className="inline-flex items-center gap-0 bg-indigo-50/50 p-0.5 sm:p-1 rounded-lg border border-indigo-100 shadow-sm shrink-0">
                                     <Button
                                         type="button"
                                         variant="ghost"
@@ -1047,7 +1047,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
                                         className="gap-1.5 text-indigo-600 hover:bg-white hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
                                     >
-                                        <ScrollTextIcon className="size-3" /> CONTRAT
+                                        <ScrollTextIcon className="size-3" /> <span className="hidden min-[380px]:inline">CONTRAT</span>
                                     </Button>
                                     <div className="w-px h-3 bg-slate-200 mx-0.5" />
                                     <Button
@@ -1073,7 +1073,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 </div>
 
                                 {/* FACTURE GROUP */}
-                                <div className="inline-flex items-center gap-0.5 bg-emerald-50/50 p-1 rounded-lg border border-emerald-100 shadow-sm shrink-0">
+                                <div className="inline-flex items-center gap-0 bg-emerald-50/50 p-0.5 sm:p-1 rounded-lg border border-emerald-100 shadow-sm shrink-0">
                                     <Button
                                         type="button"
                                         variant="ghost"
@@ -1081,7 +1081,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         onClick={(e) => { e.preventDefault(); setShowFacturePreview(true); }}
                                         className="gap-1.5 text-emerald-600 hover:bg-white hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
                                     >
-                                        <EuroIcon className="size-3" /> FACTURE
+                                        <EuroIcon className="size-3" /> <span className="hidden min-[380px]:inline">FACTURE</span>
                                     </Button>
                                     <div className="w-px h-3 bg-slate-200 mx-0.5" />
                                     <Button
