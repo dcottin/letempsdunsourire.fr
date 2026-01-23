@@ -102,6 +102,10 @@ export default function DevisContratsPage() {
     const [quickDeliveryItem, setQuickDeliveryItem] = useState<{ item: any, table: "devis" | "contrats" } | null>(null)
     const [tempDeliveryData, setTempDeliveryData] = useState<{ date: string, time: string, lieu: string }>({ date: "", time: "", lieu: "" })
 
+    // Delete Confirmation State
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
+    const [itemToDelete, setItemToDelete] = useState<{ mode: "devis" | "contrat", id: string, name: string } | null>(null)
+
     const openQuickDeliveryDialog = (item: any, table: "devis" | "contrats") => {
         setQuickDeliveryItem({ item, table })
         setTempDeliveryData({
@@ -358,12 +362,23 @@ export default function DevisContratsPage() {
         setIsDialogOpen(true)
     }
 
-    const handleDelete = async (mode: "devis" | "contrat", id: string) => {
-        if (!confirm("Supprimer définitivement ?")) return
+    const handleDeleteClick = (mode: "devis" | "contrat", item: any) => {
+        setItemToDelete({ mode, id: item.id, name: item.nom_client || item.reference || "ce document" })
+        setIsDeleteConfirmOpen(true)
+    }
+
+    const handleConfirmDelete = async () => {
+        if (!itemToDelete) return
+        const { mode, id } = itemToDelete
+
         const { error } = await supabase.from(mode === "devis" ? "devis" : "contrats").delete().eq('id', id)
         if (!error) {
             if (mode === "devis") setDevisList(prev => prev.filter(item => item.id !== id))
             else setContratsList(prev => prev.filter(item => item.id !== id))
+            setIsDeleteConfirmOpen(false)
+            setItemToDelete(null)
+        } else {
+            alert("Erreur lors de la suppression")
         }
     }
 
@@ -834,6 +849,26 @@ export default function DevisContratsPage() {
                 </DialogContent>
             </Dialog>
 
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-red-600">
+                            <TrashIcon className="size-5" />
+                            Confirmer la suppression
+                        </DialogTitle>
+                        <DialogDescription className="pt-2">
+                            Êtes-vous sûr de vouloir supprimer définitivement <strong>{itemToDelete?.name}</strong> ?
+                            Cette action est irréversible.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0 mt-4">
+                        <Button variant="ghost" onClick={() => setIsDeleteConfirmOpen(false)}>Annuler</Button>
+                        <Button variant="destructive" onClick={handleConfirmDelete}>Supprimer</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <div className="w-full mt-4">
                 <div className="space-y-8">
                     {/* DEVIS EN COURS */}
@@ -926,7 +961,7 @@ export default function DevisContratsPage() {
                                                                     <CheckCircleIcon className="size-4 transition-transform group-hover:scale-110" />
                                                                 )}
                                                             </Button>
-                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete("devis", devis.id)} title="Supprimer">
+                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("devis", devis) }} title="Supprimer">
                                                                 <TrashIcon className="size-3.5" />
                                                             </Button>
                                                         </div>
@@ -1066,7 +1101,7 @@ export default function DevisContratsPage() {
                                                         <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
                                                             <PencilIcon className="size-3.5" />
                                                         </Button>
-                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete("contrat", contrat.id)} title="Supprimer">
+                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("contrat", contrat) }} title="Supprimer">
                                                             <TrashIcon className="size-3.5" />
                                                         </Button>
                                                     </div>
@@ -1176,7 +1211,7 @@ export default function DevisContratsPage() {
                                                             <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
                                                                 <PencilIcon className="size-3" />
                                                             </Button>
-                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={() => handleDelete("contrat", contrat.id)} title="Supprimer">
+                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("contrat", contrat) }} title="Supprimer">
                                                                 <TrashIcon className="size-3" />
                                                             </Button>
                                                         </div>
