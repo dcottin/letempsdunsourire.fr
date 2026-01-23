@@ -45,19 +45,19 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
         <div className="bg-white text-slate-800 font-sans max-w-4xl mx-auto shadow-sm border rounded-xl overflow-hidden print:shadow-none print:border-none">
             {/* Header / Brand */}
             <div className="p-8 md:p-12 bg-slate-50/30 font-sans">
-                <div className="flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
-                    <div className="space-y-4 text-center md:text-left">
+                <div className="flex flex-col md:flex-row justify-between items-start gap-8">
+                    <div className="space-y-4 text-left">
                         <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight italic" style={{ fontFamily: "'Dancing Script', cursive" }}>
                             {isInvoice ? "Facture" : (mode === 'contrat' ? "Contrat de location" : "Devis")}
                         </h1>
-                        <div className="flex items-center justify-center md:justify-start gap-2">
+                        <div className="flex items-center justify-start gap-2">
                             <span className="px-3 py-1 bg-slate-200 text-slate-600 rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase">
                                 Réf: {generateReference()}
                             </span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center md:items-end text-center md:text-right gap-4">
+                    <div className="flex flex-col items-end text-right gap-4 self-end">
                         {(settings?.logo_url || settings?.logo_base64) && (
                             <img
                                 src={settings.logo_url || settings.logo_base64}
@@ -112,83 +112,85 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                 </div>
 
                 {/* Table */}
-                <div className="overflow-hidden border border-slate-900 rounded-xl">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50 text-slate-700 text-xs uppercase font-black tracking-wider">
-                                <th className="px-6 py-4">Désignation</th>
-                                <th className="px-6 py-4 text-right">P.U. (€)</th>
-                                <th className="px-6 py-4 text-center">Qté</th>
-                                <th className="px-6 py-4 text-right">Total (€)</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-sm">
-                            {/* PRESTATION PHOTOBOOTH GROUP */}
-                            <tr className="bg-indigo-600 border-t-2 border-indigo-700">
-                                <td colSpan={4} className="px-6 py-2 text-[11px] font-black text-white uppercase tracking-widest">
-                                    Prestation Photobooth
-                                </td>
-                            </tr>
-                            <tr className="border-l-4 border-l-indigo-600 bg-indigo-50/10">
-                                <td className="px-6 py-4 pl-10">
-                                    <div className="font-bold text-slate-900 leading-tight flex items-start gap-2">
-                                        <Star className="size-4 text-indigo-500 fill-indigo-500 shrink-0 mt-0.5" />
-                                        {(() => {
-                                            const rawTitle = data.offre_impression || data.offre || "Formule Standard";
-                                            return rawTitle.includes(":") ? rawTitle.split(":")[0] : rawTitle;
-                                        })()}
-                                    </div>
-                                    <div className="text-xs text-slate-500 mt-2 pl-6 italic leading-relaxed max-w-md">
-                                        {(() => {
-                                            const rawTitle = data.offre_impression || data.offre || "Formule Standard";
-                                            return rawTitle.includes(":") ? rawTitle.split(":")[1]?.trim() : "";
-                                        })()}
-                                        {data.texte_libre && <div className="mt-2 text-indigo-600/70 border-l-2 border-indigo-100 pl-3 not-italic font-medium">{data.texte_libre}</div>}
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-right tabular-nums align-top pt-5 font-medium text-slate-600">{subTotal.toFixed(2)}</td>
-                                <td className="px-6 py-4 text-center uppercase text-[10px] font-extrabold align-top pt-5 text-slate-400">1</td>
-                                <td className="px-6 py-4 text-right font-black tabular-nums align-top pt-5 text-slate-900">{subTotal.toFixed(2)}</td>
-                            </tr>
-
-                            {data.selected_options?.map((opt: any, idx: number) => (
-                                <tr key={idx} className="border-l-4 border-l-indigo-600 bg-indigo-50/10">
-                                    <td className="px-6 py-3 pl-10">
-                                        <div className="font-bold text-slate-800 leading-none flex items-center gap-2">
-                                            <span className="text-indigo-400 font-extrabold ml-1">+</span>
-                                            {opt.name}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-3 text-right tabular-nums text-slate-600">
-                                        {parseFloat(opt.price || 0).toFixed(2)}
-                                    </td>
-                                    <td className="px-6 py-3 text-center uppercase text-[10px] font-extrabold text-slate-400">1</td>
-                                    <td className="px-6 py-3 text-right font-bold tabular-nums text-slate-900">
-                                        {parseFloat(opt.price || 0).toFixed(2)}
+                <div className="overflow-x-auto -mx-8 md:mx-0 px-8 md:px-0">
+                    <div className="border border-slate-900 rounded-xl min-w-[600px] overflow-hidden">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-slate-50 text-slate-700 text-xs uppercase font-black tracking-wider">
+                                    <th className="px-6 py-4">Désignation</th>
+                                    <th className="px-6 py-4 text-right">P.U. (€)</th>
+                                    <th className="px-6 py-4 text-center">Qté</th>
+                                    <th className="px-6 py-4 text-right">Total (€)</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-sm">
+                                {/* PRESTATION PHOTOBOOTH GROUP */}
+                                <tr className="bg-indigo-600 border-t-2 border-indigo-700">
+                                    <td colSpan={4} className="px-6 py-2 text-[11px] font-black text-white uppercase tracking-widest">
+                                        Prestation Photobooth
                                     </td>
                                 </tr>
-                            ))}
+                                <tr className="border-l-4 border-l-indigo-600 bg-indigo-50/10">
+                                    <td className="px-6 py-4 pl-10">
+                                        <div className="font-bold text-slate-900 leading-tight flex items-start gap-2">
+                                            <Star className="size-4 text-indigo-500 fill-indigo-500 shrink-0 mt-0.5" />
+                                            {(() => {
+                                                const rawTitle = data.offre_impression || data.offre || "Formule Standard";
+                                                return rawTitle.includes(":") ? rawTitle.split(":")[0] : rawTitle;
+                                            })()}
+                                        </div>
+                                        <div className="text-xs text-slate-500 mt-2 pl-6 italic leading-relaxed max-w-md">
+                                            {(() => {
+                                                const rawTitle = data.offre_impression || data.offre || "Formule Standard";
+                                                return rawTitle.includes(":") ? rawTitle.split(":")[1]?.trim() : "";
+                                            })()}
+                                            {data.texte_libre && <div className="mt-2 text-indigo-600/70 border-l-2 border-indigo-100 pl-3 not-italic font-medium">{data.texte_libre}</div>}
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 text-right tabular-nums align-top pt-5 font-medium text-slate-600">{subTotal.toFixed(2)}</td>
+                                    <td className="px-6 py-4 text-center uppercase text-[10px] font-extrabold align-top pt-5 text-slate-400">1</td>
+                                    <td className="px-6 py-4 text-right font-black tabular-nums align-top pt-5 text-slate-900">{subTotal.toFixed(2)}</td>
+                                </tr>
 
-                            {/* DISPLACEMENT GROUP */}
-                            {data.frais_livraison && parseFloat(data.frais_livraison) > 0 && (
-                                <>
-                                    <tr className="bg-slate-700 border-t border-slate-800">
-                                        <td colSpan={4} className="px-6 py-2 text-[11px] font-black text-white uppercase tracking-widest pl-6">
-                                            Frais de déplacement
+                                {data.selected_options?.map((opt: any, idx: number) => (
+                                    <tr key={idx} className="border-l-4 border-l-indigo-600 bg-indigo-50/10">
+                                        <td className="px-6 py-3 pl-10">
+                                            <div className="font-bold text-slate-800 leading-none flex items-center gap-2">
+                                                <span className="text-indigo-400 font-extrabold ml-1">+</span>
+                                                {opt.name}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-3 text-right tabular-nums text-slate-600">
+                                            {parseFloat(opt.price || 0).toFixed(2)}
+                                        </td>
+                                        <td className="px-6 py-3 text-center uppercase text-[10px] font-extrabold text-slate-400">1</td>
+                                        <td className="px-6 py-3 text-right font-bold tabular-nums text-slate-900">
+                                            {parseFloat(opt.price || 0).toFixed(2)}
                                         </td>
                                     </tr>
-                                    <tr className="border-l-4 border-l-slate-700 bg-slate-50/50">
-                                        <td className="px-6 py-4 pl-10">
-                                            <div className="font-bold text-slate-600 uppercase text-xs tracking-wide">• {settings?.label_livraison || "Livraison & Déplacement"}</div>
-                                        </td>
-                                        <td className="px-6 py-4 text-right tabular-nums text-slate-500">{parseFloat(data.frais_livraison).toFixed(2)}</td>
-                                        <td className="px-6 py-4 text-center uppercase text-[10px] font-extrabold text-slate-300">1</td>
-                                        <td className="px-6 py-4 text-right font-bold tabular-nums text-slate-700">{parseFloat(data.frais_livraison).toFixed(2)}</td>
-                                    </tr>
-                                </>
-                            )}
-                        </tbody>
-                    </table>
+                                ))}
+
+                                {/* DISPLACEMENT GROUP */}
+                                {data.frais_livraison && parseFloat(data.frais_livraison) > 0 && (
+                                    <>
+                                        <tr className="bg-slate-700 border-t border-slate-800">
+                                            <td colSpan={4} className="px-6 py-2 text-[11px] font-black text-white uppercase tracking-widest pl-6">
+                                                Frais de déplacement
+                                            </td>
+                                        </tr>
+                                        <tr className="border-l-4 border-l-slate-700 bg-slate-50/50">
+                                            <td className="px-6 py-4 pl-10">
+                                                <div className="font-bold text-slate-600 uppercase text-xs tracking-wide">• {settings?.label_livraison || "Livraison & Déplacement"}</div>
+                                            </td>
+                                            <td className="px-6 py-4 text-right tabular-nums text-slate-500">{parseFloat(data.frais_livraison).toFixed(2)}</td>
+                                            <td className="px-6 py-4 text-center uppercase text-[10px] font-extrabold text-slate-300">1</td>
+                                            <td className="px-6 py-4 text-right font-bold tabular-nums text-slate-700">{parseFloat(data.frais_livraison).toFixed(2)}</td>
+                                        </tr>
+                                    </>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 {/* Totals */}
