@@ -112,13 +112,15 @@ const formSchema = z.object({
 })
 
 interface DevisContratFormProps {
+    id?: string
     mode: "devis" | "contrat"
     initialData?: any
     onSuccess?: (data: any, keepOpen?: boolean) => void
     onCancel?: () => void
+    onSavingChange?: (saving: boolean) => void
 }
 
-export function DevisContratForm({ mode: initialMode, initialData, onSuccess, onCancel }: DevisContratFormProps) {
+export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess, onCancel, onSavingChange }: DevisContratFormProps) {
     const [internalMode, setInternalMode] = React.useState<"devis" | "contrat">(initialMode)
     const { setSaving, setSaved, setError } = useSaveStatus()
     // Sanitize initialData to ensure it matches formSchema expectations
@@ -225,6 +227,10 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
 
 
     const [isSaving, setIsSaving] = React.useState(false)
+
+    React.useEffect(() => {
+        onSavingChange?.(isSaving)
+    }, [isSaving, onSavingChange])
     const isAutoSavingRef = React.useRef(false)
     const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
 
@@ -924,7 +930,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
+            <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
                 <Tabs defaultValue="infos" className="w-full">
                     <div className="sticky top-[-16px] bg-white z-40 pb-4 no-print -mx-6 px-6 border-b mb-6 shadow-sm flex flex-col gap-4">
                         <div className="bg-slate-50 p-1.5 rounded-xl border-2 border-slate-100 shadow-sm mb-4 relative">
@@ -978,26 +984,6 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                     <FileTextIcon className="size-4 mr-1 hidden sm:inline" />
                                     <span className="hidden sm:inline">Signature électronique</span>
                                     <span className="sm:hidden">Signer</span>
-                                </Button>
-
-                                <Button
-                                    type="submit"
-                                    disabled={isSaving}
-                                    className="h-8 sm:h-10 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 px-2 sm:px-4 text-xs sm:text-sm flex-1 sm:flex-none"
-                                >
-                                    {isSaving ? (
-                                        <>
-                                            <Loader2Icon className="size-3 animate-spin" />
-                                            <span className="hidden sm:inline">ENREGISTREMENT...</span>
-                                            <span className="sm:hidden">...</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <SaveIcon className="size-4 mr-1 hidden sm:inline" />
-                                            <span className="hidden sm:inline">Enregistrer</span>
-                                            <span className="sm:hidden">Enregistrer</span>
-                                        </>
-                                    )}
                                 </Button>
                             </div>
 
@@ -2184,6 +2170,6 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
 
                 </Tabs>
             </form>
-        </Form>
+        </Form >
     )
 }

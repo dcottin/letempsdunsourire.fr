@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -58,6 +58,7 @@ export default function DevisContratsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [formMode, setFormMode] = useState<"devis" | "contrat">("devis")
     const [editingItem, setEditingItem] = useState<Devis | Contrat | null>(null)
+    const [isFormSaving, setIsFormSaving] = useState(false)
     const [validatingDevisId, setValidatingDevisId] = useState<string | null>(null)
     const [formSessionId, setFormSessionId] = useState(0)
     const [isMounted, setIsMounted] = useState(false)
@@ -733,14 +734,41 @@ export default function DevisContratsPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[1000px] w-full max-h-[95vh] p-0 overflow-hidden flex flex-col border-none shadow-2xl" onOpenAutoFocus={(e) => e.preventDefault()}>
-                    <DialogHeader className="px-6 py-4 border-b bg-white flex-shrink-0 z-50">
+                    <DialogHeader className="px-6 py-4 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between">
                         <DialogTitle className="flex items-center gap-2 text-2xl font-black tracking-tight text-slate-900">
                             {formMode === "devis" ? <FileTextIcon className="size-7 text-indigo-600" /> : <ScrollTextIcon className="size-7 text-indigo-600" />}
                             {editingItem ? `Modifier ${formMode === "devis" ? "le Devis" : "le Contrat"}` : `Nouveau ${formMode === "devis" ? "Devis" : "Contrat"}`}
                         </DialogTitle>
+                        <div className="flex items-center gap-3 mr-8">
+                            <Button
+                                type="submit"
+                                form="devis-contrat-form"
+                                disabled={isFormSaving}
+                                className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-2 px-4 text-sm"
+                            >
+                                {isFormSaving ? (
+                                    <>
+                                        <Loader2Icon className="size-4 animate-spin" />
+                                        <span>...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <SaveIcon className="size-4" />
+                                        <span>Enregistrer</span>
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </DialogHeader>
                     <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4">
-                        <DevisContratForm key={editingItem?.id || `${formMode}-${isDialogOpen}`} mode={formMode} initialData={editingItem} onSuccess={handleFormSuccess} />
+                        <DevisContratForm
+                            id="devis-contrat-form"
+                            key={editingItem?.id || `${formMode}-${isDialogOpen}`}
+                            mode={formMode}
+                            initialData={editingItem}
+                            onSuccess={handleFormSuccess}
+                            onSavingChange={setIsFormSaving}
+                        />
                     </div>
                 </DialogContent>
             </Dialog>
