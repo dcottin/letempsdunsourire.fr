@@ -734,7 +734,7 @@ export default function DevisContratsPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent
-                    className="sm:max-w-[1000px] w-full h-[100dvh] sm:h-auto sm:max-h-[95vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] overflow-hidden flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl"
+                    className="sm:max-w-[1000px] w-full h-[100dvh] sm:h-auto sm:max-h-[95vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] overflow-hidden overflow-x-hidden flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl"
                     onOpenAutoFocus={(e) => e.preventDefault()}
                 >
                     <DialogHeader className="px-3 sm:px-6 py-2 sm:py-3 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between min-h-[52px]">
@@ -765,7 +765,7 @@ export default function DevisContratsPage() {
                             </Button>
                         </div>
                     </DialogHeader>
-                    <div className="flex-1 overflow-y-auto min-h-0 px-2 sm:px-6 py-2 sm:py-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-2 sm:px-6 py-2 sm:py-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
                         <DevisContratForm
                             id="devis-contrat-form"
                             key={editingItem?.id || `${formMode}-${isDialogOpen}`}
