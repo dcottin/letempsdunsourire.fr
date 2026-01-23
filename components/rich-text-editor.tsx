@@ -9,10 +9,11 @@ import Underline from '@tiptap/extension-underline'
 import { TextStyle } from '@tiptap/extension-text-style'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
-import { BoldIcon, ItalicIcon, UnderlineIcon, StrikethroughIcon, ListIcon, ListOrderedIcon, RotateCcwIcon } from "lucide-react"
+import { BoldIcon, ItalicIcon, UnderlineIcon, StrikethroughIcon, ListIcon, ListOrderedIcon, RotateCcwIcon, TagIcon } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 
 const TAG_LABELS: Record<string, string> = {
     "{{client_name}}": "Nom du client",
@@ -100,8 +101,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             editorProps: {
                 attributes: {
                     class: singleLine
-                        ? `focus:outline-none p-2 min-h-0 h-10 cursor-text bg-white`
-                        : `prose prose-sm max-w-none focus:outline-none p-4 min-h-[${minHeight}] cursor-text bg-white`,
+                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
+                        : `prose max-w-none focus:outline-none p-3 min-h-[${minHeight}] cursor-text bg-white text-base`,
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {
@@ -114,6 +115,26 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                             }
                         }
                     }
+                    return false;
+                },
+                handlePaste: (view, event) => {
+                    const html = event.clipboardData?.getData('text/html');
+                    const text = event.clipboardData?.getData('text/plain');
+
+                    // If it's a massive paste (e.g. huge base64), simplify it to plain text to avoid crash
+                    if (html && html.length > 100000) {
+                        console.warn("Large paste detected, falling back to plain text.");
+                        view.dispatch(view.state.tr.insertText(text || ""));
+                        return true;
+                    }
+
+                    // For single line, always force plain text paste to avoid layout breaks
+                    if (singleLine && text) {
+                        const cleanText = text.replace(/[\r\n]+/g, " ");
+                        view.dispatch(view.state.tr.insertText(cleanText));
+                        return true;
+                    }
+
                     return false;
                 }
             },
@@ -215,89 +236,135 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
         return (
             <div className="border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 transition-all">
-                {!singleLine && (
-                    <div className="flex items-center gap-1 p-2 border-b bg-slate-50 overflow-x-auto">
-                        <Select
-                            value={editor.getAttributes('textStyle').fontSize || "16"}
-                            onValueChange={(value) => (editor.chain().focus() as any).setFontSize(value).run()}
-                        >
-                            <SelectTrigger className="h-8 w-[70px] border-none shadow-none bg-transparent hover:bg-slate-100 focus:ring-0 gap-1">
-                                <SelectValue placeholder="16" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="12">12px</SelectItem>
-                                <SelectItem value="14">14px</SelectItem>
-                                <SelectItem value="16">16px</SelectItem>
-                                <SelectItem value="18">18px</SelectItem>
-                                <SelectItem value="20">20px</SelectItem>
-                                <SelectItem value="24">24px</SelectItem>
-                                <SelectItem value="30">30px</SelectItem>
-                            </SelectContent>
-                        </Select>
+                <div className="flex items-center gap-0.5 p-1 border-b bg-slate-50 overflow-x-auto no-scrollbar">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 font-bold border border-indigo-100 bg-white">
+                                <TagIcon className="size-3.5" />
+                                <span className="text-[10px] hidden sm:inline">Balises</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="max-h-[300px] overflow-y-auto w-56">
+                            <DropdownMenuLabel>Insérer une balise</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {Object.entries(TAG_LABELS).map(([tag, label]) => (
+                                <DropdownMenuItem
+                                    key={tag}
+                                    onClick={() => {
+                                        editor.chain().focus().insertContent({
+                                            type: 'variable',
+                                            attrs: { id: tag, label: label }
+                                        }).run()
+                                    }}
+                                    className="cursor-pointer"
+                                >
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="font-bold text-xs">{label}</span>
+                                        <code className="text-[10px] text-slate-400">{tag}</code>
+                                    </div>
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
 
-                        <div className="w-px h-6 bg-slate-200 mx-1" />
+                    <div className="w-px h-5 bg-slate-200 mx-0.5" />
 
-                        <Toggle
-                            size="sm"
-                            pressed={editor.isActive('bold')}
-                            onPressedChange={() => editor.chain().focus().toggleBold().run()}
-                            aria-label="Bold"
-                        >
-                            <BoldIcon className="size-4" />
-                        </Toggle>
-                        <Toggle
-                            size="sm"
-                            pressed={editor.isActive('italic')}
-                            onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-                            aria-label="Italic"
-                        >
-                            <ItalicIcon className="size-4" />
-                        </Toggle>
-                        <Toggle
-                            size="sm"
-                            pressed={editor.isActive('underline')}
-                            onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-                            aria-label="Underline"
-                        >
-                            <UnderlineIcon className="size-4" />
-                        </Toggle>
-                        <Toggle
-                            size="sm"
-                            pressed={editor.isActive('strike')}
-                            onPressedChange={() => editor.chain().focus().toggleStrike().run()}
-                            aria-label="Strike"
-                        >
-                            <StrikethroughIcon className="size-4" />
-                        </Toggle>
+                    {!singleLine && (
+                        <>
+                            <Select
+                                value={editor.getAttributes('textStyle').fontSize || "16"}
+                                onValueChange={(value) => (editor.chain().focus() as any).setFontSize(value).run()}
+                            >
+                                <SelectTrigger className="h-7 w-[65px] border-none shadow-none bg-transparent hover:bg-slate-100 focus:ring-0 gap-1 text-[11px] px-2">
+                                    <SelectValue placeholder="16" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="12" className="text-xs">12px</SelectItem>
+                                    <SelectItem value="14" className="text-xs">14px</SelectItem>
+                                    <SelectItem value="16" className="text-xs">16px</SelectItem>
+                                    <SelectItem value="18" className="text-xs">18px</SelectItem>
+                                    <SelectItem value="20" className="text-xs">20px</SelectItem>
+                                    <SelectItem value="24" className="text-xs">24px</SelectItem>
+                                    <SelectItem value="30" className="text-xs">30px</SelectItem>
+                                </SelectContent>
+                            </Select>
 
-                        <div className="w-px h-6 bg-slate-200 mx-1" />
+                            <div className="w-px h-6 bg-slate-200 mx-1" />
 
-                        <Toggle
-                            size="sm"
-                            pressed={editor.isActive('bulletList')}
-                            onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
-                            aria-label="Bullet List"
-                        >
-                            <ListIcon className="size-4" />
-                        </Toggle>
-                        <Toggle
-                            size="sm"
-                            pressed={editor.isActive('orderedList')}
-                            onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
-                            aria-label="Ordered List"
-                        >
-                            <ListOrderedIcon className="size-4" />
-                        </Toggle>
+                            <Toggle
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                pressed={editor.isActive('bold')}
+                                onPressedChange={() => editor.chain().focus().toggleBold().run()}
+                                aria-label="Bold"
+                            >
+                                <BoldIcon className="size-3.5" />
+                            </Toggle>
+                            <Toggle
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                pressed={editor.isActive('italic')}
+                                onPressedChange={() => editor.chain().focus().toggleItalic().run()}
+                                aria-label="Italic"
+                            >
+                                <ItalicIcon className="size-3.5" />
+                            </Toggle>
+                            <Toggle
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                pressed={editor.isActive('underline')}
+                                onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
+                                aria-label="Underline"
+                            >
+                                <UnderlineIcon className="size-3.5" />
+                            </Toggle>
+                            <Toggle
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                pressed={editor.isActive('strike')}
+                                onPressedChange={() => editor.chain().focus().toggleStrike().run()}
+                                aria-label="Strike"
+                            >
+                                <StrikethroughIcon className="size-3.5" />
+                            </Toggle>
 
-                        <div className="w-px h-6 bg-slate-200 mx-1" />
+                            <div className="w-px h-5 bg-slate-200 mx-0.5" />
 
-                        <Button variant="ghost" size="sm" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} title="Effacer le formatage">
-                            <RotateCcwIcon className="size-4" />
-                        </Button>
-                    </div>
-                )}
+                            <Toggle
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                pressed={editor.isActive('bulletList')}
+                                onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
+                                aria-label="Bullet List"
+                            >
+                                <ListIcon className="size-3.5" />
+                            </Toggle>
+                            <Toggle
+                                size="sm"
+                                className="h-7 w-7 p-0"
+                                pressed={editor.isActive('orderedList')}
+                                onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
+                                aria-label="Ordered List"
+                            >
+                                <ListOrderedIcon className="size-3.5" />
+                            </Toggle>
 
-                <EditorContent editor={editor} className={singleLine ? "min-h-0" : "min-h-[150px]"} />
+                            <div className="w-px h-5 bg-slate-200 mx-0.5" />
+
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()} title="Effacer le formatage">
+                                <RotateCcwIcon className="size-3.5" />
+                            </Button>
+                        </>
+                    )}
+                </div>
+
+                <EditorContent
+                    editor={editor}
+                    className={singleLine
+                        ? "min-h-0 max-h-12 overflow-hidden"
+                        : "min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar"
+                    }
+                />
                 <style jsx global>{`
                     .variable-badge {
                         background-color: #eef2ff;

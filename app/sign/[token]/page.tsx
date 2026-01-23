@@ -81,16 +81,11 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
     // Scroll to top when changing steps (crucial for mobile)
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 100) {
-                setShowScrollHint(false)
-            } else if (window.scrollY === 0) {
-                setShowScrollHint(true)
-            }
-
             // Bottom detection
             const isBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 50;
             if (isBottom) {
                 setHasReachedBottom(true)
+                setShowScrollHint(false)
             }
         }
 
@@ -101,6 +96,7 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
     // Reset bottom reaches when step changes
     useEffect(() => {
         setHasReachedBottom(false)
+        setShowScrollHint(true)
         window.scrollTo({ top: 0, behavior: 'instant' })
     }, [step])
 
@@ -128,7 +124,15 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
             }
 
             setSuccess(true)
-            setContract((prev: any) => ({ ...prev, contrat_signe: true, signature_client_base64: signatureData }))
+            const now = new Date().toISOString()
+            setContract((prev: any) => ({
+                ...prev,
+                contrat_signe: true,
+                signature_client_base64: signatureData,
+                date_signature_client: now,
+                date_signature_contrat: now,
+                date_signature_devis: now
+            }))
         } catch (err: any) {
             console.error("Signing error:", err)
             toast({
@@ -205,12 +209,12 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
             const docLabelLower = isContract ? 'contrat' : 'devis';
 
             let subject = isContract
-                ? (settings?.email_contrat_signed_subject || `Votre contrat signé - ${settings.nom_societe}`)
-                : `Votre devis signé - ${settings.nom_societe}`;
+                ? (settings?.email_signature_subject || `Votre contrat signé - ${settings.nom_societe}`)
+                : (settings?.email_signature_subject || `Votre document signé - ${settings.nom_societe}`);
 
             let message = isContract
-                ? (settings?.email_contrat_signed_body || `Bonjour ${contract.nom_client},\n\nMerci d'avoir signé votre contrat. Vous trouverez ci-joint la copie PDF du document.\n\nCordialement,\n${settings.nom_societe}`)
-                : `Bonjour ${contract.nom_client},\n\nMerci d'avoir signé votre devis. Vous trouverez ci-joint la copie PDF du document.\n\nCordialement,\n${settings.nom_societe}`;
+                ? (settings?.email_signature_body || `Bonjour ${contract.nom_client},\n\nMerci d'avoir signé votre contrat. Vous trouverez ci-joint la copie PDF du document.\n\nCordialement,\n${settings.nom_societe}`)
+                : (settings?.email_signature_body || `Bonjour ${contract.nom_client},\n\nMerci d'avoir signé votre document. Vous trouverez ci-joint la copie PDF du document.\n\nCordialement,\n${settings.nom_societe}`);
 
             Object.entries(replacements).forEach(([key, value]) => {
                 subject = subject.split(key).join(value || "");

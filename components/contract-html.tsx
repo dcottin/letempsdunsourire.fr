@@ -44,41 +44,41 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
     return (
         <div className="bg-white text-slate-800 font-sans max-w-4xl mx-auto shadow-sm border rounded-xl overflow-hidden print:shadow-none print:border-none">
             {/* Header / Brand */}
-            <div className="p-8 md:p-12 bg-slate-50/30 font-sans">
-                <div className="flex flex-col md:flex-row justify-between items-start gap-8">
-                    <div className="space-y-4 text-left">
-                        <h1 className="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight italic" style={{ fontFamily: "'Dancing Script', cursive" }}>
+            <div className="p-6 md:p-12 bg-slate-50/30 font-sans">
+                <div className="flex flex-row justify-between items-start gap-2 md:gap-8">
+                    <div className="space-y-2 md:space-y-4 text-left min-w-0">
+                        <h1 className="text-2xl md:text-5xl font-extrabold text-slate-900 tracking-tight italic break-words" style={{ fontFamily: "'Dancing Script', cursive" }}>
                             {isInvoice ? "Facture" : (mode === 'contrat' ? "Contrat de location" : "Devis")}
                         </h1>
                         <div className="flex items-center justify-start gap-2">
-                            <span className="px-3 py-1 bg-slate-200 text-slate-600 rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase">
+                            <span className="px-3 py-1 bg-slate-200 text-slate-600 rounded-full text-[10px] md:text-xs font-bold tracking-widest uppercase whitespace-nowrap">
                                 Réf: {generateReference()}
                             </span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-end text-right gap-4 self-end">
+                    <div className="flex flex-col items-end text-right gap-2 md:gap-4 shrink-0">
                         {(settings?.logo_url || settings?.logo_base64) && (
                             <img
                                 src={settings.logo_url || settings.logo_base64}
                                 alt={settings.nom_societe}
-                                className="max-h-20 md:max-h-24 w-auto object-contain"
+                                className="max-h-14 md:max-h-24 w-auto object-contain"
                                 style={{ maxWidth: settings.logo_width || 150 }}
                             />
                         )}
-                        <div className="space-y-1">
-                            <p className="font-bold text-slate-900">{settings?.nom_societe || "Mon Entreprise"}</p>
-                            <p className="text-xs md:text-sm text-slate-500">{settings?.adresse}</p>
-                            <p className="text-xs md:text-sm text-slate-500">{settings?.code_postal} {settings?.ville}</p>
-                            <p className="text-xs md:text-sm text-slate-500">{settings?.email_contact}</p>
-                            <p className="text-xs md:text-sm text-slate-500">{settings?.telephone_contact}</p>
-                            {settings?.siret && <p className="text-[10px] md:text-sm text-slate-500 tracking-tight">SIRET: {settings.siret}</p>}
+                        <div className="space-y-0.5 md:space-y-1">
+                            <p className="font-bold text-sm md:text-base text-slate-900">{settings?.nom_societe || "Mon Entreprise"}</p>
+                            <p className="text-[10px] md:text-sm text-slate-500">{settings?.adresse}</p>
+                            <p className="text-[10px] md:text-sm text-slate-500">{settings?.code_postal} {settings?.ville}</p>
+                            <p className="text-[10px] md:text-sm text-slate-500">{settings?.email_contact}</p>
+                            <p className="text-[10px] md:text-sm text-slate-500">{settings?.telephone_contact}</p>
+                            {settings?.siret && <p className="text-[9px] md:text-sm text-slate-500 tracking-tight">SIRET: {settings.siret}</p>}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="px-8 md:px-12 pb-8 md:pb-12 space-y-12">
+            <div className="px-6 md:px-12 pb-6 md:pb-12 space-y-6 md:space-y-12">
                 {/* Info Blocks */}
                 <div className="grid grid-cols-2 gap-4 md:gap-12">
                     <div className="space-y-3 md:space-y-4">
@@ -112,7 +112,7 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                 </div>
 
                 {/* Table */}
-                <div className="overflow-x-auto -mx-4 md:mx-0 px-4 md:px-0">
+                <div className="overflow-x-auto -mx-6 md:mx-0 px-6 md:px-0">
                     <div className="border border-slate-900 rounded-xl overflow-hidden">
                         <table className="w-full text-left border-collapse text-xs md:text-sm">
                             <thead>
@@ -139,7 +139,7 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                                                 return rawTitle.includes(":") ? rawTitle.split(":")[0] : rawTitle;
                                             })()}
                                         </div>
-                                        <div className="text-[10px] md:text-xs text-slate-500 mt-1 md:mt-2 pl-4 md:pl-6 italic leading-relaxed max-w-xs md:max-w-md">
+                                        <div className="text-[9px] md:text-xs text-slate-500 mt-1 md:mt-2 pl-4 md:pl-6 italic leading-relaxed max-w-xs md:max-w-md">
                                             {(() => {
                                                 const rawTitle = data.offre_impression || data.offre || "Formule Standard";
                                                 return rawTitle.includes(":") ? rawTitle.split(":")[1]?.trim() : "";
@@ -243,18 +243,18 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                 </div>
 
                 {/* Signature Section Placeholder in Preview */}
-                <div className="grid grid-cols-2 gap-12 pt-12">
-                    <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 md:gap-12 pt-6">
+                    <div className="space-y-2 md:space-y-4">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose">Signature Prestataire</p>
-                        <div className="h-32 bg-slate-50 border-2 border-dashed rounded-xl flex items-center justify-center overflow-hidden">
+                        <div className="h-24 md:h-32 bg-slate-50 border-2 border-dashed rounded-xl flex items-center justify-center overflow-hidden">
                             {settings?.signature_base64 && (
                                 <img src={settings.signature_base64} alt="Signature Prestataire" className="max-h-full max-w-full object-contain p-2" />
                             )}
                         </div>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-2 md:space-y-4">
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-loose text-right">Signature Client</p>
-                        <div className="h-32 bg-indigo-50/30 border-2 border-dashed border-indigo-100 rounded-xl flex items-center justify-center italic text-indigo-300 text-sm">
+                        <div className="h-24 md:h-32 bg-indigo-50/30 border-2 border-dashed border-indigo-100 rounded-xl flex items-center justify-center p-4 text-center italic text-indigo-300 text-sm">
                             Signature numérisée après validation
                         </div>
                     </div>
@@ -262,7 +262,7 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
 
                 {/* CGV Hook */}
                 {showCgv && settings?.cgv_text && (
-                    <div className="mt-16 pt-16 border-t space-y-8">
+                    <div className="mt-8 pt-8 md:mt-16 md:pt-16 border-t space-y-4 md:space-y-8">
                         <h2 className="text-2xl font-black text-slate-900 tracking-tight">Conditions Générales de Vente</h2>
                         <div className="text-[11px] text-slate-500 leading-relaxed text-justify columns-1 md:columns-2 gap-12">
                             <FormattedText text={settings.cgv_text} />

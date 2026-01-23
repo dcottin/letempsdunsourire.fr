@@ -595,25 +595,25 @@ export default function PersonnalisationPage() {
                     <Loader2Icon className="size-8 animate-spin text-indigo-600" />
                 </div>
             ) : (
-                <Tabs defaultValue="identite" className="w-full space-y-6">
-                    <TabsList className="bg-white p-1 border h-auto flex-nowrap justify-start overflow-x-auto no-scrollbar w-full">
-                        <TabsTrigger value="identite" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                            <BuildingIcon className="size-4" /> Identité
+                <Tabs defaultValue="identite" className="w-full space-y-3 sm:space-y-6">
+                    <TabsList className="bg-white p-1 border h-auto flex flex-nowrap justify-start overflow-x-auto no-scrollbar w-full">
+                        <TabsTrigger value="identite" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                            <BuildingIcon className="size-4" /> <span className="hidden md:inline">Identité</span>
                         </TabsTrigger>
-                        <TabsTrigger value="emails" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                            <MailIcon className="size-4" /> Emails
+                        <TabsTrigger value="emails" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                            <MailIcon className="size-4" /> <span className="hidden md:inline">Emails</span>
                         </TabsTrigger>
-                        <TabsTrigger value="finance" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                            <CreditCardIcon className="size-4" /> Finance
+                        <TabsTrigger value="finance" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                            <CreditCardIcon className="size-4" /> <span className="hidden md:inline">Finance</span>
                         </TabsTrigger>
-                        <TabsTrigger value="catalogue" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                            <TagIcon className="size-4" /> Catalogue
+                        <TabsTrigger value="catalogue" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                            <TagIcon className="size-4" /> <span className="hidden md:inline">Catalogue</span>
                         </TabsTrigger>
-                        <TabsTrigger value="workflow" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                            <SlidersIcon className="size-4" /> Workflow
+                        <TabsTrigger value="workflow" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                            <SlidersIcon className="size-4" /> <span className="hidden md:inline">Workflow</span>
                         </TabsTrigger>
-                        <TabsTrigger value="documents" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600">
-                            <FileTextIcon className="size-4" /> Documents
+                        <TabsTrigger value="documents" className="shrink-0 gap-2 data-[state=active]:bg-indigo-50 data-[state=active]:text-indigo-600 px-3 py-2.5 text-xs sm:text-sm font-semibold">
+                            <FileTextIcon className="size-4" /> <span className="hidden md:inline">Documents</span>
                         </TabsTrigger>
                     </TabsList>
 
@@ -723,54 +723,54 @@ export default function PersonnalisationPage() {
                     </TabsContent>
 
                     {/* --- TAB: EMAILS --- */}
-                    <TabsContent value="emails" className="mt-6">
-                        <div className="flex flex-col xl:flex-row gap-8 items-start relative">
+                    <TabsContent value="emails" className="mt-2 sm:mt-6">
+                        <div className="flex flex-col xl:flex-row gap-3 sm:gap-8 items-start relative">
                             {/* Left: Main Content (Large Editor Area) */}
                             <div className="flex-1 min-w-0">
                                 <Tabs defaultValue="devis" className="w-full">
-                                    <TabsList className="grid grid-cols-4 mb-8 bg-slate-100 p-1 h-12 rounded-xl">
-                                        <TabsTrigger value="devis" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm gap-2 font-bold">
-                                            <FileTextIcon className="size-4" /> <span className="hidden sm:inline">Devis</span>
+                                    <TabsList className="grid grid-cols-4 mb-2 sm:mb-4 bg-slate-100 p-0.5 h-9 sm:h-10 rounded-lg">
+                                        <TabsTrigger value="devis" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm gap-1.5 font-bold text-[10px] sm:text-xs">
+                                            <FileTextIcon className="size-4 sm:size-3.5" /> <span className="hidden md:inline">Devis</span>
                                         </TabsTrigger>
-                                        <TabsTrigger value="contrat" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 data-[state=active]:shadow-sm gap-2 font-bold">
-                                            <FileIcon className="size-4" /> <span className="hidden sm:inline">Contrat</span>
+                                        <TabsTrigger value="contrat" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-purple-600 data-[state=active]:shadow-sm gap-1.5 font-bold text-[10px] sm:text-xs">
+                                            <FileIcon className="size-4 sm:size-3.5" /> <span className="hidden md:inline">Contrat</span>
                                         </TabsTrigger>
-                                        <TabsTrigger value="facture" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm gap-2 font-bold">
-                                            <CreditCardIcon className="size-4" /> <span className="hidden sm:inline">Facture</span>
+                                        <TabsTrigger value="facture" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm gap-1.5 font-bold text-[10px] sm:text-xs">
+                                            <CreditCardIcon className="size-4 sm:size-3.5" /> <span className="hidden md:inline">Facture</span>
                                         </TabsTrigger>
-                                        <TabsTrigger value="signature" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-pink-600 data-[state=active]:shadow-sm gap-2 font-bold">
-                                            <PenToolIcon className="size-4" /> <span className="hidden sm:inline">Signature</span>
+                                        <TabsTrigger value="signature" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-pink-600 data-[state=active]:shadow-sm gap-1.5 font-bold text-[10px] sm:text-xs">
+                                            <PenToolIcon className="size-4 sm:size-3.5" /> <span className="hidden md:inline">Signature</span>
                                         </TabsTrigger>
                                     </TabsList>
 
                                     {/* DEVIS TAB */}
                                     <TabsContent value="devis" className="space-y-6">
-                                        <div className="flex items-center justify-between border-b pb-4">
+                                        <div className="flex items-center justify-between border-b pb-2 mb-3">
                                             <div>
-                                                <h3 className="text-xl font-bold text-indigo-900 uppercase tracking-tight">E-mails Devis</h3>
-                                                <p className="text-xs text-slate-500">Envoyés avec vos propositions commerciales.</p>
+                                                <h3 className="text-sm sm:text-lg font-bold text-indigo-900 uppercase tracking-tight">E-mails Devis</h3>
+                                                <p className="text-[10px] text-slate-500 hidden sm:block">Envoyés avec vos propositions commerciales.</p>
                                             </div>
-                                            <Button onClick={() => addMailTemplate("devis")} size="sm" className="bg-indigo-600 hover:bg-indigo-700 font-bold gap-2">
-                                                <PlusIcon className="size-4" /> Ajouter
+                                            <Button onClick={() => addMailTemplate("devis")} size="sm" className="h-7 sm:h-8 text-[10px] sm:text-xs bg-indigo-600 hover:bg-indigo-700 font-bold gap-1">
+                                                <PlusIcon className="size-3" /> Ajouter
                                             </Button>
                                         </div>
 
                                         <Tabs defaultValue="devis-default" className="w-full">
-                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
-                                                <TabsTrigger value="devis-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-4 py-2 font-bold shadow-none h-10">
-                                                    {settings.email_devis_name || "Par défaut"}
+                                            <TabsList className="flex flex-nowrap h-auto bg-transparent border-b rounded-none p-0 mb-3 gap-3 overflow-x-auto no-scrollbar">
+                                                <TabsTrigger value="devis-default" className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all text-[10px] sm:text-xs">
+                                                    {settings.email_devis_name || "PAR DÉFAUT"}
                                                 </TabsTrigger>
                                                 {(settings.mail_templates || []).filter(t => t.type === "devis").map(template => (
-                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-indigo-600 border-b-2 border-transparent data-[state=active]:border-indigo-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all uppercase text-[10px] sm:text-xs">
                                                         {template.name}
                                                     </TabsTrigger>
                                                 ))}
                                             </TabsList>
 
                                             <TabsContent value="devis-default" className="mt-0">
-                                                <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10 min-h-[300px]">
-                                                    <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
-                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                <Card className="border-indigo-100 shadow-sm relative overflow-hidden min-h-[150px]">
+                                                    <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-bl-md uppercase">Par Défaut</div>
+                                                    <CardContent className="p-2 sm:p-5 pt-4 sm:pt-6 space-y-2 sm:space-y-3">
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
                                                             <Input
@@ -782,10 +782,11 @@ export default function PersonnalisationPage() {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                            <Input
+                                                            <RichTextEditor
                                                                 value={settings.email_devis_subject}
-                                                                onChange={(e) => handleChange("email_devis_subject", e.target.value)}
-                                                                className="font-medium bg-white"
+                                                                onChange={(html) => handleChange("email_devis_subject", html)}
+                                                                singleLine={true}
+                                                                placeholder="Sujet de l'email..."
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
@@ -801,8 +802,8 @@ export default function PersonnalisationPage() {
 
                                             {(settings.mail_templates || []).filter(t => t.type === "devis").map((template) => (
                                                 <TabsContent key={template.id} value={template.id} className="mt-0">
-                                                    <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10 min-h-[300px]">
-                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                    <Card className="border-indigo-200 shadow-md relative overflow-hidden ring-2 ring-indigo-500/10 min-h-[250px]">
+                                                        <CardContent className="p-3 sm:p-5 pt-6 space-y-3">
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex-1 space-y-2">
                                                                     <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
@@ -819,10 +820,11 @@ export default function PersonnalisationPage() {
                                                             </div>
                                                             <div className="space-y-2">
                                                                 <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                                <Input
+                                                                <RichTextEditor
                                                                     value={template.subject}
-                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                    className="font-medium bg-white"
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "subject", html)}
+                                                                    singleLine={true}
+                                                                    placeholder="Sujet de l'email..."
                                                                 />
                                                             </div>
                                                             <div className="space-y-2">
@@ -830,7 +832,7 @@ export default function PersonnalisationPage() {
                                                                 <RichTextEditor
                                                                     value={template.body || ""}
                                                                     onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                                    minHeight="150px"
+                                                                    minHeight="100px"
                                                                 />
                                                             </div>
                                                         </CardContent>
@@ -842,32 +844,32 @@ export default function PersonnalisationPage() {
 
                                     {/* CONTRAT TAB */}
                                     <TabsContent value="contrat" className="space-y-6">
-                                        <div className="flex items-center justify-between border-b pb-4">
+                                        <div className="flex items-center justify-between border-b pb-2 mb-3">
                                             <div>
-                                                <h3 className="text-xl font-bold text-purple-900 uppercase tracking-tight">E-mails Contrat</h3>
-                                                <p className="text-xs text-slate-500">Envoyés pour signature et confirmation.</p>
+                                                <h3 className="text-sm sm:text-lg font-bold text-purple-900 uppercase tracking-tight">E-mails Contrat</h3>
+                                                <p className="text-[10px] text-slate-500 hidden sm:block">Envoyés pour signature et confirmation.</p>
                                             </div>
-                                            <Button onClick={() => addMailTemplate("contrat")} size="sm" className="bg-purple-600 hover:bg-purple-700 font-bold gap-2">
-                                                <PlusIcon className="size-4" /> Ajouter
+                                            <Button onClick={() => addMailTemplate("contrat")} size="sm" className="h-7 sm:h-8 text-[10px] sm:text-xs bg-purple-600 hover:bg-purple-700 font-bold gap-1">
+                                                <PlusIcon className="size-3" /> Ajouter
                                             </Button>
                                         </div>
 
                                         <Tabs defaultValue="contrat-default" className="w-full">
-                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
-                                                <TabsTrigger value="contrat-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-4 py-2 font-bold shadow-none h-10">
-                                                    {settings.email_contrat_name || "Par défaut"}
+                                            <TabsList className="flex flex-nowrap h-auto bg-transparent border-b rounded-none p-0 mb-3 gap-3 overflow-x-auto no-scrollbar">
+                                                <TabsTrigger value="contrat-default" className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all text-[10px] sm:text-xs">
+                                                    {settings.email_contrat_name || "PAR DÉFAUT"}
                                                 </TabsTrigger>
                                                 {(settings.mail_templates || []).filter(t => t.type === "contrat").map(template => (
-                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-purple-600 border-b-2 border-transparent data-[state=active]:border-purple-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all uppercase text-[10px] sm:text-xs">
                                                         {template.name}
                                                     </TabsTrigger>
                                                 ))}
                                             </TabsList>
 
                                             <TabsContent value="contrat-default" className="mt-0">
-                                                <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10 min-h-[300px]">
-                                                    <div className="absolute top-0 right-0 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
-                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10 min-h-[200px]">
+                                                    <div className="absolute top-0 right-0 bg-purple-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-md uppercase">Par Défaut</div>
+                                                    <CardContent className="p-2 sm:p-5 pt-6 space-y-2 sm:space-y-3">
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
                                                             <Input
@@ -879,10 +881,11 @@ export default function PersonnalisationPage() {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                            <Input
+                                                            <RichTextEditor
                                                                 value={settings.email_contrat_subject}
-                                                                onChange={(e) => handleChange("email_contrat_subject", e.target.value)}
-                                                                className="font-medium bg-white"
+                                                                onChange={(html) => handleChange("email_contrat_subject", html)}
+                                                                singleLine={true}
+                                                                placeholder="Sujet de l'email..."
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
@@ -898,8 +901,8 @@ export default function PersonnalisationPage() {
 
                                             {(settings.mail_templates || []).filter(t => t.type === "contrat").map((template) => (
                                                 <TabsContent key={template.id} value={template.id} className="mt-0">
-                                                    <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10 min-h-[300px]">
-                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                    <Card className="border-purple-200 shadow-md relative overflow-hidden ring-2 ring-purple-500/10 min-h-[250px]">
+                                                        <CardContent className="p-3 sm:p-5 pt-6 space-y-3">
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex-1 space-y-2">
                                                                     <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
@@ -916,10 +919,11 @@ export default function PersonnalisationPage() {
                                                             </div>
                                                             <div className="space-y-2">
                                                                 <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                                <Input
+                                                                <RichTextEditor
                                                                     value={template.subject}
-                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                    className="font-medium bg-white"
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "subject", html)}
+                                                                    singleLine={true}
+                                                                    placeholder="Sujet de l'email..."
                                                                 />
                                                             </div>
                                                             <div className="space-y-2">
@@ -927,7 +931,7 @@ export default function PersonnalisationPage() {
                                                                 <RichTextEditor
                                                                     value={template.body || ""}
                                                                     onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                                    minHeight="150px"
+                                                                    minHeight="100px"
                                                                 />
                                                             </div>
                                                         </CardContent>
@@ -939,32 +943,32 @@ export default function PersonnalisationPage() {
 
                                     {/* FACTURE TAB */}
                                     <TabsContent value="facture" className="space-y-6">
-                                        <div className="flex items-center justify-between border-b pb-4">
+                                        <div className="flex items-center justify-between border-b pb-2 mb-3">
                                             <div>
-                                                <h3 className="text-xl font-bold text-emerald-900 uppercase tracking-tight">E-mails Facture</h3>
-                                                <p className="text-xs text-slate-500">Envoyés avec vos factures.</p>
+                                                <h3 className="text-sm sm:text-lg font-bold text-emerald-900 uppercase tracking-tight">E-mails Facture</h3>
+                                                <p className="text-[10px] text-slate-500 hidden sm:block">Envoyés avec vos factures.</p>
                                             </div>
-                                            <Button onClick={() => addMailTemplate("facture")} size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-bold gap-2">
-                                                <PlusIcon className="size-4" /> Ajouter
+                                            <Button onClick={() => addMailTemplate("facture")} size="sm" className="h-7 sm:h-8 text-[10px] sm:text-xs bg-emerald-600 hover:bg-emerald-700 font-bold gap-1">
+                                                <PlusIcon className="size-3" /> Ajouter
                                             </Button>
                                         </div>
 
                                         <Tabs defaultValue="facture-default" className="w-full">
-                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
-                                                <TabsTrigger value="facture-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-4 py-2 font-bold shadow-none h-10">
-                                                    {settings.email_facture_name || "Par défaut"}
+                                            <TabsList className="flex flex-nowrap h-auto bg-transparent border-b rounded-none p-0 mb-3 gap-3 overflow-x-auto no-scrollbar">
+                                                <TabsTrigger value="facture-default" className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all text-[10px] sm:text-xs">
+                                                    {settings.email_facture_name || "PAR DÉFAUT"}
                                                 </TabsTrigger>
                                                 {(settings.mail_templates || []).filter(t => t.type === "facture").map(template => (
-                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-emerald-600 border-b-2 border-transparent data-[state=active]:border-emerald-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all uppercase text-[10px] sm:text-xs">
                                                         {template.name}
                                                     </TabsTrigger>
                                                 ))}
                                             </TabsList>
 
                                             <TabsContent value="facture-default" className="mt-0">
-                                                <Card className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10 min-h-[300px]">
-                                                    <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
-                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                <Card className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10 min-h-[200px]">
+                                                    <div className="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-md uppercase">Par Défaut</div>
+                                                    <CardContent className="p-2 sm:p-5 pt-6 space-y-2 sm:space-y-3">
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
                                                             <Input
@@ -976,10 +980,11 @@ export default function PersonnalisationPage() {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                            <Input
+                                                            <RichTextEditor
                                                                 value={settings.email_facture_subject}
-                                                                onChange={(e) => handleChange("email_facture_subject", e.target.value)}
-                                                                className="font-medium bg-white"
+                                                                onChange={(html) => handleChange("email_facture_subject", html)}
+                                                                singleLine={true}
+                                                                placeholder="Sujet de l'email..."
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
@@ -995,8 +1000,8 @@ export default function PersonnalisationPage() {
 
                                             {(settings.mail_templates || []).filter(t => t.type === "facture").map((template) => (
                                                 <TabsContent key={template.id} value={template.id} className="mt-0">
-                                                    <Card key={template.id} className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10 min-h-[300px]">
-                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                    <Card key={template.id} className="border-emerald-200 shadow-md relative overflow-hidden ring-2 ring-emerald-500/10 min-h-[250px]">
+                                                        <CardContent className="p-3 sm:p-5 pt-6 space-y-3">
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex-1 space-y-2">
                                                                     <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
@@ -1013,10 +1018,11 @@ export default function PersonnalisationPage() {
                                                             </div>
                                                             <div className="space-y-2">
                                                                 <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                                <Input
+                                                                <RichTextEditor
                                                                     value={template.subject}
-                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                    className="font-medium bg-white"
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "subject", html)}
+                                                                    singleLine={true}
+                                                                    placeholder="Sujet de l'email..."
                                                                 />
                                                             </div>
                                                             <div className="space-y-2">
@@ -1024,7 +1030,7 @@ export default function PersonnalisationPage() {
                                                                 <RichTextEditor
                                                                     value={template.body || ""}
                                                                     onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                                    minHeight="150px"
+                                                                    minHeight="100px"
                                                                 />
                                                             </div>
                                                         </CardContent>
@@ -1036,32 +1042,32 @@ export default function PersonnalisationPage() {
 
                                     {/* SIGNATURE TAB */}
                                     <TabsContent value="signature" className="space-y-6">
-                                        <div className="flex items-center justify-between border-b pb-4">
+                                        <div className="flex items-center justify-between border-b pb-2 mb-3">
                                             <div>
-                                                <h3 className="text-xl font-bold text-pink-900 uppercase tracking-tight">E-mails Signature</h3>
-                                                <p className="text-xs text-slate-500">Envoyés lors de la confirmation de signature électronique.</p>
+                                                <h3 className="text-sm sm:text-lg font-bold text-pink-900 uppercase tracking-tight">E-mails Signature</h3>
+                                                <p className="text-[10px] text-slate-500 hidden sm:block">Envoyés lors de la confirmation de signature électronique.</p>
                                             </div>
-                                            <Button onClick={() => addMailTemplate("signature")} size="sm" className="bg-pink-600 hover:bg-pink-700 font-bold gap-2">
-                                                <PlusIcon className="size-4" /> Ajouter
+                                            <Button onClick={() => addMailTemplate("signature")} size="sm" className="h-7 sm:h-8 text-[10px] sm:text-xs bg-pink-600 hover:bg-pink-700 font-bold gap-1">
+                                                <PlusIcon className="size-3" /> Ajouter
                                             </Button>
                                         </div>
 
                                         <Tabs defaultValue="signature-default" className="w-full">
-                                            <TabsList className="flex flex-wrap h-auto bg-transparent border-b rounded-none p-0 mb-6 gap-2">
-                                                <TabsTrigger value="signature-default" className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-pink-600 border-b-2 border-transparent data-[state=active]:border-pink-600 px-4 py-2 font-bold shadow-none h-10">
-                                                    {settings.email_signature_name || "Par défaut"}
+                                            <TabsList className="flex flex-nowrap h-auto bg-transparent border-b rounded-none p-0 mb-3 gap-3 overflow-x-auto no-scrollbar">
+                                                <TabsTrigger value="signature-default" className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-pink-600 border-b-2 border-transparent data-[state=active]:border-pink-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all text-[10px] sm:text-xs">
+                                                    {settings.email_signature_name || "PAR DÉFAUT"}
                                                 </TabsTrigger>
                                                 {(settings.mail_templates || []).filter(t => t.type === "signature").map(template => (
-                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-t-lg data-[state=active]:bg-white data-[state=active]:text-pink-600 border-b-2 border-transparent data-[state=active]:border-pink-600 px-4 py-2 font-bold shadow-none h-10">
+                                                    <TabsTrigger key={template.id} value={template.id} className="rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-pink-600 border-b-2 border-transparent data-[state=active]:border-pink-600 px-1 pb-1 pt-0 font-bold shadow-none h-auto transition-all uppercase text-[10px] sm:text-xs">
                                                         {template.name}
                                                     </TabsTrigger>
                                                 ))}
                                             </TabsList>
 
                                             <TabsContent value="signature-default" className="mt-0">
-                                                <Card className="border-pink-200 shadow-md relative overflow-hidden ring-2 ring-pink-500/10 min-h-[300px]">
-                                                    <div className="absolute top-0 right-0 bg-pink-500 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase">Par Défaut</div>
-                                                    <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                <Card className="border-pink-200 shadow-md relative overflow-hidden ring-2 ring-pink-500/10 min-h-[250px]">
+                                                    <div className="absolute top-0 right-0 bg-pink-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-bl-md uppercase">Par Défaut</div>
+                                                    <CardContent className="p-3 sm:p-5 pt-6 space-y-3">
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
                                                             <Input
@@ -1073,10 +1079,11 @@ export default function PersonnalisationPage() {
                                                         </div>
                                                         <div className="space-y-2">
                                                             <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                            <Input
+                                                            <RichTextEditor
                                                                 value={settings.email_signature_subject}
-                                                                onChange={(e) => handleChange("email_signature_subject", e.target.value)}
-                                                                className="font-medium bg-white"
+                                                                onChange={(html) => handleChange("email_signature_subject", html)}
+                                                                singleLine={true}
+                                                                placeholder="Sujet de l'email..."
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
@@ -1092,8 +1099,8 @@ export default function PersonnalisationPage() {
 
                                             {(settings.mail_templates || []).filter(t => t.type === "signature").map((template) => (
                                                 <TabsContent key={template.id} value={template.id} className="mt-0">
-                                                    <Card className="border-pink-200 shadow-md relative overflow-hidden ring-2 ring-pink-500/10 min-h-[300px]">
-                                                        <CardContent className="p-4 sm:p-6 pt-8 space-y-4">
+                                                    <Card className="border-pink-200 shadow-md relative overflow-hidden ring-2 ring-pink-500/10 min-h-[250px]">
+                                                        <CardContent className="p-3 sm:p-5 pt-6 space-y-3">
                                                             <div className="flex items-center justify-between">
                                                                 <div className="flex-1 space-y-2">
                                                                     <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Nom du modèle</Label>
@@ -1110,10 +1117,11 @@ export default function PersonnalisationPage() {
                                                             </div>
                                                             <div className="space-y-2">
                                                                 <Label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Sujet de l&apos;email</Label>
-                                                                <Input
+                                                                <RichTextEditor
                                                                     value={template.subject}
-                                                                    onChange={(e) => handleMailTemplateChange(template.id, "subject", e.target.value)}
-                                                                    className="font-medium bg-white"
+                                                                    onChange={(html) => handleMailTemplateChange(template.id, "subject", html)}
+                                                                    singleLine={true}
+                                                                    placeholder="Sujet de l'email..."
                                                                 />
                                                             </div>
                                                             <div className="space-y-2">
@@ -1121,7 +1129,7 @@ export default function PersonnalisationPage() {
                                                                 <RichTextEditor
                                                                     value={template.body || ""}
                                                                     onChange={(html) => handleMailTemplateChange(template.id, "body", html)}
-                                                                    minHeight="150px"
+                                                                    minHeight="100px"
                                                                 />
                                                             </div>
                                                         </CardContent>
@@ -1134,22 +1142,22 @@ export default function PersonnalisationPage() {
                             </div>
 
                             {/* Right: Sticky Tags Sidebar (Top on Mobile) */}
-                            <div className="w-full xl:w-[260px] xl:sticky xl:top-24 space-y-4 order-first xl:order-last shrink-0">
+                            <div className="w-full xl:w-[260px] xl:sticky xl:top-24 space-y-4 shrink-0">
                                 <Card className="bg-white shadow-xl border-indigo-100 overflow-hidden">
-                                    <div className="bg-indigo-600 p-4 flex items-center justify-between">
+                                    <div className="bg-indigo-600 p-3 flex items-center justify-between">
                                         <h4 className="text-white font-bold flex items-center gap-2 text-sm">
                                             <TagIcon className="size-4" /> Balises disponibles
                                         </h4>
-                                        <Button variant="ghost" size="icon" onClick={() => setIsTagsModalOpen(true)} className="text-white/70 hover:text-white hover:bg-white/10 h-8 w-8">
-                                            <SettingsIcon className="size-4" />
+                                        <Button variant="ghost" size="icon" onClick={() => setIsTagsModalOpen(true)} className="text-white/70 hover:text-white hover:bg-white/10 h-7 w-7">
+                                            <SettingsIcon className="size-3.5" />
                                         </Button>
                                     </div>
-                                    <CardContent className="p-4 space-y-4 max-h-[400px] xl:max-h-[600px] overflow-y-auto custom-scrollbar">
-                                        <p className="text-[10px] text-slate-500 italic">
+                                    <CardContent className="p-3 space-y-3 max-h-[300px] xl:max-h-[600px] overflow-y-auto custom-scrollbar">
+                                        <p className="text-[10px] text-slate-500 italic leading-tight">
                                             <InfoIcon className="inline size-3 mr-1" />
-                                            Glissez une balise dans l&apos;éditeur pour l&apos;insérer.
+                                            Glissez une balise dans l&apos;éditeur ou tapez-la directement.
                                         </p>
-                                        <div className="flex flex-wrap xl:flex-col gap-2">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-1.5 sm:gap-2">
                                             {ALL_TAGS.filter(tag => (settings.enabled_email_tags || []).includes(tag.id)).map(tag => (
                                                 <div
                                                     key={tag.id}
@@ -1157,7 +1165,7 @@ export default function PersonnalisationPage() {
                                                     onDragStart={(e) => e.dataTransfer.setData("text/plain", tag.id)}
                                                     className="group flex flex-col p-1.5 px-2 rounded-md border border-indigo-50 bg-indigo-50/50 hover:bg-indigo-600 hover:border-indigo-600 transition-all cursor-grab active:cursor-grabbing shadow-sm"
                                                 >
-                                                    <span className="text-[10px] font-bold text-indigo-900 group-hover:text-white transition-colors truncate">{tag.label}</span>
+                                                    <span className="text-[9px] sm:text-[10px] font-bold text-indigo-900 group-hover:text-white transition-colors truncate">{tag.label}</span>
                                                     <code className="text-[8px] text-indigo-400 group-hover:text-indigo-100 transition-colors opacity-70">{tag.id}</code>
                                                 </div>
                                             ))}
@@ -1429,11 +1437,11 @@ export default function PersonnalisationPage() {
                                 <div className="space-y-4">
                                     <Label className="font-bold flex items-center gap-2"><CheckCircleIcon className="size-4 text-emerald-500" /> Message de Confirmation</Label>
                                     <CardDescription>Affiché au client après la signature du contrat ou validation du questionnaire.</CardDescription>
-                                    <Textarea
+                                    <RichTextEditor
                                         value={settings.msg_success}
-                                        onChange={(e) => handleChange("msg_success", e.target.value)}
+                                        onChange={(html) => handleChange("msg_success", html)}
                                         placeholder="Merci ! Votre réservation est bien confirmée..."
-                                        rows={4}
+                                        minHeight="150px"
                                     />
                                 </div>
                             </CardContent>
@@ -1587,29 +1595,29 @@ export default function PersonnalisationPage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {/* Modal: Gérer les balises */}
             <Dialog open={isTagsModalOpen} onOpenChange={setIsTagsModalOpen}>
-                <DialogContent className="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle>Gérer les balises email</DialogTitle>
-                        <DialogDescription>
-                            Sélectionnez les variables que vous souhaitez voir apparaître dans votre barre d&apos;outils personnalisation.
+                <DialogContent className="fixed top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] bottom-auto w-[90%] max-w-[320px] gap-2 p-4 rounded-2xl overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] duration-200">
+                    <DialogHeader className="space-y-1">
+                        <DialogTitle className="text-base font-bold text-center">Balises Email</DialogTitle>
+                        <DialogDescription className="text-[10px] text-center leading-tight">
+                            Activez les options pour l'éditeur.
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="grid grid-cols-1 gap-3 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                    <div className="grid grid-cols-1 gap-1.5 py-1 max-h-[35vh] overflow-y-auto pr-1 custom-scrollbar scroll-smooth">
                         {ALL_TAGS.map((tag) => {
                             const isEnabled = (settings.enabled_email_tags || []).includes(tag.id);
                             return (
                                 <div
                                     key={tag.id}
-                                    className={`flex items-center justify-between p-3 rounded-lg border transition-all ${isEnabled ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-slate-50 border-slate-100 opacity-60'}`}
+                                    className={`flex items-center justify-between p-2 sm:p-3 rounded-lg border transition-all ${isEnabled ? 'bg-indigo-50 border-indigo-200 shadow-sm' : 'bg-slate-50 border-slate-100 opacity-60'}`}
                                 >
-                                    <div className="flex flex-col">
-                                        <span className={`text-sm font-bold ${isEnabled ? 'text-indigo-900' : 'text-slate-500'}`}>{tag.label}</span>
-                                        <code className="text-[10px] text-slate-400">{tag.id}</code>
+                                    <div className="flex flex-col min-w-0 pr-2">
+                                        <span className={`text-xs sm:text-sm font-bold truncate ${isEnabled ? 'text-indigo-900' : 'text-slate-500'}`}>{tag.label}</span>
+                                        <code className="text-[9px] sm:text-[10px] text-slate-400">{tag.id}</code>
                                     </div>
                                     <Switch
+                                        className="scale-75 sm:scale-100 shrink-0"
                                         checked={isEnabled}
                                         onCheckedChange={(checked) => {
                                             const current = settings.enabled_email_tags || [];
