@@ -717,7 +717,7 @@ export default function DevisContratsPage() {
             )}
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogContent className="sm:max-w-[1000px] w-full max-h-[95vh] p-0 overflow-hidden flex flex-col border-none shadow-2xl">
+                <DialogContent className="sm:max-w-[1000px] w-full max-h-[95vh] p-0 overflow-hidden flex flex-col border-none shadow-2xl" onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader className="px-6 py-4 border-b bg-white flex-shrink-0 z-50">
                         <DialogTitle className="flex items-center gap-2 text-2xl font-black tracking-tight text-slate-900">
                             {formMode === "devis" ? <FileTextIcon className="size-7 text-indigo-600" /> : <ScrollTextIcon className="size-7 text-indigo-600" />}
@@ -731,7 +731,7 @@ export default function DevisContratsPage() {
             </Dialog>
 
             <Dialog open={isCustomDateDialogOpen} onOpenChange={setIsCustomDateDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px]" onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader><DialogTitle>Période personnalisée</DialogTitle></DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -791,7 +791,7 @@ export default function DevisContratsPage() {
             </Dialog>
 
             <Dialog open={isQuickDeliveryDialogOpen} onOpenChange={setIsQuickDeliveryDialogOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[425px]" onOpenAutoFocus={(e) => e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle>Modifier la livraison</DialogTitle>
                         <DialogDescription>
