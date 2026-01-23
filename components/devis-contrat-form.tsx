@@ -1003,7 +1003,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                 </Button>
                             </div>
 
-                            <div className="flex overflow-x-auto no-scrollbar items-center gap-2 w-full sm:w-auto sm:ml-auto pb-1 -mx-2 px-2 sm:mx-0 sm:px-0">
+                            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-1.5 w-full sm:w-auto sm:ml-auto pb-1">
                                 {/* DEVIS GROUP */}
                                 <div className="inline-flex items-center gap-0 bg-slate-50 p-0.5 sm:p-1 rounded-lg border border-slate-200 shadow-sm shrink-0">
                                     <Button
@@ -1013,7 +1013,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         onClick={(e) => { e.preventDefault(); setShowDevisPreview(true); }}
                                         className="gap-1.5 text-slate-600 hover:bg-white hover:text-indigo-600 hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
                                     >
-                                        <FileTextIcon className="size-3" /> <span className="hidden min-[380px]:inline">DEVIS</span>
+                                        <FileTextIcon className="size-3" /> <span className="hidden sm:inline">DEVIS</span>
                                     </Button>
                                     <div className="w-px h-3 bg-slate-200 mx-0.5" />
                                     <Button
@@ -1021,7 +1021,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         variant="ghost"
                                         size="icon"
                                         onClick={(e) => { e.preventDefault(); handleDownloadPDF('devis'); }}
-                                        className="h-7 w-7 text-slate-400 hover:text-slate-900 transition-all"
+                                        className="h-7 w-6 sm:w-7 text-slate-400 hover:text-slate-900 transition-all"
                                         title="Télécharger Devis"
                                     >
                                         <DownloadIcon className="size-3" />
@@ -1031,7 +1031,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         variant="ghost"
                                         size="icon"
                                         onClick={(e) => { e.preventDefault(); setEmailType('devis'); setShowEmail(true); }}
-                                        className="h-7 w-7 text-emerald-500 hover:text-emerald-600 transition-all"
+                                        className="h-7 w-6 sm:w-7 text-emerald-500 hover:text-emerald-600 transition-all"
                                         title="Envoyer Devis"
                                     >
                                         <SendIcon className="size-3" />
@@ -1047,7 +1047,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         onClick={(e) => { e.preventDefault(); setShowPreview(true); }}
                                         className="gap-1.5 text-indigo-600 hover:bg-white hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
                                     >
-                                        <ScrollTextIcon className="size-3" /> <span className="hidden min-[380px]:inline">CONTRAT</span>
+                                        <ScrollTextIcon className="size-3" /> <span className="hidden sm:inline">CONTRAT</span>
                                     </Button>
                                     <div className="w-px h-3 bg-slate-200 mx-0.5" />
                                     <Button
@@ -1055,7 +1055,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         variant="ghost"
                                         size="icon"
                                         onClick={(e) => { e.preventDefault(); handleDownloadPDF('contract'); }}
-                                        className="h-7 w-7 text-indigo-400 hover:text-indigo-600 transition-all"
+                                        className="h-7 w-6 sm:w-7 text-indigo-400 hover:text-indigo-600 transition-all"
                                         title="Télécharger Contrat"
                                     >
                                         <DownloadIcon className="size-3" />
@@ -1065,7 +1065,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         variant="ghost"
                                         size="icon"
                                         onClick={(e) => { e.preventDefault(); setEmailType('contract'); setShowEmail(true); }}
-                                        className="h-7 w-7 text-emerald-500 hover:text-emerald-600 transition-all"
+                                        className="h-7 w-6 sm:w-7 text-emerald-500 hover:text-emerald-600 transition-all"
                                         title="Envoyer Contrat"
                                     >
                                         <SendIcon className="size-3" />
@@ -1081,7 +1081,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         onClick={(e) => { e.preventDefault(); setShowFacturePreview(true); }}
                                         className="gap-1.5 text-emerald-600 hover:bg-white hover:shadow-sm h-7 px-1.5 font-bold text-[9px] sm:text-[10px] transition-all"
                                     >
-                                        <EuroIcon className="size-3" /> <span className="hidden min-[380px]:inline">FACTURE</span>
+                                        <EuroIcon className="size-3" /> <span className="hidden sm:inline">FACTURE</span>
                                     </Button>
                                     <div className="w-px h-3 bg-slate-200 mx-0.5" />
                                     <Button
@@ -1089,7 +1089,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         variant="ghost"
                                         size="icon"
                                         onClick={(e) => { e.preventDefault(); handleDownloadPDF('invoice'); }}
-                                        className="h-7 w-7 text-emerald-400 hover:text-emerald-600 transition-all"
+                                        className="h-7 w-6 sm:w-7 text-emerald-400 hover:text-emerald-600 transition-all"
                                         title="Télécharger Facture"
                                     >
                                         <DownloadIcon className="size-3" />
@@ -1099,7 +1099,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         variant="ghost"
                                         size="icon"
                                         onClick={(e) => { e.preventDefault(); setEmailType('invoice'); setShowEmail(true); }}
-                                        className="h-7 w-7 text-emerald-500 hover:text-emerald-600 transition-all"
+                                        className="h-7 w-6 sm:w-7 text-emerald-500 hover:text-emerald-600 transition-all"
                                         title="Envoyer Facture"
                                     >
                                         <SendIcon className="size-3" />
