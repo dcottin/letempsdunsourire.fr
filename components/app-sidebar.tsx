@@ -21,6 +21,7 @@ import {
     CalendarIcon,
     Camera,
     EuroIcon,
+    LayoutDashboard,
 } from "lucide-react"
 
 import {
@@ -99,6 +100,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     const navMain = [
         {
+            title: "Tableau de bord",
+            url: "/",
+            icon: LayoutDashboard,
+        },
+        {
             title: "Calendrier",
             url: "/calendrier",
             icon: CalendarIcon,
@@ -117,6 +123,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             title: "Contrats",
             url: "/devis-contrats",
             icon: PanelLeftIcon,
+        },
+        {
+            title: "Planification",
+            url: "/planification",
+            icon: MapIcon,
         },
     ]
 

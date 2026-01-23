@@ -140,17 +140,12 @@ export default function DevisContratsPage() {
         if (table === "devis") setDevisList(updateList)
         else setContratsList(updateList)
 
-        // Supabase update handling (updating both root columns if exist and data jsonb)
-        const updatePayload = {
-            date_installation: date || null,
-            heure_debut: time,
-            lieu,
-            data: { ...item.data, date_installation: date, heure_debut: time, lieu }
-        }
-
+        // Supabase update handling (only update the 'data' column as other fields are in it)
         const { error } = await supabase
             .from(table === "devis" ? "devis" : "contrats")
-            .update(updatePayload)
+            .update({
+                data: { ...item.data, date_installation: date, heure_debut: time, lieu }
+            })
             .eq('id', item.id)
 
         if (error) {
@@ -570,6 +565,32 @@ END:VCARD`
     }
 
     const handleEquipmentChange = async (item: any, table: "devis" | "contrats", newEquipmentId: string) => {
+        const currentId = item.data?.equipment_id || item.equipment_id || 'none'
+        if (newEquipmentId === currentId) return
+
+        const date = item.data?.date_debut || item.date_debut
+
+        if (newEquipmentId !== 'none' && date) {
+            try {
+                // Check allBookings (all valid devis + contrats)
+                const allBookings = [...devisList, ...contratsList]
+                const busy = allBookings.filter(b =>
+                    b.id !== item.id &&
+                    (b.data?.date_debut || b.date_debut) === date &&
+                    (b.data?.equipment_id === newEquipmentId || b.equipment_id === newEquipmentId)
+                )
+
+                if (busy.length > 0) {
+                    const holder = busy[0].nom_client || "un autre dossier"
+                    if (!confirm(`⚠️ Attention : Ce matériel est déjà réservé par "${holder}" pour cette date.\n\nConfirmer quand même ?`)) {
+                        return
+                    }
+                }
+            } catch (err) {
+                console.error("Availability check error:", err)
+            }
+        }
+
         const updateState = (prev: any[]) => prev.map(d =>
             d.id === item.id
                 ? { ...d, equipment_id: newEquipmentId, data: { ...d.data, equipment_id: newEquipmentId } }
@@ -606,11 +627,26 @@ END:VCARD`
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="none" className="text-[10px]">Aucun</SelectItem>
-                    {statusSettings?.materiels?.map((m: any) => (
-                        <SelectItem key={m.id} value={m.id} className="text-[10px]">
-                            {m.nom}
-                        </SelectItem>
-                    ))}
+                    {statusSettings?.materiels?.map((m: any) => {
+                        const date = item.data?.date_debut || item.date_debut
+                        const isReserved = [...devisList, ...contratsList].some(b =>
+                            b.id !== item.id &&
+                            (b.data?.date_debut || b.date_debut) === date &&
+                            (b.data?.equipment_id === m.id || b.equipment_id === m.id)
+                        )
+                        const isCurrent = m.id === currentId
+
+                        return (
+                            <SelectItem
+                                key={m.id}
+                                value={m.id}
+                                className={`text-[10px] ${isReserved && !isCurrent ? 'text-red-500 font-medium' : ''}`}
+                                disabled={isReserved && !isCurrent}
+                            >
+                                {isReserved && !isCurrent ? '❌ ' : ''}{m.nom}
+                            </SelectItem>
+                        )
+                    })}
                 </SelectContent>
             </Select>
         )
@@ -673,6 +709,8 @@ END:VCARD`
         devisList.forEach(d => { if (d.etat) statuses.add(d.etat) })
         return Array.from(statuses).sort()
     }, [contratsList, devisList])
+
+    if (!isMounted) return null
 
     return (
         <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
@@ -783,7 +821,7 @@ END:VCARD`
                                 {editingItem ? `Modifier ${formMode === "devis" ? "Devis" : "Contrat"}` : `Nouveau ${formMode === "devis" ? "Devis" : "Contrat"}`}
                             </span>
                         </DialogTitle>
-                        <div className="flex items-center gap-3 mr-8">
+                        <div className="flex items-center gap-2 sm:gap-3 mr-12 sm:mr-8">
                             <Button
                                 type="submit"
                                 form="devis-contrat-form"
@@ -838,40 +876,40 @@ END:VCARD`
             </Dialog>
 
             <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-                <DialogContent className="!inset-auto !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !h-auto !max-h-[90vh] !rounded-xl !p-6 max-w-[calc(100%-2rem)] sm:max-w-[400px]">
+                <DialogContent className="sm:max-w-[400px]">
                     <DialogHeader>
-                        <DialogTitle>Mode de paiement</DialogTitle>
+                        <DialogTitle>Enregistrer {paymentContext?.field === 'acompte_paye' ? "l'acompte" : "le solde"}</DialogTitle>
                         <DialogDescription>
-                            Sélectionnez le mode de paiement pour {paymentContext?.field === 'acompte_paye' ? "l'acompte" : "le solde"}.
+                            Confirmez le règlement pour <strong>{paymentContext?.item?.nom_client}</strong>.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="grid gap-3 py-4">
-
-                        {[
-                            { value: "Especes", label: "Espèces" },
-                            { value: "Virement", label: "Virement" },
-                            { value: "Cheque", label: "Chèque" },
-                            { value: "PayPal", label: "PayPal" }
-                        ].map((method) => (
-                            <Button
-                                key={method.value}
-                                variant={selectedPaymentMethod === method.value ? "default" : "outline"}
-                                className={`justify-start h-12 text-sm ${selectedPaymentMethod === method.value ? "bg-indigo-600 hover:bg-indigo-700" : ""}`}
-                                onClick={() => setSelectedPaymentMethod(method.value)}
-                            >
-                                <div className={`size-3 rounded-full mr-3 ${selectedPaymentMethod === method.value ? "bg-white" : "border border-slate-300"}`} />
-                                {method.label}
-                            </Button>
-                        ))}
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="method">Mode de paiement</Label>
+                            <Select onValueChange={setSelectedPaymentMethod} value={selectedPaymentMethod}>
+                                <SelectTrigger id="method">
+                                    <SelectValue placeholder="Choisir un mode..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Especes">Espèces</SelectItem>
+                                    <SelectItem value="Virement">Virement</SelectItem>
+                                    <SelectItem value="Cheque">Chèque</SelectItem>
+                                    <SelectItem value="PayPal">PayPal</SelectItem>
+                                    <SelectItem value="CB">Mettle / CB</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => { setIsPaymentDialogOpen(false); setPaymentContext(null); }}>Annuler</Button>
+                        <Button variant="outline" onClick={() => { setIsPaymentDialogOpen(false); setPaymentContext(null); }}>
+                            Annuler
+                        </Button>
                         <Button
                             className="bg-indigo-600 hover:bg-indigo-700"
-                            disabled={!selectedPaymentMethod}
                             onClick={handleConfirmPayment}
+                            disabled={!selectedPaymentMethod}
                         >
-                            Valider le paiement
+                            Confirmer le paiement
                         </Button>
                     </DialogFooter>
                 </DialogContent>

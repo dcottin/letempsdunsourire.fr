@@ -375,30 +375,28 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                     .from('devis')
                     .select('id, data, date_debut, etat')
                     .eq('date_debut', watchedDateDebut)
-                    .neq('etat', 'Annulé')
-                    .neq('etat', 'Refusé')
 
                 if (internalMode === 'devis' && initialData?.id) {
                     devisQuery = devisQuery.neq('id', initialData.id)
                 }
-                const { data: devisData, error: devisError } = await devisQuery
+                const { data: rawDevisData, error: devisError } = await devisQuery
 
                 if (devisError) throw devisError
+                const devisData = (rawDevisData || []).filter(d => d.etat !== 'Annulé' && d.etat !== 'Refusé')
 
                 // 2. Check Contrats
                 let contratsQuery = supabase
                     .from('contrats')
                     .select('id, data, date_debut, etat')
                     .eq('date_debut', watchedDateDebut)
-                    .neq('etat', 'Annulé')
-                    .neq('etat', 'Cancelled')
 
                 if (internalMode === 'contrat' && initialData?.id) {
                     contratsQuery = contratsQuery.neq('id', initialData.id)
                 }
-                const { data: contratsData, error: contratsError } = await contratsQuery
+                const { data: rawContratsData, error: contratsError } = await contratsQuery
 
                 if (contratsError) throw contratsError
+                const contratsData = (rawContratsData || []).filter(c => c.etat !== 'Annulé' && c.etat !== 'Cancelled')
 
                 // Merge results
                 const allOtherBookings = [...(devisData || []), ...(contratsData || [])]
@@ -435,6 +433,37 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
     async function onSubmit(values: z.infer<typeof formSchema>, keepOpen: boolean = false, forcedMode?: "devis" | "contrat", isAutoSave: boolean = false) {
         if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current)
+
+        // Availability check before manual save
+        if (!isAutoSave && values.equipment_id && values.equipment_id !== 'none' && values.date_debut) {
+            try {
+                const [devisRes, contratsRes] = await Promise.all([
+                    supabase.from('devis').select('id, nom_client, data, etat').eq('date_debut', values.date_debut),
+                    supabase.from('contrats').select('id, nom_client, data, etat').eq('date_debut', values.date_debut)
+                ])
+
+                const busyDevis = (devisRes.data || []).filter((d: any) =>
+                    d.id !== initialData?.id &&
+                    d.etat !== 'Annulé' && d.etat !== 'Refusé' &&
+                    (d.data?.equipment_id === values.equipment_id)
+                )
+                const busyContrats = (contratsRes.data || []).filter((c: any) =>
+                    c.id !== initialData?.id &&
+                    c.etat !== 'Annulé' && c.etat !== 'Archivé' &&
+                    (c.data?.equipment_id === values.equipment_id || c.equipment_id === values.equipment_id)
+                )
+
+                if (busyDevis.length > 0 || busyContrats.length > 0) {
+                    const conflict = busyContrats[0] || busyDevis[0]
+                    const holder = conflict.nom_client || "un autre dossier"
+                    if (!confirm(`⚠️ Attention : Ce matériel est déjà réservé par "${holder}" pour cette date.\n\nEnregistrer quand même ?`)) {
+                        return
+                    }
+                }
+            } catch (err) {
+                console.error("Submit availability check error:", err)
+            }
+        }
 
         if (isAutoSavingRef.current && isAutoSave) {
             console.log("Auto-save already in progress, skipping...")

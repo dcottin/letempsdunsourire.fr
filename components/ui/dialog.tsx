@@ -59,11 +59,11 @@ function DialogContent({
         data-slot="dialog-content"
         className={cn(
           // Base styles
-          "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid gap-4 text-sm ring-1 duration-100 fixed z-50 w-full",
-          // Mobile: full screen with safe area insets
-          "inset-x-0 top-0 bottom-0 max-w-full rounded-none p-4 pt-[env(safe-area-inset-top,0px)] pb-[env(safe-area-inset-bottom,0px)]",
-          // Desktop: centered modal with max width
-          "sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-sm sm:max-w-[calc(100%-2rem)] sm:rounded-xl sm:p-4",
+          "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid gap-4 text-sm ring-1 duration-100 fixed z-50 w-[calc(100%-2rem)] rounded-xl p-4",
+          // Positioning
+          "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+          // Desktop specific
+          "sm:max-w-sm sm:max-w-[calc(100%-2rem)]",
           className
         )}
         {...props}

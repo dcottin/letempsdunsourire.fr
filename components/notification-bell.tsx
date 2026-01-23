@@ -27,6 +27,7 @@ export function NotificationBell() {
     const [unreadCount, setUnreadCount] = useState(0)
     const [isOpen, setIsOpen] = useState(false)
     const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+    const [mounted, setMounted] = useState(false)
 
     const fetchNotifications = async () => {
         const data = await getNotifications()
@@ -40,6 +41,7 @@ export function NotificationBell() {
     }
 
     useEffect(() => {
+        setMounted(true)
         fetchNotifications()
 
         // Real-time subscription for new notifications
@@ -116,6 +118,12 @@ export function NotificationBell() {
                 <XIcon className="size-3.5" />
             </button>
         </div>
+    )
+
+    if (!mounted) return (
+        <Button variant="ghost" size="icon" className="relative size-9 text-slate-500">
+            <BellIcon className="size-5" />
+        </Button>
     )
 
     return (

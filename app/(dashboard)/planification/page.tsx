@@ -110,9 +110,11 @@ export default function PlanificationPage() {
     const [geocodingProgress, setGeocodingProgress] = useState<{ current: number, total: number } | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [message, setMessage] = useState<string | null>(null)
+    const [mounted, setMounted] = useState(false)
 
     // Fetch Settings to pre-fill cities
     useEffect(() => {
+        setMounted(true)
         const fetchSettings = async () => {
             const { data: settings } = await supabase
                 .from('personnalisation')
@@ -362,6 +364,8 @@ export default function PlanificationPage() {
         }
         return url
     }
+
+    if (!mounted) return null
 
     return (
         <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 min-h-screen bg-slate-50/50">
