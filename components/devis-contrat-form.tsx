@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import {
     CalendarIcon, UserIcon, CalendarDaysIcon, EuroIcon, FileTextIcon, CameraIcon, Bot, Loader2Icon, RefreshCw,
-    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2
+    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon
 } from "lucide-react"
 import { format, addDays } from "date-fns"
 
@@ -993,6 +993,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                         </>
                                     ) : (
                                         <>
+                                            <SaveIcon className="size-4 mr-1 hidden sm:inline" />
                                             <span className="hidden sm:inline">Enregistrer</span>
                                             <span className="sm:hidden">Enregistrer</span>
                                         </>
@@ -2171,7 +2172,10 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                             Enregistrement...
                                         </>
                                     ) : (
-                                        "Enregistrer"
+                                        <>
+                                            <SaveIcon className="size-4 mr-2" />
+                                            Enregistrer
+                                        </>
                                     )}
                                 </Button>
                             </div>
