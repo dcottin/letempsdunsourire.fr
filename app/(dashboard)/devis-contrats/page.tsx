@@ -869,24 +869,26 @@ export default function DevisContratsPage() {
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
-                                                        {devis.date_installation ? (
-                                                            <div className="flex flex-col items-start w-full">
-                                                                <div className="flex items-center gap-1 whitespace-nowrap">
-                                                                    <span className="text-[9px] text-muted-foreground">{format(new Date(devis.date_installation), 'dd/MM/yy')}</span>
-                                                                    <span className="text-[10px] text-indigo-600 font-bold">{devis.heure_debut || "8:00"}</span>
-                                                                    <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(devis, "devis") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
-                                                                        <PencilIcon className="size-2.5" />
-                                                                    </button>
-                                                                </div>
-                                                                {devis.lieu && (
-                                                                    <span className="text-[9px] text-slate-400 italic mt-0.5 whitespace-normal break-words block w-full" title={devis.lieu}>
-                                                                        {devis.lieu}
-                                                                    </span>
+                                                        <div className="flex flex-col items-start w-full">
+                                                            <div className="flex items-center gap-1 whitespace-nowrap">
+                                                                {devis.date_installation ? (
+                                                                    <>
+                                                                        <span className="text-[9px] text-muted-foreground">{format(new Date(devis.date_installation), 'dd/MM/yy')}</span>
+                                                                        <span className="text-[10px] text-indigo-600 font-bold">{devis.heure_debut || "8:00"}</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="text-slate-300 italic text-[10px]">Date ?</span>
                                                                 )}
+                                                                <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(devis, "devis") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
+                                                                    <PencilIcon className="size-2.5" />
+                                                                </button>
                                                             </div>
-                                                        ) : (
-                                                            <span className="text-slate-300 italic text-[10px]">Non définie</span>
-                                                        )}
+                                                            {devis.lieu && (
+                                                                <span className="text-[9px] text-slate-400 italic mt-0.5 whitespace-normal break-words block w-full" title={devis.lieu}>
+                                                                    {devis.lieu}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-col">
@@ -972,30 +974,32 @@ export default function DevisContratsPage() {
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                 <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
-                                                    {contrat.date_installation ? (
-                                                        <div className="flex flex-col items-start w-full">
-                                                            <div className="flex items-center gap-1 whitespace-nowrap">
-                                                                <span className="text-[9px] text-muted-foreground">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
-                                                                <span className="text-[10px] text-indigo-600 font-bold">{contrat.heure_debut || "8:00"}</span>
-                                                                <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
-                                                                    <PencilIcon className="size-2.5" />
-                                                                </button>
-                                                            </div>
-                                                            {contrat.lieu && (
-                                                                <a
-                                                                    href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    className="text-[9px] text-slate-500 italic mt-0.5 hover:underline hover:text-indigo-600 whitespace-normal break-words block w-full"
-                                                                    title="Ouvrir dans Waze"
-                                                                >
-                                                                    {contrat.lieu}
-                                                                </a>
+                                                    <div className="flex flex-col items-start w-full">
+                                                        <div className="flex items-center gap-1 whitespace-nowrap">
+                                                            {contrat.date_installation ? (
+                                                                <>
+                                                                    <span className="text-[9px] text-muted-foreground">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
+                                                                    <span className="text-[10px] text-indigo-600 font-bold">{contrat.heure_debut || "8:00"}</span>
+                                                                </>
+                                                            ) : (
+                                                                <span className="text-slate-300 italic text-[10px]">Date ?</span>
                                                             )}
+                                                            <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
+                                                                <PencilIcon className="size-2.5" />
+                                                            </button>
                                                         </div>
-                                                    ) : (
-                                                        <span className="text-slate-300 italic text-[10px] px-1">Non définie</span>
-                                                    )}
+                                                        {contrat.lieu && (
+                                                            <a
+                                                                href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="text-[9px] text-slate-500 italic mt-0.5 hover:underline hover:text-indigo-600 whitespace-normal break-words block w-full"
+                                                                title="Ouvrir dans Waze"
+                                                            >
+                                                                {contrat.lieu}
+                                                            </a>
+                                                        )}
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex flex-col">
@@ -1110,30 +1114,32 @@ export default function DevisContratsPage() {
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
-                                                        {contrat.date_installation ? (
-                                                            <div className="flex flex-col items-start w-full">
-                                                                <div className="flex items-center gap-1 whitespace-nowrap">
-                                                                    <span className="text-[9px] text-muted-foreground/70">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
-                                                                    <span className="text-[10px] text-indigo-500 font-bold">{contrat.heure_debut || "8:00"}</span>
-                                                                    <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
-                                                                        <PencilIcon className="size-2.5" />
-                                                                    </button>
-                                                                </div>
-                                                                {contrat.lieu && (
-                                                                    <a
-                                                                        href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="text-[9px] text-slate-400 italic mt-0.5 hover:underline hover:text-indigo-400 whitespace-normal break-words block w-full"
-                                                                        title="Ouvrir dans Waze"
-                                                                    >
-                                                                        {contrat.lieu}
-                                                                    </a>
+                                                        <div className="flex flex-col items-start w-full">
+                                                            <div className="flex items-center gap-1 whitespace-nowrap">
+                                                                {contrat.date_installation ? (
+                                                                    <>
+                                                                        <span className="text-[9px] text-muted-foreground/70">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
+                                                                        <span className="text-[10px] text-indigo-500 font-bold">{contrat.heure_debut || "8:00"}</span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="text-slate-300 italic text-[10px]">Date ?</span>
                                                                 )}
+                                                                <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
+                                                                    <PencilIcon className="size-2.5" />
+                                                                </button>
                                                             </div>
-                                                        ) : (
-                                                            <span className="text-slate-300 italic text-[10px] px-1">Non définie</span>
-                                                        )}
+                                                            {contrat.lieu && (
+                                                                <a
+                                                                    href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-[9px] text-slate-400 italic mt-0.5 hover:underline hover:text-indigo-400 whitespace-normal break-words block w-full"
+                                                                    title="Ouvrir dans Waze"
+                                                                >
+                                                                    {contrat.lieu}
+                                                                </a>
+                                                            )}
+                                                        </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex flex-col">
