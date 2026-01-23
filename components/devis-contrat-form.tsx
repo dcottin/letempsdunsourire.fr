@@ -932,7 +932,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         <Form {...form}>
             <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
                 <Tabs defaultValue="infos" className="w-full">
-                    <div className="sticky top-[-16px] bg-white z-40 pb-4 no-print -mx-6 px-6 border-b mb-6 shadow-sm flex flex-col gap-4">
+                    <div className="sticky top-[-16px] bg-white z-40 pb-2 sm:pb-4 no-print -mx-4 sm:-mx-6 px-4 sm:px-6 border-b mb-3 sm:mb-6 shadow-sm flex flex-col gap-2 sm:gap-4">
                         <div className="bg-slate-50 p-1.5 rounded-xl border-2 border-slate-100 shadow-sm mb-4 relative">
                             {isSaving && (
                                 <div className="absolute -top-6 right-0 text-[10px] text-indigo-500 font-bold animate-pulse flex items-center gap-1">
@@ -941,7 +941,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                 </div>
                             )}
                             <Tabs value={internalMode} onValueChange={(v) => handleModeSwitch(v as any)} className="w-full">
-                                <TabsList className="grid grid-cols-2 w-full h-12 bg-transparent gap-2">
+                                <TabsList className="grid grid-cols-2 w-full h-10 sm:h-12 bg-transparent gap-2">
                                     <TabsTrigger
                                         value="devis"
                                         className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
@@ -958,7 +958,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                             </Tabs>
                         </div>
 
-                        <div className="flex flex-wrap justify-between items-center no-print gap-3 sm:gap-3">
+                        <div className="flex flex-wrap justify-between items-center no-print gap-2">
                             <div className="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
                                 <Button
                                     type="button"
@@ -979,7 +979,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         }
                                     }}
                                     disabled={isSaving}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 flex-1 sm:flex-none"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-[11px] sm:text-sm px-2 sm:px-4 h-7 sm:h-10 flex-1 sm:flex-none"
                                 >
                                     <FileTextIcon className="size-4 mr-1 hidden sm:inline" />
                                     <span className="hidden sm:inline">Signature électronique</span>
@@ -1092,7 +1092,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                             </div>
                         </div>
 
-                        <TabsList className="grid grid-cols-3 w-full h-10 md:h-11 bg-slate-100/50 p-1 rounded-xl mt-2">
+                        <TabsList className="grid grid-cols-3 w-full h-8 sm:h-11 bg-slate-100/50 p-1 rounded-xl mt-1">
                             <TabsTrigger value="infos" className="flex items-center justify-center gap-1.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all h-full text-[9px] sm:text-xs uppercase tracking-wider px-1">
                                 <UserIcon className="size-3.5 hidden sm:block" />
                                 <span className="hidden sm:inline">Infos & Suivi</span>
@@ -1326,13 +1326,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                         <TabsContent value="infos" className="space-y-6">
                             {/* Client Info */}
                             <Card className="border-l-4 border-l-primary/20">
-                                <CardHeader className="pb-3">
+                                <CardHeader className="px-3 sm:px-6 pb-2 sm:pb-3">
                                     <CardTitle className="text-lg font-semibold flex items-center gap-2">
                                         <UserIcon className="size-5 text-primary" />
                                         Informations client
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField
                                         control={form.control}
                                         name="nom_client"
@@ -1398,13 +1398,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                             {/* Section SUIVI */}
                             <Card>
-                                <CardHeader className="pb-3">
+                                <CardHeader className="px-3 sm:px-6 pb-2 sm:pb-3">
                                     <CardTitle className="text-base font-bold uppercase tracking-wider flex items-center gap-2">
                                         <ScrollTextIcon className="size-5 text-primary" />
                                         Suivi du dossier
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                         {/* Switch 1: Contrat Signé (Fixed - special logic) */}
                                         <FormField
@@ -1595,7 +1595,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         Évènement & Tarifs
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField
                                         control={form.control}
                                         name="date_debut"
@@ -1825,7 +1825,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         Tarification
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                         <FormField
                                             control={form.control}
@@ -1935,7 +1935,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         Logistique
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-8">
+                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 space-y-8">
                                     {/* --- PARTIE 2: INSTALLATION ET RETRAIT --- */}
 
                                     {/* --- PARTIE 2: INSTALLATION ET RETRAIT --- */}
