@@ -877,7 +877,7 @@ export default function DevisContratsPage() {
                                                                         <span className="text-[10px] text-indigo-600 font-bold">{devis.heure_debut || "8:00"}</span>
                                                                     </>
                                                                 ) : (
-                                                                    <span className="text-slate-300 italic text-[10px]">Date ?</span>
+                                                                    <span className="text-slate-300 italic text-[9px]">Livraison non planifiée</span>
                                                                 )}
                                                                 <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(devis, "devis") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
                                                                     <PencilIcon className="size-2.5" />
@@ -982,7 +982,7 @@ export default function DevisContratsPage() {
                                                                     <span className="text-[10px] text-indigo-600 font-bold">{contrat.heure_debut || "8:00"}</span>
                                                                 </>
                                                             ) : (
-                                                                <span className="text-slate-300 italic text-[10px]">Date ?</span>
+                                                                <span className="text-slate-300 italic text-[9px]">Livraison non planifiée</span>
                                                             )}
                                                             <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
                                                                 <PencilIcon className="size-2.5" />
@@ -1122,7 +1122,7 @@ export default function DevisContratsPage() {
                                                                         <span className="text-[10px] text-indigo-500 font-bold">{contrat.heure_debut || "8:00"}</span>
                                                                     </>
                                                                 ) : (
-                                                                    <span className="text-slate-300 italic text-[10px]">Date ?</span>
+                                                                    <span className="text-slate-300 italic text-[9px]">Livraison non planifiée</span>
                                                                 )}
                                                                 <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
                                                                     <PencilIcon className="size-2.5" />
