@@ -955,6 +955,7 @@ END:VCARD`
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
+                                                <TableHead className="text-center">ACTIONS</TableHead>
                                                 <TableHead onClick={() => handleSort('id', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
                                                 <TableHead onClick={() => handleSort('date_debut', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
                                                 <TableHead className="whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
@@ -963,16 +964,39 @@ END:VCARD`
                                                 <TableHead>MATÉRIEL</TableHead>
                                                 <TableHead onClick={() => handleSort('prix_total', 'devis')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
                                                 <TableHead className="text-center">SOLDE</TableHead>
-                                                <TableHead className="text-center">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {isLoading ? (
-                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground animate-pulse">Chargement...</TableCell></TableRow>
                                             ) : filteredSortedDevis.length === 0 ? (
-                                                <TableRow><TableCell colSpan={8} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
+                                                <TableRow><TableCell colSpan={9} className="text-center h-24 text-muted-foreground">Aucun devis trouvé.</TableCell></TableRow>
                                             ) : filteredSortedDevis.map((devis) => (
                                                 <TableRow key={devis.id} className="hover:bg-slate-50/50">
+                                                    <TableCell className="text-center">
+                                                        <div className="flex justify-center gap-1 items-center">
+                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("devis", devis)} title="Modifier">
+                                                                <PencilIcon className="size-3.5" />
+                                                            </Button>
+                                                            <Button
+                                                                size="icon"
+                                                                variant="ghost"
+                                                                className="size-8 text-emerald-600 hover:text-white hover:bg-emerald-500 hover:border-emerald-600 transition-all group"
+                                                                onClick={() => handleValidateDevis(devis)}
+                                                                disabled={validatingDevisId === devis.id}
+                                                                title="Valider le Devis"
+                                                            >
+                                                                {validatingDevisId === devis.id ? (
+                                                                    <div className="size-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                                                                ) : (
+                                                                    <CheckCircleIcon className="size-4 transition-transform group-hover:scale-110" />
+                                                                )}
+                                                            </Button>
+                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("devis", devis) }} title="Supprimer">
+                                                                <TrashIcon className="size-3.5" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
@@ -1018,30 +1042,6 @@ END:VCARD`
                                                     <TableCell className="text-sm font-semibold text-center text-red-500">
                                                         {parseFloat(devis.prix_total || "0").toFixed(2)}€
                                                     </TableCell>
-                                                    <TableCell className="text-center">
-                                                        <div className="flex justify-center gap-1 items-center">
-                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("devis", devis)} title="Modifier">
-                                                                <PencilIcon className="size-3.5" />
-                                                            </Button>
-                                                            <Button
-                                                                size="icon"
-                                                                variant="ghost"
-                                                                className="size-8 text-emerald-600 hover:text-white hover:bg-emerald-500 hover:border-emerald-600 transition-all group"
-                                                                onClick={() => handleValidateDevis(devis)}
-                                                                disabled={validatingDevisId === devis.id}
-                                                                title="Valider le Devis"
-                                                            >
-                                                                {validatingDevisId === devis.id ? (
-                                                                    <div className="size-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
-                                                                ) : (
-                                                                    <CheckCircleIcon className="size-4 transition-transform group-hover:scale-110" />
-                                                                )}
-                                                            </Button>
-                                                            <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("devis", devis) }} title="Supprimer">
-                                                                <TrashIcon className="size-3.5" />
-                                                            </Button>
-                                                        </div>
-                                                    </TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>
@@ -1062,6 +1062,7 @@ END:VCARD`
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-slate-50/50">
+                                            <TableHead className="text-center">ACTIONS</TableHead>
                                             <TableHead onClick={() => handleSort('id', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
                                             <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
                                             <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
@@ -1072,7 +1073,6 @@ END:VCARD`
                                             <TableHead onClick={() => handleSort('encaisse', 'contrat')} className="cursor-pointer hover:bg-slate-100">ENCAISSÉ</TableHead>
                                             <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('reste', 'contrat')}>SOLDE</TableHead>
                                             <TableHead className="text-center">SUIVI</TableHead>
-                                            <TableHead className="text-center">ACTIONS</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -1082,6 +1082,16 @@ END:VCARD`
                                             <TableRow><TableCell colSpan={11} className="text-center h-24 text-muted-foreground">Aucun contrat trouvé.</TableCell></TableRow>
                                         ) : sortedActiveContrats.map((contrat) => (
                                             <TableRow key={contrat.id} className="hover:bg-slate-50/50">
+                                                <TableCell className="text-center">
+                                                    <div className="flex justify-center gap-1">
+                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
+                                                            <PencilIcon className="size-3.5" />
+                                                        </Button>
+                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("contrat", contrat) }} title="Supprimer">
+                                                            <TrashIcon className="size-3.5" />
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                 <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
@@ -1176,16 +1186,6 @@ END:VCARD`
                                                         })}
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="text-center">
-                                                    <div className="flex justify-center gap-1">
-                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
-                                                            <PencilIcon className="size-3.5" />
-                                                        </Button>
-                                                        <Button size="icon" variant="ghost" className="size-8 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("contrat", contrat) }} title="Supprimer">
-                                                            <TrashIcon className="size-3.5" />
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
                                             </TableRow>
                                         ))}
                                     </TableBody>
@@ -1206,6 +1206,7 @@ END:VCARD`
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
+                                                <TableHead className="text-center">ACTIONS</TableHead>
                                                 <TableHead onClick={() => handleSort('id', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
                                                 <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
                                                 <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
@@ -1216,7 +1217,6 @@ END:VCARD`
                                                 <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse', 'archive')}>ENCAISSÉ</TableHead>
                                                 <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('reste', 'archive')}>SOLDE</TableHead>
                                                 <TableHead className="text-center">SUIVI</TableHead>
-                                                <TableHead className="text-center">ACTIONS</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -1226,6 +1226,16 @@ END:VCARD`
                                                 <TableRow><TableCell colSpan={11} className="text-center h-24 text-muted-foreground">Aucune archive trouvée.</TableCell></TableRow>
                                             ) : sortedArchivedContrats.map((contrat) => (
                                                 <TableRow key={contrat.id} className="opacity-70 h-10 hover:opacity-100 transition-opacity">
+                                                    <TableCell className="text-center">
+                                                        <div className="flex justify-center gap-1">
+                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
+                                                                <PencilIcon className="size-3" />
+                                                            </Button>
+                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("contrat", contrat) }} title="Supprimer">
+                                                                <TrashIcon className="size-3" />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
                                                     <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
@@ -1288,16 +1298,6 @@ END:VCARD`
                                                             {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
                                                                 <div>{contrat.design_valide ? <Palette className="size-3.5 text-emerald-500" /> : <Palette className="size-3.5 text-slate-200" />}</div>
                                                             )}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-center">
-                                                        <div className="flex justify-center gap-1">
-                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50" onClick={() => openEditForm("contrat", contrat)} title="Modifier">
-                                                                <PencilIcon className="size-3" />
-                                                            </Button>
-                                                            <Button size="icon" variant="ghost" className="size-7 text-slate-400 hover:text-red-600 hover:bg-red-50" onClick={(e) => { e.stopPropagation(); handleDeleteClick("contrat", contrat) }} title="Supprimer">
-                                                                <TrashIcon className="size-3" />
-                                                            </Button>
                                                         </div>
                                                     </TableCell>
                                                 </TableRow>
