@@ -48,6 +48,7 @@ import { SendEmailDialog } from "@/components/send-email-dialog"
 import { supabase } from "@/lib/supabase"
 import { Label } from "@/components/ui/label"
 import { pdf } from "@react-pdf/renderer"
+import { toast } from "@/components/ui/use-toast"
 import { ContractDocument } from "@/components/contract-pdf"
 
 const DEFAULT_SETTINGS = {
@@ -789,11 +790,18 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                 throw new Error(`${response.status} ${response.statusText} - ${result.error?.message || result.error || "Erreur inconnue"}`);
             }
 
-            alert(`Email envoyé avec succès !`)
+            toast({
+                title: "Succès",
+                description: "Email envoyé avec succès !",
+            })
             setShowEmail(false)
         } catch (error: any) {
             console.error("Failed to send email with attachment", error)
-            alert(`Erreur d'envoi : ${error.message}`)
+            toast({
+                title: "Erreur d'envoi",
+                description: `Erreur d'envoi : ${error.message}`,
+                variant: "destructive"
+            })
         }
     }
 

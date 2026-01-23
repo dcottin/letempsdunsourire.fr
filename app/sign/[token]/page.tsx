@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { SlideToConfirm } from "@/components/slide-to-confirm"
+import { toast } from "@/components/ui/use-toast"
 
 // Professional PDF Generation
 import { pdf } from "@react-pdf/renderer"
@@ -86,7 +87,11 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
 
     const handleSign = async () => {
         if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
-            alert("Veuillez signer dans le cadre avant de valider.")
+            toast({
+                title: "Signature manquante",
+                description: "Veuillez signer dans le cadre avant de valider.",
+                variant: "destructive"
+            })
             return
         }
 
@@ -103,7 +108,11 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
             setContract((prev: any) => ({ ...prev, contrat_signe: true, signature_client_base64: signatureData }))
         } catch (err: any) {
             console.error("Signing error:", err)
-            alert(err.message || "Erreur lors de la signature.")
+            toast({
+                title: "Erreur de signature",
+                description: err.message || "Erreur lors de la signature.",
+                variant: "destructive"
+            })
         } finally {
             setSigning(false)
         }
@@ -206,11 +215,18 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                 throw new Error(errorData.error || "Erreur lors de l'envoi");
             }
 
-            alert(`${docLabel} envoyé à ${contract.email_client} !`)
+            toast({
+                title: "Succès",
+                description: `${docLabel} envoyé à ${contract.email_client} !`,
+            })
 
         } catch (e: any) {
             console.error("Email error:", e)
-            alert(`Erreur lors de l'envoi du mail : ${e.message || e}`)
+            toast({
+                title: "Erreur d'envoi",
+                description: e.message || "Une erreur est survenue lors de l'envoi du mail.",
+                variant: "destructive"
+            })
         } finally {
             setSendingEmail(false)
         }
