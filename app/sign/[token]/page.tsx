@@ -508,7 +508,7 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                     </div>
                 )}
                 {/* Scroll Hint */}
-                {step === 1 && showScrollHint && !success && (
+                {(step === 1 || step === 2) && showScrollHint && !success && (
                     <div className="fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-indigo-600 animate-bounce transition-opacity duration-300 pointer-events-none z-40">
                         <span className="text-[10px] font-bold uppercase tracking-widest bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm">Défiler pour lire</span>
                         <ChevronDown className="size-6" />
