@@ -97,6 +97,65 @@ export default function DevisContratsPage() {
         end: format(new Date(), "yyyy-MM-dd")
     })
 
+    // Quick Delivery Edit State
+    const [isQuickDeliveryDialogOpen, setIsQuickDeliveryDialogOpen] = useState(false)
+    const [quickDeliveryItem, setQuickDeliveryItem] = useState<{ item: any, table: "devis" | "contrats" } | null>(null)
+    const [tempDeliveryData, setTempDeliveryData] = useState<{ date: string, time: string, lieu: string }>({ date: "", time: "", lieu: "" })
+
+    const openQuickDeliveryDialog = (item: any, table: "devis" | "contrats") => {
+        setQuickDeliveryItem({ item, table })
+        setTempDeliveryData({
+            date: item.date_installation ? format(new Date(item.date_installation), "yyyy-MM-dd") : "",
+            time: item.heure_debut || "",
+            lieu: item.lieu || ""
+        })
+        setIsQuickDeliveryDialogOpen(true)
+    }
+
+    const handleSaveQuickDelivery = async () => {
+        if (!quickDeliveryItem) return
+
+        const { item, table } = quickDeliveryItem
+        const { date, time, lieu } = tempDeliveryData
+
+        // Update local state
+        const updateList = (prev: any[]) => prev.map(d => {
+            if (d.id === item.id) {
+                return {
+                    ...d,
+                    date_installation: date,
+                    heure_debut: time,
+                    lieu,
+                    data: { ...d.data, date_installation: date, heure_debut: time, lieu }
+                }
+            }
+            return d
+        })
+
+        if (table === "devis") setDevisList(updateList)
+        else setContratsList(updateList)
+
+        // Supabase update handling (updating both root columns if exist and data jsonb)
+        const updatePayload = {
+            date_installation: date || null,
+            heure_debut: time,
+            lieu,
+            data: { ...item.data, date_installation: date, heure_debut: time, lieu }
+        }
+
+        const { error } = await supabase
+            .from(table === "devis" ? "devis" : "contrats")
+            .update(updatePayload)
+            .eq('id', item.id)
+
+        if (error) {
+            console.error("Error updating delivery info:", error)
+            alert("Erreur lors de la mise à jour")
+        }
+
+        setIsQuickDeliveryDialogOpen(false)
+    }
+
     // Column resizing logic removed
 
 
@@ -731,6 +790,50 @@ export default function DevisContratsPage() {
                 </DialogContent>
             </Dialog>
 
+            <Dialog open={isQuickDeliveryDialogOpen} onOpenChange={setIsQuickDeliveryDialogOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Modifier la livraison</DialogTitle>
+                        <DialogDescription>
+                            Modifiez rapidement les informations de livraison.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">Date</Label>
+                            <Input
+                                type="date"
+                                className="col-span-3"
+                                value={tempDeliveryData.date}
+                                onChange={(e) => setTempDeliveryData(p => ({ ...p, date: e.target.value }))}
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">Heure</Label>
+                            <Input
+                                type="time"
+                                className="col-span-3"
+                                value={tempDeliveryData.time}
+                                onChange={(e) => setTempDeliveryData(p => ({ ...p, time: e.target.value }))}
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label className="text-right">Lieu</Label>
+                            <Input
+                                className="col-span-3"
+                                value={tempDeliveryData.lieu}
+                                placeholder="Adresse compléte..."
+                                onChange={(e) => setTempDeliveryData(p => ({ ...p, lieu: e.target.value }))}
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsQuickDeliveryDialogOpen(false)}>Annuler</Button>
+                        <Button className="bg-indigo-600 hover:bg-indigo-700" onClick={handleSaveQuickDelivery}>Enregistrer</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             <div className="w-full mt-4">
                 <div className="space-y-8">
                     {/* DEVIS EN COURS */}
@@ -741,15 +844,15 @@ export default function DevisContratsPage() {
                                 <FileTextIcon className="size-5 text-indigo-500" /> Devis en cours ({filteredSortedDevis.length})
                             </h3>
                             {showActiveDevis && (
-                                <div className="rounded-md border bg-white shadow-sm overflow-hidden mb-8">
+                                <div className="rounded-md border bg-white shadow-sm overflow-x-auto mb-8">
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
-                                                <TableHead onClick={() => handleSort('id', 'devis')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
-                                                <TableHead onClick={() => handleSort('date_debut', 'devis')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
-                                                <TableHead className="min-w-[140px]">LIVRAISON</TableHead>
-                                                <TableHead onClick={() => handleSort('nom_client', 'devis')} className="cursor-pointer hover:bg-slate-100">CLIENT</TableHead>
-                                                <TableHead className="w-[120px]">OFFRE</TableHead>
+                                                <TableHead onClick={() => handleSort('id', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
+                                                <TableHead className="whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
+                                                <TableHead onClick={() => handleSort('nom_client', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">CLIENT</TableHead>
+                                                <TableHead className="whitespace-nowrap">OFFRE</TableHead>
                                                 <TableHead>MATÉRIEL</TableHead>
                                                 <TableHead onClick={() => handleSort('prix_total', 'devis')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
                                                 <TableHead className="text-center">SOLDE</TableHead>
@@ -765,15 +868,18 @@ export default function DevisContratsPage() {
                                                 <TableRow key={devis.id} className="hover:bg-slate-50/50">
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                    <TableCell className="text-xs leading-tight">
+                                                    <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
                                                         {devis.date_installation ? (
-                                                            <div className="flex flex-col items-start px-1">
+                                                            <div className="flex flex-col items-start w-full">
                                                                 <div className="flex items-center gap-1 whitespace-nowrap">
                                                                     <span className="text-[9px] text-muted-foreground">{format(new Date(devis.date_installation), 'dd/MM/yy')}</span>
                                                                     <span className="text-[10px] text-indigo-600 font-bold">{devis.heure_debut || "8:00"}</span>
+                                                                    <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(devis, "devis") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
+                                                                        <PencilIcon className="size-2.5" />
+                                                                    </button>
                                                                 </div>
                                                                 {devis.lieu && (
-                                                                    <span className="text-[9px] text-slate-400 italic mt-0.5 line-clamp-1" title={devis.lieu}>
+                                                                    <span className="text-[9px] text-slate-400 italic mt-0.5 whitespace-normal break-words block w-full" title={devis.lieu}>
                                                                         {devis.lieu}
                                                                     </span>
                                                                 )}
@@ -843,12 +949,12 @@ export default function DevisContratsPage() {
                                 <Table>
                                     <TableHeader>
                                         <TableRow className="bg-slate-50/50">
-                                            <TableHead onClick={() => handleSort('id', 'contrat')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
-                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
-                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 min-w-[140px]">LIVRAISON</TableHead>
-                                            <TableHead onClick={() => handleSort('nom_client', 'contrat')} className="cursor-pointer hover:bg-slate-100 min-w-[160px]">CLIENT</TableHead>
-                                            <TableHead className="w-[120px]">OFFRE</TableHead>
-                                            <TableHead>MATÉRIEL</TableHead>
+                                            <TableHead onClick={() => handleSort('id', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
+                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
+                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
+                                            <TableHead onClick={() => handleSort('nom_client', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">CLIENT</TableHead>
+                                            <TableHead className="whitespace-nowrap">OFFRE</TableHead>
+                                            <TableHead className="whitespace-nowrap">MATÉRIEL</TableHead>
                                             <TableHead onClick={() => handleSort('prix_total', 'contrat')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
                                             <TableHead onClick={() => handleSort('encaisse', 'contrat')} className="cursor-pointer hover:bg-slate-100">ENCAISSÉ</TableHead>
                                             <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('reste', 'contrat')}>SOLDE</TableHead>
@@ -865,19 +971,22 @@ export default function DevisContratsPage() {
                                             <TableRow key={contrat.id} className="hover:bg-slate-50/50">
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                <TableCell className="text-xs leading-tight">
+                                                <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
                                                     {contrat.date_installation ? (
-                                                        <div className="flex flex-col items-start px-1">
+                                                        <div className="flex flex-col items-start w-full">
                                                             <div className="flex items-center gap-1 whitespace-nowrap">
                                                                 <span className="text-[9px] text-muted-foreground">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
                                                                 <span className="text-[10px] text-indigo-600 font-bold">{contrat.heure_debut || "8:00"}</span>
+                                                                <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
+                                                                    <PencilIcon className="size-2.5" />
+                                                                </button>
                                                             </div>
                                                             {contrat.lieu && (
                                                                 <a
                                                                     href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="text-[9px] text-slate-500 italic mt-0.5 hover:underline hover:text-indigo-600 block break-words max-w-[130px]"
+                                                                    className="text-[9px] text-slate-500 italic mt-0.5 hover:underline hover:text-indigo-600 whitespace-normal break-words block w-full"
                                                                     title="Ouvrir dans Waze"
                                                                 >
                                                                     {contrat.lieu}
@@ -978,12 +1087,12 @@ export default function DevisContratsPage() {
                                     <Table>
                                         <TableHeader>
                                             <TableRow className="bg-slate-50/50">
-                                                <TableHead onClick={() => handleSort('id', 'archive')} className="cursor-pointer hover:bg-slate-100">N°</TableHead>
-                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100">DATE</TableHead>
-                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 min-w-[140px]">LIVRAISON</TableHead>
-                                                <TableHead onClick={() => handleSort('nom_client', 'archive')} className="cursor-pointer hover:bg-slate-100 min-w-[160px]">CLIENT</TableHead>
-                                                <TableHead className="w-[120px]">OFFRE</TableHead>
-                                                <TableHead>MATÉRIEL</TableHead>
+                                                <TableHead onClick={() => handleSort('id', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
+                                                <TableHead onClick={() => handleSort('nom_client', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">CLIENT</TableHead>
+                                                <TableHead className="whitespace-nowrap">OFFRE</TableHead>
+                                                <TableHead className="whitespace-nowrap">MATÉRIEL</TableHead>
                                                 <TableHead onClick={() => handleSort('prix_total', 'archive')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
                                                 <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('encaisse', 'archive')}>ENCAISSÉ</TableHead>
                                                 <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('reste', 'archive')}>SOLDE</TableHead>
@@ -1000,19 +1109,22 @@ export default function DevisContratsPage() {
                                                 <TableRow key={contrat.id} className="opacity-70 h-10 hover:opacity-100 transition-opacity">
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                    <TableCell className="text-xs leading-tight">
+                                                    <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
                                                         {contrat.date_installation ? (
-                                                            <div className="flex flex-col items-start px-1">
+                                                            <div className="flex flex-col items-start w-full">
                                                                 <div className="flex items-center gap-1 whitespace-nowrap">
                                                                     <span className="text-[9px] text-muted-foreground/70">{format(new Date(contrat.date_installation), 'dd/MM/yy')}</span>
                                                                     <span className="text-[10px] text-indigo-500 font-bold">{contrat.heure_debut || "8:00"}</span>
+                                                                    <button onClick={(e) => { e.stopPropagation(); openQuickDeliveryDialog(contrat, "contrats") }} className="p-0.5 bg-slate-100 hover:bg-slate-200 rounded text-slate-400 hover:text-indigo-600 transition-all ml-1">
+                                                                        <PencilIcon className="size-2.5" />
+                                                                    </button>
                                                                 </div>
                                                                 {contrat.lieu && (
                                                                     <a
                                                                         href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
-                                                                        className="text-[9px] text-slate-400 italic mt-0.5 hover:underline hover:text-indigo-400 block break-words max-w-[130px]"
+                                                                        className="text-[9px] text-slate-400 italic mt-0.5 hover:underline hover:text-indigo-400 whitespace-normal break-words block w-full"
                                                                         title="Ouvrir dans Waze"
                                                                     >
                                                                         {contrat.lieu}
