@@ -44,3 +44,27 @@ export async function createNotification(notification: Omit<Notification, 'id' |
         console.error('Error creating notification:', error)
     }
 }
+
+export async function deleteNotification(id: string) {
+    const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', id)
+
+    if (error) {
+        console.error('Error deleting notification:', error)
+    }
+}
+
+export async function getAllNotifications() {
+    const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+    if (error) {
+        console.error('Error fetching all notifications:', error)
+        return []
+    }
+    return data as Notification[]
+}
