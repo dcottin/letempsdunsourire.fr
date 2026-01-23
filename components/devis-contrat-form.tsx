@@ -885,7 +885,8 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             "{{company_logo}}": (statusSettings as any)?.logo_url
                 ? `<img src="${(statusSettings as any).logo_url}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />`
                 : ((statusSettings as any)?.logo_base64 ? `<img src="${(statusSettings as any).logo_base64}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />` : ""),
-            "{{signing_link}}": signingLink
+            "{{signing_link}}": signingLink,
+            "{{signature_link}}": signingLink
         };
 
         let subject = rawSubject;

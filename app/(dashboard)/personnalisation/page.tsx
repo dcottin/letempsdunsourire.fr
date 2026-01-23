@@ -149,7 +149,8 @@ const defaultSettings: Settings = {
         "{{deposit_amount}}",
         "{{balance_amount}}",
         "{{company_logo}}",
-        "{{signature_date}}"
+        "{{signature_date}}",
+        "{{signature_link}}"
     ],
     mail_templates: []
 }
@@ -171,6 +172,7 @@ const ALL_TAGS = [
     { id: "{{balance_amount}}", label: "Montant Solde" },
     { id: "{{company_logo}}", label: "Logo Entreprise" },
     { id: "{{signature_date}}", label: "Date de signature" },
+    { id: "{{signature_link}}", label: "Lien de signature" },
 ]
 
 
