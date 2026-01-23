@@ -174,7 +174,7 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                 })(),
                 "{{balance_amount}}": (parseFloat(contract.prix_total || "0") - parseFloat(contract.acompte_recu || contract.acompte_demande || "0")).toFixed(2) + "€",
                 "{{company_logo}}": settings?.logo_url ? `<img src="${settings.logo_url}" alt="${settings.nom_societe}" width="${settings.logo_width || 100}" />` : "",
-                "{{signature_link}}": `${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${token}`,
+                "{{signature_link}}": (token) ? `<a href="${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${token}" style="color: #4f46e5; text-decoration: underline; font-weight: 600;">${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${token}</a>` : "",
             };
 
             const isContract = contract._forcedMode === 'contrat';

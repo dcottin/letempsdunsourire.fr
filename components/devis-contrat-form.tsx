@@ -859,7 +859,11 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                 ? (statusSettings?.email_facture_name || "Modèle par défaut")
                 : (statusSettings?.email_contrat_name || "Modèle par défaut"));
 
-        const signingLink = initialData?.access_token ? `${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${initialData.access_token}` : ""
+        const tokenForLink = internalMode === 'devis'
+            ? (initialData?.data?.access_token_devis || initialData?.access_token_devis || initialData?.access_token)
+            : (initialData?.data?.access_token_contrat || initialData?.access_token_contrat || initialData?.access_token);
+
+        const signingLink = tokenForLink ? `${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${tokenForLink}` : ""
 
         const replacements: Record<string, string> = {
             "{{client_name}}": form.getValues("nom_client") || "Client",
@@ -885,8 +889,8 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
             "{{company_logo}}": (statusSettings as any)?.logo_url
                 ? `<img src="${(statusSettings as any).logo_url}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />`
                 : ((statusSettings as any)?.logo_base64 ? `<img src="${(statusSettings as any).logo_base64}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />` : ""),
-            "{{signing_link}}": signingLink,
-            "{{signature_link}}": signingLink
+            "{{signing_link}}": signingLink ? `<a href="${signingLink}" style="color: #4f46e5; text-decoration: underline; font-weight: 600;">${signingLink}</a>` : "",
+            "{{signature_link}}": signingLink ? `<a href="${signingLink}" style="color: #4f46e5; text-decoration: underline; font-weight: 600;">${signingLink}</a>` : ""
         };
 
         let subject = rawSubject;
