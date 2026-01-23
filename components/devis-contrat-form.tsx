@@ -975,10 +975,7 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                     disabled={isSaving}
                                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-xs sm:text-sm px-2 sm:px-4 h-8 sm:h-10 flex-1 sm:flex-none"
                                 >
-                                    <span className="relative flex h-2 w-2 sm:h-3 sm:w-3 mr-0.5 sm:mr-1">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-2 w-2 sm:h-3 sm:w-3 bg-white"></span>
-                                    </span>
+                                    <FileTextIcon className="size-4 mr-1 hidden sm:inline" />
                                     <span className="hidden sm:inline">Signature électronique</span>
                                     <span className="sm:hidden">Signer</span>
                                 </Button>
