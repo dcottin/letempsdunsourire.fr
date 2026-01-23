@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -158,7 +158,46 @@ export default function DevisContratsPage() {
             alert("Erreur lors de la mise à jour")
         }
 
+
         setIsQuickDeliveryDialogOpen(false)
+    }
+
+    // Generate and download vCard for adding client to contacts
+    const downloadVCard = (item: any) => {
+        const name = item.nom_client || "Client"
+        const phone = item.telephone_client || ""
+        const email = item.email_client || ""
+        const eventDate = item.date_debut ? format(new Date(item.date_debut), "dd/MM/yyyy") : ""
+        const eventTime = item.heure_debut || ""
+        const location = item.lieu || ""
+        const eventName = item.nom_evenement || ""
+
+        // Build note with event info
+        const noteParts = []
+        if (eventName) noteParts.push(`Événement: ${eventName}`)
+        if (eventDate) noteParts.push(`Date: ${eventDate}${eventTime ? ` à ${eventTime}` : ""}`)
+        if (location) noteParts.push(`Lieu: ${location}`)
+        const note = noteParts.join(" | ")
+
+        // Create vCard content
+        const vCard = `BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+${phone ? `TEL:${phone}` : ""}
+${email ? `EMAIL:${email}` : ""}
+${note ? `NOTE:${note}` : ""}
+END:VCARD`
+
+        // Create and download file
+        const blob = new Blob([vCard], { type: "text/vcard;charset=utf-8" })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement("a")
+        link.href = url
+        link.download = `${name.replace(/\s+/g, "_")}.vcf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        URL.revokeObjectURL(url)
     }
 
     // Column resizing logic removed
@@ -962,10 +1001,14 @@ export default function DevisContratsPage() {
                                                         <div className="flex flex-col">
                                                             <div className="font-medium text-sm">{devis.nom_client}</div>
                                                             {devis.telephone_client && (
-                                                                <a href={`tel:${devis.telephone_client}`} className="text-[10px] text-indigo-500 hover:underline flex items-center gap-1">
-                                                                    <Phone className="size-2.5" />
+                                                                <button
+                                                                    onClick={() => downloadVCard(devis)}
+                                                                    className="text-[10px] text-indigo-500 hover:underline flex items-center gap-1 cursor-pointer"
+                                                                    title="Ajouter au répertoire"
+                                                                >
+                                                                    <UserPlus className="size-2.5" />
                                                                     {devis.telephone_client}
-                                                                </a>
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </TableCell>
@@ -1073,10 +1116,14 @@ export default function DevisContratsPage() {
                                                     <div className="flex flex-col">
                                                         <div className="font-medium text-sm">{contrat.nom_client}</div>
                                                         {contrat.telephone_client && (
-                                                            <a href={`tel:${contrat.telephone_client}`} className="text-[10px] text-indigo-500 hover:underline flex items-center gap-1">
-                                                                <Phone className="size-2.5" />
+                                                            <button
+                                                                onClick={() => downloadVCard(contrat)}
+                                                                className="text-[10px] text-indigo-500 hover:underline flex items-center gap-1 cursor-pointer"
+                                                                title="Ajouter au répertoire"
+                                                            >
+                                                                <UserPlus className="size-2.5" />
                                                                 {contrat.telephone_client}
-                                                            </a>
+                                                            </button>
                                                         )}
                                                     </div>
                                                 </TableCell>
@@ -1213,10 +1260,14 @@ export default function DevisContratsPage() {
                                                         <div className="flex flex-col">
                                                             <div className="font-medium text-sm">{contrat.nom_client}</div>
                                                             {contrat.telephone_client && (
-                                                                <a href={`tel:${contrat.telephone_client}`} className="text-[10px] text-indigo-400 hover:underline flex items-center gap-1">
-                                                                    <Phone className="size-2.5" />
+                                                                <button
+                                                                    onClick={() => downloadVCard(contrat)}
+                                                                    className="text-[10px] text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                                                    title="Ajouter au répertoire"
+                                                                >
+                                                                    <UserPlus className="size-2.5" />
                                                                     {contrat.telephone_client}
-                                                                </a>
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </TableCell>
