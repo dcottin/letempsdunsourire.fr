@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import {
     CalendarIcon, UserIcon, CalendarDaysIcon, EuroIcon, FileTextIcon, CameraIcon, Bot, Loader2Icon, RefreshCw,
-    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon, PenTool
+    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon, PenTool, InfoIcon
 } from "lucide-react"
 import { format, addDays } from "date-fns"
 
@@ -178,6 +178,25 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             form.reset(sanitizedInitialData)
         }
     }, [sanitizedInitialData, form])
+
+    // Pre-generate tokens for new documents so signing links are available immediately
+    const preGeneratedTokens = React.useMemo(() => {
+        // Helper to generate UUID
+        const genUUID = () => {
+            if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+                return crypto.randomUUID();
+            }
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        };
+
+        return {
+            devis: initialData?.data?.access_token_devis || initialData?.access_token_devis || genUUID(),
+            contrat: initialData?.data?.access_token_contrat || initialData?.access_token_contrat || genUUID()
+        };
+    }, [initialData?.id]) // Only regenerate if document ID changes
 
     // Auto-set payment dates when switches are toggled on
     const acomptePaye = form.watch("acompte_paye")
@@ -464,9 +483,9 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             date_debut: finalValues.date_debut,
             data: {
                 ...finalValues,
-                // Ensure access_tokens are present for both devis and contrats in JSON data
-                access_token_devis: initialData?.data?.access_token_devis || (currentMode === 'devis' ? (initialData?.data?.access_token || initialData?.access_token || generateUUID()) : (initialData?.data?.access_token_devis || generateUUID())),
-                access_token_contrat: initialData?.data?.access_token_contrat || (currentMode === 'contrat' ? (initialData?.data?.access_token || initialData?.access_token || generateUUID()) : (initialData?.data?.access_token_contrat || generateUUID())),
+                // Use pre-generated tokens so the same link shown to user is saved
+                access_token_devis: preGeneratedTokens.devis,
+                access_token_contrat: preGeneratedTokens.contrat,
 
                 // Explicitly set dates to null if empty string to ensure they are cleared in DB
                 date_installation: finalValues.date_installation || null,
@@ -475,7 +494,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                 heure_fin: finalValues.heure_fin || null,
 
                 // Keep legacy token for backward compatibility
-                access_token: initialData?.data?.access_token || initialData?.access_token || generateUUID(),
+                access_token: initialData?.data?.access_token || initialData?.access_token || preGeneratedTokens.contrat,
                 // Robust reset if flag is unchecked
                 ...(finalValues.contrat_signe === false ? {
                     signature_client_base64: null,
@@ -509,9 +528,9 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                             reference: newId,
                             // If migrating to contrat, mark as signed
                             contrat_signe: currentMode === 'contrat' ? true : record.data?.contrat_signe,
-                            access_token_devis: initialData?.data?.access_token_devis || (currentMode === 'devis' ? (initialData?.data?.access_token || initialData?.access_token || generateUUID()) : (initialData?.data?.access_token_devis || generateUUID())),
-                            access_token_contrat: initialData?.data?.access_token_contrat || (currentMode === 'contrat' ? (initialData?.data?.access_token || initialData?.access_token || generateUUID()) : (initialData?.data?.access_token_contrat || generateUUID())),
-                            access_token: initialData?.data?.access_token || initialData?.access_token || generateUUID()
+                            access_token_devis: preGeneratedTokens.devis,
+                            access_token_contrat: preGeneratedTokens.contrat,
+                            access_token: initialData?.data?.access_token || initialData?.access_token || preGeneratedTokens.contrat
                         }
                     }
 
@@ -565,9 +584,9 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                     data: {
                         ...record.data,
                         reference: newId,
-                        access_token_devis: currentMode === 'devis' ? generateUUID() : generateUUID(),
-                        access_token_contrat: currentMode === 'contrat' ? generateUUID() : generateUUID(),
-                        access_token: generateUUID() // legacy
+                        access_token_devis: preGeneratedTokens.devis,
+                        access_token_contrat: preGeneratedTokens.contrat,
+                        access_token: preGeneratedTokens.contrat // legacy
                     }
                 }
 
@@ -865,9 +884,10 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                 ? (statusSettings?.email_facture_name || "Modèle par défaut")
                 : (statusSettings?.email_contrat_name || "Modèle par défaut"));
 
+        // Use pre-generated tokens so signing link is available even for new documents
         const tokenForLink = internalMode === 'devis'
-            ? (initialData?.data?.access_token_devis || initialData?.access_token_devis || initialData?.access_token)
-            : (initialData?.data?.access_token_contrat || initialData?.access_token_contrat || initialData?.access_token);
+            ? preGeneratedTokens.devis
+            : preGeneratedTokens.contrat;
 
         const signingLink = tokenForLink ? `${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${tokenForLink}` : ""
 
@@ -963,21 +983,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                 <Button
                                     type="button"
                                     variant="default"
-                                    onClick={() => {
-                                        const token = internalMode === 'devis'
-                                            ? (initialData?.data?.access_token_devis || initialData?.access_token_devis)
-                                            : (initialData?.data?.access_token_contrat || initialData?.access_token_contrat);
-
-                                        if (token) {
-                                            setIsSignatureDialogOpen(true)
-                                        } else {
-                                            form.handleSubmit((data) => {
-                                                onSubmit(data, true).then(() => {
-                                                    setIsSignatureDialogOpen(true)
-                                                })
-                                            })()
-                                        }
-                                    }}
+                                    onClick={() => setIsSignatureDialogOpen(true)}
                                     disabled={isSaving}
                                     className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-[10px] sm:text-sm px-2 sm:px-4 h-6 sm:h-10 flex-1 sm:flex-none uppercase tracking-wide"
                                 >
@@ -1120,109 +1126,85 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                     Partagez ce lien avec votre client pour qu'il puisse signer le {internalMode === 'contrat' ? 'contrat' : 'devis'} directement en ligne.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="flex items-center space-x-2 mt-4">
-                                <div className="grid flex-1 gap-2">
-                                    <Label htmlFor="link" className="sr-only">
-                                        Lien
-                                    </Label>
-                                    <div className="flex items-center gap-2">
-                                        <Input
-                                            id="link"
-                                            value={(() => {
-                                                const token = internalMode === 'devis'
-                                                    ? (initialData?.data?.access_token_devis || initialData?.access_token_devis)
-                                                    : (initialData?.data?.access_token_contrat || initialData?.access_token_contrat);
-                                                return token ? `${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${token}` : `Enregistrez le ${internalMode} pour générer le lien`;
-                                            })()}
-                                            readOnly
-                                            className="font-mono text-xs bg-slate-50"
-                                        />
-                                    </div>
-                                </div>
-                                {(() => {
-                                    const token = internalMode === 'devis'
-                                        ? (initialData?.data?.access_token_devis || initialData?.access_token_devis)
-                                        : (initialData?.data?.access_token_contrat || initialData?.access_token_contrat);
+                            {(() => {
+                                const token = internalMode === 'devis' ? preGeneratedTokens.devis : preGeneratedTokens.contrat;
+                                const signingUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/sign/${token}`;
+                                const [copied, setCopied] = React.useState(false);
 
-                                    const [copied, setCopied] = React.useState(false);
+                                const copyToClipboard = async (text: string) => {
+                                    let success = false;
+                                    if (navigator.clipboard && window.isSecureContext) {
+                                        try {
+                                            await navigator.clipboard.writeText(text)
+                                            success = true;
+                                        } catch (err) {
+                                            console.error('Clipboard API failed, using fallback', err)
+                                        }
+                                    }
 
-                                    return token && (
+                                    if (!success) {
+                                        const textArea = document.createElement("textarea")
+                                        textArea.value = text
+                                        textArea.style.position = "fixed"
+                                        textArea.style.left = "-9999px"
+                                        textArea.style.top = "0"
+                                        document.body.appendChild(textArea)
+                                        textArea.focus()
+                                        textArea.select()
+                                        try {
+                                            success = document.execCommand('copy')
+                                        } catch (err) {
+                                            console.error('Fallback failed', err)
+                                        }
+                                        document.body.removeChild(textArea)
+                                    }
+
+                                    if (success) {
+                                        setCopied(true)
+                                        toast({
+                                            title: "Lien copié !",
+                                            description: "Le lien est dans votre presse-papier.",
+                                        })
+                                        setTimeout(() => setCopied(false), 2000)
+                                    } else {
+                                        toast({
+                                            title: "Erreur",
+                                            description: "Impossible de copier le lien.",
+                                            variant: "destructive"
+                                        })
+                                    }
+                                };
+
+                                return (
+                                    <div className="flex items-center space-x-2 mt-4">
+                                        <div className="grid flex-1 gap-2">
+                                            <Label htmlFor="link" className="sr-only">
+                                                Lien
+                                            </Label>
+                                            <Input
+                                                id="link"
+                                                value={signingUrl}
+                                                readOnly
+                                                className="font-mono text-xs bg-slate-50"
+                                            />
+                                        </div>
                                         <Button
                                             type="button"
                                             size="sm"
                                             className={`px-3 transition-all ${copied ? 'bg-emerald-500 hover:bg-emerald-600' : ''}`}
-                                            onClick={() => {
-                                                const url = `${window.location.origin}/sign/${token}`
-
-                                                const copyToClipboard = async (text: string) => {
-                                                    let success = false;
-                                                    if (navigator.clipboard && window.isSecureContext) {
-                                                        try {
-                                                            await navigator.clipboard.writeText(text)
-                                                            success = true;
-                                                        } catch (err) {
-                                                            console.error('Clipboard API failed, using fallback', err)
-                                                        }
-                                                    }
-
-                                                    if (!success) {
-                                                        const textArea = document.createElement("textarea")
-                                                        textArea.value = text
-                                                        textArea.style.position = "fixed"
-                                                        textArea.style.left = "-9999px"
-                                                        textArea.style.top = "0"
-                                                        document.body.appendChild(textArea)
-                                                        textArea.focus()
-                                                        textArea.select()
-                                                        try {
-                                                            success = document.execCommand('copy')
-                                                        } catch (err) {
-                                                            console.error('Fallback failed', err)
-                                                        }
-                                                        document.body.removeChild(textArea)
-                                                    }
-
-                                                    if (success) {
-                                                        setCopied(true)
-                                                        toast({
-                                                            title: "Lien copié !",
-                                                            description: "Le lien est dans votre presse-papier.",
-                                                        })
-                                                        setTimeout(() => setCopied(false), 2000)
-                                                    } else {
-                                                        toast({
-                                                            title: "Erreur",
-                                                            description: "Impossible de copier le lien.",
-                                                            variant: "destructive"
-                                                        })
-                                                    }
-                                                }
-
-                                                copyToClipboard(url)
-                                            }}
+                                            onClick={() => copyToClipboard(signingUrl)}
                                         >
                                             <span className="sr-only">Copier</span>
                                             {copied ? <CheckCircleIcon className="h-4 w-4 text-white" /> : <LinkIcon className="h-4 w-4" />}
                                         </Button>
-                                    );
-                                })()}
-                            </div>
-                            {!(internalMode === 'devis' ? (initialData?.data?.access_token_devis || initialData?.access_token_devis) : (initialData?.data?.access_token_contrat || initialData?.access_token_contrat)) && (
-                                <Button
-                                    type="button"
-                                    onClick={() => form.handleSubmit((data) => onSubmit(data, true))()}
-                                    disabled={isSaving}
-                                    className="w-full mt-2 bg-indigo-600 hover:bg-indigo-700 text-xs font-semibold"
-                                >
-                                    {isSaving ? (
-                                        <>
-                                            <Loader2Icon className="mr-2 size-3 animate-spin" />
-                                            Génération du lien...
-                                        </>
-                                    ) : (
-                                        "Générer le lien de signature"
-                                    )}
-                                </Button>
+                                    </div>
+                                );
+                            })()}
+                            {!initialData?.id && (
+                                <p className="text-xs text-amber-600 mt-2 flex items-center gap-1.5">
+                                    <InfoIcon className="size-3.5" />
+                                    Ce lien sera actif après l'enregistrement du document.
+                                </p>
                             )}
                         </DialogContent>
                     </Dialog>
