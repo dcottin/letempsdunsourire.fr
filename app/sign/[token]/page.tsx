@@ -194,6 +194,13 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                 message = message.split(key).join(value || "");
             });
 
+            const prefix = isContract ? "C" : "D";
+            const datePart = contract.date_debut ? format(new Date(contract.date_debut), "yyyyMMdd") : format(new Date(), "yyyyMMdd");
+            const initials = contract.nom_client
+                ? contract.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+                : "XX";
+            const displayReference = `${prefix}-${datePart}-${initials}`;
+
             const response = await fetch('/api/send', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -204,7 +211,7 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                     fromName: settings.nom_societe,
                     attachments: [
                         {
-                            filename: `${docLabel}_${contract.reference || 'signed'}.pdf`,
+                            filename: `${docLabel}_${displayReference}.pdf`,
                             content: base64Content,
                         }
                     ]
