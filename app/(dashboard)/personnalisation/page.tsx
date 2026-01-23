@@ -211,8 +211,20 @@ export default function PersonnalisationPage() {
 
             if (records && records.length > 0) {
                 const record = records[0]
+                const loadedData = record.data || {}
+
+                // CRITICAL: Merge email tags to ensure NEW standard tags are enabled for existing users
+                const mergedTags = [...new Set([
+                    ...(defaultSettings.enabled_email_tags || []),
+                    ...(loadedData.enabled_email_tags || [])
+                ])]
+
                 setCurrentRecordId(record.id)
-                setSettings({ ...defaultSettings, ...record.data })
+                setSettings({
+                    ...defaultSettings,
+                    ...loadedData,
+                    enabled_email_tags: mergedTags
+                })
                 console.log("Settings discovered (ID:", record.id, "):", record.data)
             } else {
                 console.log("No settings record found. Using defaults.")

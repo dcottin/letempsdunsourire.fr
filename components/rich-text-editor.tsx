@@ -30,6 +30,8 @@ const TAG_LABELS: Record<string, string> = {
     "{{deposit_amount}}": "Montant Acompte",
     "{{balance_amount}}": "Montant Solde",
     "{{company_logo}}": "Logo Entreprise",
+    "{{signature_date}}": "Date de signature",
+    "{{signature_link}}": "Lien de signature",
 };
 
 interface RichTextEditorProps {
