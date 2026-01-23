@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect, useRef } from "react"
 import SignatureCanvas from 'react-signature-canvas'
 import { Button } from "@/components/ui/button"
-import { Loader2, CheckCircle, AlertCircle, PenTool, MailIcon, Clock } from "lucide-react"
+import { Loader2, CheckCircle, AlertCircle, PenTool, MailIcon, Clock, ChevronDown } from "lucide-react"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
 import { ContractHtml } from "@/components/contract-html"
@@ -42,6 +42,7 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
     const [agreementChecked, setAgreementChecked] = useState(false)
     const [step, setStep] = useState<1 | 2 | 3>(1)
     const [sendingEmail, setSendingEmail] = useState(false)
+    const [showScrollHint, setShowScrollHint] = useState(true)
 
     const sigCanvas = useRef<SignatureCanvas>(null)
 
@@ -80,6 +81,19 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' })
     }, [step])
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 100) {
+                setShowScrollHint(false)
+            } else if (window.scrollY === 0) {
+                setShowScrollHint(true)
+            }
+        }
+
+        window.addEventListener('scroll', handleScroll)
+        return () => window.removeEventListener('scroll', handleScroll)
+    }, [])
 
     const handleClear = () => {
         sigCanvas.current?.clear()
@@ -468,6 +482,13 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                                 </div>
                             </CardFooter>
                         </Card>
+                    </div>
+                )}
+                {/* Scroll Hint */}
+                {step === 1 && showScrollHint && !success && (
+                    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-indigo-600 animate-bounce transition-opacity duration-300 pointer-events-none z-40">
+                        <span className="text-[10px] font-bold uppercase tracking-widest bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-full shadow-sm">Défiler pour lire</span>
+                        <ChevronDown className="size-6" />
                     </div>
                 )}
             </div>
