@@ -734,17 +734,19 @@ export default function DevisContratsPage() {
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent className="sm:max-w-[1000px] w-full max-h-[95vh] p-0 overflow-hidden flex flex-col border-none shadow-2xl" onOpenAutoFocus={(e) => e.preventDefault()}>
-                    <DialogHeader className="px-4 sm:px-6 py-2 sm:py-4 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between">
-                        <DialogTitle className="flex items-center gap-2 text-base sm:text-2xl font-black tracking-tight text-slate-900">
-                            {formMode === "devis" ? <FileTextIcon className="size-5 sm:size-7 text-indigo-600" /> : <ScrollTextIcon className="size-5 sm:size-7 text-indigo-600" />}
-                            {editingItem ? `Modifier ${formMode === "devis" ? "le Devis" : "le Contrat"}` : `Nouveau ${formMode === "devis" ? "Devis" : "Contrat"}`}
+                    <DialogHeader className="px-3 sm:px-6 py-1.5 sm:py-3 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between">
+                        <DialogTitle className="flex items-center gap-1.5 text-sm sm:text-2xl font-bold tracking-tight text-slate-900">
+                            {formMode === "devis" ? <FileTextIcon className="size-4 sm:size-7 text-indigo-600" /> : <ScrollTextIcon className="size-4 sm:size-7 text-indigo-600" />}
+                            <span className="truncate max-w-[120px] sm:max-w-none">
+                                {editingItem ? `Modifier ${formMode === "devis" ? "Devis" : "Contrat"}` : `Nouveau ${formMode === "devis" ? "Devis" : "Contrat"}`}
+                            </span>
                         </DialogTitle>
                         <div className="flex items-center gap-3 mr-8">
                             <Button
                                 type="submit"
                                 form="devis-contrat-form"
                                 disabled={isFormSaving}
-                                className="h-8 sm:h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-2 px-3 sm:px-4 text-[11px] sm:text-sm"
+                                className="h-7 sm:h-9 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1.5 px-2.5 sm:px-4 text-[10px] sm:text-sm"
                             >
                                 {isFormSaving ? (
                                     <>

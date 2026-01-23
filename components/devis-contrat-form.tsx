@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import {
     CalendarIcon, UserIcon, CalendarDaysIcon, EuroIcon, FileTextIcon, CameraIcon, Bot, Loader2Icon, RefreshCw,
-    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon
+    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon, PenTool
 } from "lucide-react"
 import { format, addDays } from "date-fns"
 
@@ -932,8 +932,8 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         <Form {...form}>
             <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
                 <Tabs defaultValue="infos" className="w-full">
-                    <div className="sticky top-[-16px] bg-white z-40 pb-2 sm:pb-4 no-print -mx-4 sm:-mx-6 px-4 sm:px-6 border-b mb-3 sm:mb-6 shadow-sm flex flex-col gap-2 sm:gap-4">
-                        <div className="bg-slate-50 p-1.5 rounded-xl border-2 border-slate-100 shadow-sm mb-4 relative">
+                    <div className="sticky top-[-8px] bg-white z-40 pb-1 sm:pb-4 no-print -mx-6 px-4 sm:px-6 border-b mb-2 sm:mb-6 shadow-sm flex flex-col gap-1 sm:gap-4">
+                        <div className="flex flex-col gap-1 relative">
                             {isSaving && (
                                 <div className="absolute -top-6 right-0 text-[10px] text-indigo-500 font-bold animate-pulse flex items-center gap-1">
                                     <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce" />
@@ -941,18 +941,18 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                 </div>
                             )}
                             <Tabs value={internalMode} onValueChange={(v) => handleModeSwitch(v as any)} className="w-full">
-                                <TabsList className="grid grid-cols-2 w-full h-10 sm:h-12 bg-transparent gap-2">
+                                <TabsList className="grid grid-cols-2 w-full h-8 sm:h-12 bg-slate-50 p-1 rounded-lg gap-2">
                                     <TabsTrigger
                                         value="devis"
-                                        className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
+                                        className="rounded-md data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all gap-2 h-full text-[10px] sm:text-sm"
                                     >
-                                        <FileTextIcon className="size-4" /> DEVIS
+                                        <FileTextIcon className="size-3 sm:size-4" /> DEVIS
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="contrat"
-                                        className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md font-bold transition-all gap-2 h-full"
+                                        className="rounded-md data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-sm font-bold transition-all gap-2 h-full text-[10px] sm:text-sm"
                                     >
-                                        <ScrollTextIcon className="size-4" /> CONTRAT
+                                        <ScrollTextIcon className="size-3 sm:size-4" /> CONTRAT
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>
@@ -979,11 +979,10 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         }
                                     }}
                                     disabled={isSaving}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-[11px] sm:text-sm px-2 sm:px-4 h-7 sm:h-10 flex-1 sm:flex-none"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-md gap-1 sm:gap-2 text-[10px] sm:text-sm px-2 sm:px-4 h-6 sm:h-10 flex-1 sm:flex-none uppercase tracking-wide"
                                 >
-                                    <FileTextIcon className="size-4 mr-1 hidden sm:inline" />
-                                    <span className="hidden sm:inline">Signature électronique</span>
-                                    <span className="sm:hidden">Signer</span>
+                                    <PenTool className="size-3 mr-1 hidden sm:inline" />
+                                    <span>Signature</span>
                                 </Button>
                             </div>
 
