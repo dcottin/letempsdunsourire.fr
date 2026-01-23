@@ -1145,8 +1145,38 @@ export function DevisContratForm({ mode: initialMode, initialData, onSuccess, on
                                     return token && (
                                         <Button type="button" size="sm" className="px-3" onClick={() => {
                                             const url = `${window.location.origin}/sign/${token}`
-                                            navigator.clipboard.writeText(url)
-                                            alert("Lien copié !")
+
+                                            const copyToClipboard = async (text: string) => {
+                                                if (navigator.clipboard && window.isSecureContext) {
+                                                    try {
+                                                        await navigator.clipboard.writeText(text)
+                                                        alert("Lien copié !")
+                                                        return
+                                                    } catch (err) {
+                                                        console.error('Clipboard API failed, using fallback', err)
+                                                    }
+                                                }
+
+                                                // Fallback method
+                                                const textArea = document.createElement("textarea")
+                                                textArea.value = text
+                                                textArea.style.position = "fixed"
+                                                textArea.style.left = "-9999px"
+                                                textArea.style.top = "0"
+                                                document.body.appendChild(textArea)
+                                                textArea.focus()
+                                                textArea.select()
+                                                try {
+                                                    const successful = document.execCommand('copy')
+                                                    if (successful) alert("Lien copié !")
+                                                    else alert("Impossible de copier le lien.")
+                                                } catch (err) {
+                                                    alert("Impossible de copier le lien.")
+                                                }
+                                                document.body.removeChild(textArea)
+                                            }
+
+                                            copyToClipboard(url)
                                         }}>
                                             <span className="sr-only">Copier</span>
                                             <LinkIcon className="h-4 w-4" />

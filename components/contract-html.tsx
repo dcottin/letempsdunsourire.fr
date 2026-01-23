@@ -80,30 +80,30 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
 
             <div className="px-8 md:px-12 pb-8 md:pb-12 space-y-12">
                 {/* Info Blocks */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    <div className="space-y-4">
-                        <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b pb-2">Client</h3>
-                        <div className="space-y-1">
-                            <p className="text-xl font-bold text-slate-900">{data.nom_client}</p>
-                            <p className="text-slate-600">{data.adresse_client}</p>
-                            <p className="text-slate-600">{data.email_client}</p>
-                            <p className="text-slate-600">{data.telephone_client}</p>
+                <div className="grid grid-cols-2 gap-4 md:gap-12">
+                    <div className="space-y-3 md:space-y-4">
+                        <h3 className="text-[10px] md:text-xs font-bold text-indigo-600 uppercase tracking-widest border-b pb-2">Client</h3>
+                        <div className="space-y-0.5 md:space-y-1">
+                            <p className="text-base md:text-xl font-bold text-slate-900 leading-tight">{data.nom_client}</p>
+                            <p className="text-[11px] md:text-sm text-slate-600 leading-tight">{data.adresse_client}</p>
+                            <p className="text-[11px] md:text-sm text-slate-600 leading-tight truncate">{data.email_client}</p>
+                            <p className="text-[11px] md:text-sm text-slate-600 leading-tight">{data.telephone_client}</p>
                         </div>
                     </div>
-                    <div className="space-y-4">
-                        <h3 className="text-xs font-bold text-indigo-600 uppercase tracking-widest border-b pb-2">Événement</h3>
-                        <div className="space-y-1">
-                            <p className="text-xl font-bold text-slate-900">{data.nom_evenement || "Événement"}</p>
-                            <div className="flex flex-col gap-1 pt-1">
-                                <div className="flex items-center gap-2 text-slate-600">
+                    <div className="space-y-3 md:space-y-4">
+                        <h3 className="text-[10px] md:text-xs font-bold text-indigo-600 uppercase tracking-widest border-b pb-2">Événement</h3>
+                        <div className="space-y-0.5 md:space-y-1">
+                            <p className="text-base md:text-xl font-bold text-slate-900 leading-tight">{data.nom_evenement || "Événement"}</p>
+                            <div className="flex flex-col gap-0.5 pt-1">
+                                <div className="flex items-center gap-1.5 text-[11px] md:text-sm text-slate-600">
                                     <span className="font-semibold text-slate-900">Date:</span> {formatDate(data.date_debut)}
                                 </div>
-                                <div className="flex items-center gap-2 text-slate-600">
-                                    <span className="font-semibold text-slate-900">Lieu:</span> {data.lieu || "Non spécifié"}
+                                <div className="flex items-center gap-1.5 text-[11px] md:text-sm text-slate-600">
+                                    <span className="font-semibold text-slate-900 shrink-0">Lieu:</span> <span className="truncate">{data.lieu || "Non spécifié"}</span>
                                 </div>
                                 {data.heure_debut && (
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                        <span className="font-semibold text-slate-900">Horaire:</span> {data.heure_debut} - {data.heure_fin}
+                                    <div className="flex items-center gap-1.5 text-[11px] md:text-sm text-slate-600">
+                                        <span className="font-semibold text-slate-900 shrink-0">Horaire:</span> <span>{data.heure_debut} - {data.heure_fin}</span>
                                     </div>
                                 )}
                             </div>
