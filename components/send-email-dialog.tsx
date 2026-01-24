@@ -115,7 +115,7 @@ export function SendEmailDialog({
                 </DialogHeader>
                 <div className="flex-1 overflow-y-auto p-4 pt-0 flex flex-col gap-3 w-full max-w-full overflow-x-hidden">
                     {templates && templates.length > 0 && (
-                        <div className="flex flex-col gap-1 w-full">
+                        <div className="flex flex-col gap-1 w-full min-w-0">
                             <Label>Choisir un modèle</Label>
                             <Select onValueChange={handleTemplateChange}>
                                 <SelectTrigger className="w-full">
@@ -130,7 +130,7 @@ export function SendEmailDialog({
                             </Select>
                         </div>
                     )}
-                    <div className="flex flex-col gap-1 w-full">
+                    <div className="flex flex-col gap-1 w-full min-w-0">
                         <div className="flex items-center justify-between w-full">
                             <Label htmlFor="email">À</Label>
                             {hasRIB && (
@@ -157,7 +157,7 @@ export function SendEmailDialog({
                             className="w-full"
                         />
                     </div>
-                    <div className="flex flex-col gap-1 w-full">
+                    <div className="flex flex-col gap-1 w-full min-w-0">
                         <Label htmlFor="subject">
                             Sujet
                         </Label>
@@ -168,11 +168,11 @@ export function SendEmailDialog({
                             className="w-full"
                         />
                     </div>
-                    <div className="flex flex-col gap-1 flex-1 min-h-[150px] w-full">
+                    <div className="flex flex-col gap-1 flex-1 min-h-[150px] w-full min-w-0">
                         <Label htmlFor="message">
                             Message
                         </Label>
-                        <div className="flex-1 flex flex-col min-h-0 w-full">
+                        <div className="flex-1 flex flex-col min-h-0 w-full min-w-0">
                             <RichTextEditor
                                 value={message}
                                 onChange={setMessage}

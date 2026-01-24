@@ -347,7 +347,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
+                        : `min-h-[150px] max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar`
                     }
                 />
                 <style jsx global>{`
@@ -398,6 +398,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         -webkit-touch-callout: default !important;
                         cursor: text;
                         min-height: inherit; /* Ensure click area covers full height */
+                        overflow-wrap: break-word;
+                        word-break: break-word;
                     }
                     .ProseMirror * {
                         font-size: 16px !important;
