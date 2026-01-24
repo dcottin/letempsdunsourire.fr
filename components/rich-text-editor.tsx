@@ -104,7 +104,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 attributes: {
                     class: singleLine
                         ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
-                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base`,
+                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base rounded-b-md`,
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {
@@ -230,8 +230,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         }[theme];
 
         return (
-            <div className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}>
-                <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
+            <div className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}>
+                <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50 rounded-t-md">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" size="sm" className={`h-7 gap-1 px-2 ${themeColors.text} ${themeColors.border} bg-white font-bold shadow-sm`}>
