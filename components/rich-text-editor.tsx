@@ -230,7 +230,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         }[theme];
 
         return (
-            <div className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200 overflow-hidden" : ""} ${className}`}>
+            <div className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}>
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -347,7 +347,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[${minHeight}]`
+                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
                     }
                 />
                 <style jsx global>{`
@@ -386,17 +386,24 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
-                    .ProseMirror {
-                        outline: none;
-                        min-height: inherit;
-                        cursor: text;
+                    /* Global contenteditable fix for iOS */
+                    [contenteditable] {
+                        -webkit-user-select: text !important;
+                        user-select: text !important;
                     }
-                    .ProseMirror[contenteditable="true"] {
-                        white-space: pre-wrap;
+
+                    .ProseMirror {
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
+                        -webkit-touch-callout: default !important;
+                        cursor: text;
+                        min-height: inherit; /* Ensure click area covers full height */
+                        overflow-wrap: break-word;
+                        word-break: break-word;
                     }
                     .ProseMirror * {
-                        font-size: 16px;
-                        line-height: 1.5;
+                        font-size: 16px !important;
+                        line-height: 1.5 !important;
                     }
                     .ProseMirror p {
                         margin: 0 !important;
