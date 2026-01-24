@@ -102,7 +102,7 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[85dvh] p-0 overflow-hidden flex flex-col border-none shadow-2xl sm:rounded-xl fixed inset-0 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200 !rounded-none sm:!rounded-xl">
+            <DialogContent className="md:max-w-[600px] w-full md:w-auto h-[100dvh] md:h-auto md:max-h-[85dvh] p-0 overflow-hidden flex flex-col border-none shadow-2xl md:rounded-xl fixed inset-0 md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200 !rounded-none md:!rounded-xl !max-w-none md:!max-w-[600px] !top-0 !left-0 !translate-x-0 !translate-y-0 md:!top-1/2 md:!left-1/2 md:!-translate-x-1/2 md:!-translate-y-1/2">
                 <DialogHeader className="p-4 pb-0 shrink-0">
                     <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                         <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
