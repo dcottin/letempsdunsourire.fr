@@ -104,7 +104,10 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl !top-0 !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 max-w-[100vw]">
+            <DialogContent
+                className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl !top-0 !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 max-w-[100vw]"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+            >
                 <DialogHeader className="p-4 pb-0 shrink-0">
                     <DialogTitle className="flex items-center gap-2">
                         <MailIcon className="size-5 text-indigo-600" /> Envoyer par Email
@@ -115,7 +118,7 @@ export function SendEmailDialog({
                 </DialogHeader>
                 <div className="flex-1 overflow-y-auto p-4 pt-0 flex flex-col gap-3 w-full max-w-full overflow-x-hidden">
                     {templates && templates.length > 0 && (
-                        <div className="flex flex-col gap-1 w-full min-w-0">
+                        <div className="flex flex-col gap-1 w-full min-w-0" onPointerDown={(e) => e.stopPropagation()}>
                             <Label>Choisir un modèle</Label>
                             <Select onValueChange={handleTemplateChange}>
                                 <SelectTrigger className="w-full">
@@ -130,7 +133,7 @@ export function SendEmailDialog({
                             </Select>
                         </div>
                     )}
-                    <div className="flex flex-col gap-1 w-full min-w-0">
+                    <div className="flex flex-col gap-1 w-full min-w-0" onPointerDown={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between w-full">
                             <Label htmlFor="email">À</Label>
                             {hasRIB && (
@@ -157,7 +160,7 @@ export function SendEmailDialog({
                             className="w-full"
                         />
                     </div>
-                    <div className="flex flex-col gap-1 w-full min-w-0">
+                    <div className="flex flex-col gap-1 w-full min-w-0" onPointerDown={(e) => e.stopPropagation()}>
                         <Label htmlFor="subject">
                             Sujet
                         </Label>
@@ -172,7 +175,10 @@ export function SendEmailDialog({
                         <Label htmlFor="message">
                             Message
                         </Label>
-                        <div className="flex-1 flex flex-col min-h-0 w-full min-w-0">
+                        <div
+                            className="flex-1 flex flex-col min-h-0 w-full min-w-0"
+                            onPointerDown={(e) => e.stopPropagation()}
+                        >
                             <RichTextEditor
                                 value={message}
                                 onChange={setMessage}

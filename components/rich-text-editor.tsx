@@ -230,7 +230,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         }[theme];
 
         return (
-            <div className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}>
+            <div className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200 overflow-hidden" : ""} ${className}`}>
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -346,8 +346,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 <EditorContent
                     editor={editor}
                     className={singleLine
-                        ? "min-h-0 max-h-12 overflow-hidden select-text"
-                        : `min-h-[150px] max-h-[500px] overflow-y-auto select-text custom-scrollbar`
+                        ? "min-h-0 max-h-12 overflow-hidden"
+                        : `min-h-[${minHeight}]`
                     }
                 />
                 <style jsx global>{`
@@ -387,24 +387,15 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
                     .ProseMirror {
-                        user-select: text !important;
-                        -webkit-user-select: text !important;
-                        -webkit-touch-callout: default !important;
-                        -webkit-tap-highlight-color: rgba(0,0,0,0);
-                        cursor: text;
-                        min-height: inherit; /* Ensure click area covers full height */
-                        overflow-wrap: break-word;
-                        word-break: break-word;
                         outline: none;
+                        min-height: inherit;
                     }
                     .ProseMirror[contenteditable="true"] {
                         white-space: pre-wrap;
-                        user-select: text !important;
-                        -webkit-user-select: text !important;
                     }
                     .ProseMirror * {
-                        font-size: 16px !important;
-                        line-height: 1.5 !important;
+                        font-size: 16px;
+                        line-height: 1.5;
                     }
                     .ProseMirror p {
                         margin: 0 !important;
