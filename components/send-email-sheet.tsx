@@ -166,17 +166,14 @@ export function SendEmailSheet({
                         />
                     </div>
 
-                    <div className="flex flex-col gap-1.5 flex-1 min-h-[200px]">
+                    <div className="flex flex-col gap-1.5">
                         <Label htmlFor="message" className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Message</Label>
-                        <div className="flex-1 flex flex-col min-h-0">
-                            <RichTextEditor
-                                value={message}
-                                onChange={setMessage}
-                                placeholder="Votre message..."
-                                minHeight="200px"
-                                className="flex-1"
-                            />
-                        </div>
+                        <RichTextEditor
+                            value={message}
+                            onChange={setMessage}
+                            placeholder="Votre message..."
+                            minHeight="200px"
+                        />
                         {signingLink && (
                             <div className="flex justify-end mt-2">
                                 <Button
