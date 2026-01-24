@@ -194,7 +194,7 @@ export function SendEmailDialog({
                         )}
                     </div>
                 </div>
-                <DialogFooter className="p-4 pt-2 border-t">
+                <DialogFooter className="p-4 pt-2 border-t !m-0 bg-white">
                     <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending}>
                         Annuler
                     </Button>
