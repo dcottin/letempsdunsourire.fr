@@ -346,8 +346,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 <EditorContent
                     editor={editor}
                     className={singleLine
-                        ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
+                        ? "min-h-0 max-h-12 overflow-hidden select-text"
+                        : `min-h-[150px] max-h-[500px] overflow-y-auto select-text custom-scrollbar`
                     }
                 />
                 <style jsx global>{`
@@ -387,15 +387,20 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
                     .ProseMirror {
-                        user-select: text;
-                        -webkit-user-select: text;
-                        -webkit-touch-callout: default;
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
+                        -webkit-touch-callout: default !important;
                         -webkit-tap-highlight-color: rgba(0,0,0,0);
                         cursor: text;
                         min-height: inherit; /* Ensure click area covers full height */
                         overflow-wrap: break-word;
                         word-break: break-word;
                         outline: none;
+                    }
+                    .ProseMirror[contenteditable="true"] {
+                        white-space: pre-wrap;
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
                     }
                     .ProseMirror * {
                         font-size: 16px !important;
