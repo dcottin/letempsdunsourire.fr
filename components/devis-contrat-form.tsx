@@ -43,7 +43,7 @@ import { Separator } from "@/components/ui/separator"
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import { Switch } from "@/components/ui/switch"
 import { ContractPreview } from "@/components/contract-preview"
-import { SendEmailDialog } from "@/components/send-email-dialog"
+import { SendEmailSheet } from "@/components/send-email-sheet"
 
 import { supabase } from "@/lib/supabase"
 import { Label } from "@/components/ui/label"
@@ -1294,7 +1294,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                         </DialogContent>
                     </Dialog>
 
-                    <SendEmailDialog
+                    <SendEmailSheet
                         open={showEmail}
                         onOpenChange={setShowEmail}
                         defaultEmail={form.watch("email_client") || ""}
