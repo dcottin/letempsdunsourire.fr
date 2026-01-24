@@ -178,6 +178,8 @@ export function SendEmailDialog({
                         <div
                             className="flex-1 flex flex-col min-h-0 w-full min-w-0"
                             onPointerDown={(e) => e.stopPropagation()}
+                            onTouchStart={(e) => e.stopPropagation()}
+                            onContextMenu={(e) => e.stopPropagation()}
                         >
                             <RichTextEditor
                                 value={message}
