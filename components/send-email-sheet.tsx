@@ -173,7 +173,6 @@ export function SendEmailSheet({
                             onChange={setMessage}
                             placeholder="Votre message..."
                             minHeight="200px"
-                            autoGrow={true}
                         />
                         {signingLink && (
                             <div className="flex justify-end mt-2">
