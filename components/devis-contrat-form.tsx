@@ -219,29 +219,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         }
     }, [soldePaye, form])
 
-    const watchedDateDebutForAuto = form.watch("date_debut")
-    React.useEffect(() => {
-        // Only auto-fill if it's a NEW record (no initialData ID) 
-        // and we have a start date to copy from
-        if (!initialData?.id && watchedDateDebutForAuto) {
-            // Auto-set Date Installation if not set
-            if (!form.getValues("date_installation")) {
-                form.setValue("date_installation", watchedDateDebutForAuto, { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-            }
-            // Auto-set Date Fin to J+1 if not set
-            if (!form.getValues("date_fin")) {
-                try {
-                    const dateDebut = new Date(watchedDateDebutForAuto)
-                    if (!isNaN(dateDebut.getTime())) {
-                        const dateFin = addDays(dateDebut, 1)
-                        form.setValue("date_fin", format(dateFin, "yyyy-MM-dd"), { shouldValidate: true, shouldDirty: true, shouldTouch: true })
-                    }
-                } catch (e) {
-                    console.error("Error setting auto date_fin", e)
-                }
-            }
-        }
-    }, [watchedDateDebutForAuto, form, initialData?.id])
+    // Auto-fill logic removed as per user request to keep fields empty by default
 
 
 
@@ -1336,19 +1314,19 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                         <TabsContent value="infos" className="space-y-6">
                             {/* Client Info */}
                             <Card className="border-l-4 border-l-primary/20">
-                                <CardHeader className="px-3 sm:px-6 pb-2 sm:pb-3">
-                                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                                        <UserIcon className="size-5 text-primary" />
+                                <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
+                                    <CardTitle className="text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2">
+                                        <UserIcon className="size-4 sm:size-5 text-primary" />
                                         Informations client
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <CardContent className="px-3 sm:px-6 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField
                                         control={form.control}
                                         name="nom_client"
                                         render={({ field }: { field: any }) => (
                                             <FormItem className="md:col-span-2">
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Nom complet / Société</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Nom complet / Société</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Ex: Jean Dupont" {...field} />
                                                 </FormControl>
@@ -1361,7 +1339,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         name="email_client"
                                         render={({ field }: { field: any }) => (
                                             <FormItem>
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Email</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Email</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="email@exemple.com" {...field} type="email" />
                                                 </FormControl>
@@ -1374,7 +1352,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         name="telephone_client"
                                         render={({ field }: { field: any }) => (
                                             <FormItem>
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Téléphone</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Téléphone</FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         placeholder="06 12 34 56 78"
@@ -1395,7 +1373,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         name="adresse_client"
                                         render={({ field }: { field: any }) => (
                                             <FormItem className="md:col-span-2">
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Adresse postale</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Adresse postale</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="123 Rue de la Paix..." {...field} />
                                                 </FormControl>
@@ -1408,13 +1386,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                             {/* Section SUIVI */}
                             <Card>
-                                <CardHeader className="px-3 sm:px-6 pb-2 sm:pb-3">
-                                    <CardTitle className="text-base font-bold uppercase tracking-wider flex items-center gap-2">
-                                        <ScrollTextIcon className="size-5 text-primary" />
+                                <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
+                                    <CardTitle className="text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2">
+                                        <ScrollTextIcon className="size-4 sm:size-5 text-primary" />
                                         Suivi du dossier
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6">
+                                <CardContent className="px-3 sm:px-6 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-1">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                         {/* Switch 1: Contrat Signé (Fixed - special logic) */}
                                         <FormField
@@ -1599,19 +1577,19 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                         <TabsContent value="details" className="space-y-6">
                             {/* Event & Material */}
                             <Card className="border-l-4 border-l-primary/50">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                                        <CalendarDaysIcon className="size-5 text-primary" />
+                                <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
+                                    <CardTitle className="text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2">
+                                        <CalendarDaysIcon className="size-4 sm:size-5 text-primary" />
                                         Évènement & Tarifs
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <CardContent className="px-3 sm:px-6 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <FormField
                                         control={form.control}
                                         name="date_debut"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="uppercase text-xs font-bold text-primary">Date de l&apos;évènement</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-primary">Date de l&apos;évènement</FormLabel>
                                                 <FormControl>
                                                     <Input type="date" {...field} />
                                                 </FormControl>
@@ -1624,7 +1602,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         name="lieu"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="uppercase text-xs font-bold text-primary">Lieu de prestation</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-primary">Lieu de prestation</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Ex: Salle des fêtes..." {...field} value={field.value || ""} />
                                                 </FormControl>
@@ -1637,7 +1615,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         name="nom_evenement"
                                         render={({ field }: { field: any }) => (
                                             <FormItem className="md:col-span-2">
-                                                <FormLabel className="uppercase text-xs font-bold text-primary">Nom de l'événement (Optionnel)</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-primary">Nom de l'événement (Optionnel)</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Ex: Anniversaire Maël 18 ans" {...field} />
                                                 </FormControl>
@@ -1652,7 +1630,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         render={({ field }: { field: any }) => (
                                             <FormItem className="md:col-span-2">
                                                 <div className="flex items-center justify-between">
-                                                    <FormLabel className="uppercase text-xs font-bold text-muted-foreground text-indigo-600">Offre / Formule</FormLabel>
+                                                    <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-indigo-600">Offre / Formule</FormLabel>
                                                     <Button type="button" variant="ghost" size="icon" className="size-6 text-slate-400 hover:text-indigo-600" onClick={fetchSettings} disabled={isLoadingSettings} title="Actualiser le catalogue">
                                                         <RefreshCw className={`size-3 ${isLoadingSettings ? "animate-spin" : ""}`} />
                                                     </Button>
@@ -1715,7 +1693,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                             return (
                                                 <FormItem className="md:col-span-2">
                                                     <div className="flex items-center justify-between">
-                                                        <FormLabel className="uppercase text-xs font-bold text-muted-foreground text-indigo-600">Matériel (Disponibilité auto)</FormLabel>
+                                                        <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-indigo-600">Matériel (Disponibilité auto)</FormLabel>
                                                         {clientWish && (
                                                             <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200 text-[10px] animate-pulse">
                                                                 Souhait client : {clientWish}
@@ -1774,7 +1752,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                     ) : (
                                         <div className="md:col-span-2 space-y-3 pt-2">
                                             <div className="flex items-center justify-between">
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground text-pink-600 flex items-center gap-1">
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-pink-600 flex items-center gap-1">
                                                     <CameraIcon className="size-3" /> Options du catalogue
                                                 </FormLabel>
                                                 <Button type="button" variant="ghost" size="icon" className="size-6 text-slate-400 hover:text-pink-600" onClick={fetchSettings} disabled={isLoadingSettings} title="Actualiser le catalogue">
@@ -1829,20 +1807,20 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                             {/* Pricing */}
                             <Card>
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                                        <EuroIcon className="size-5 text-primary" />
+                                <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
+                                    <CardTitle className="text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2">
+                                        <EuroIcon className="size-4 sm:size-5 text-primary" />
                                         Tarification
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 space-y-4">
+                                <CardContent className="px-3 sm:px-6 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-1 space-y-4">
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                                         <FormField
                                             control={form.control}
                                             name="prix_total"
                                             render={({ field }: { field: any }) => (
                                                 <FormItem>
-                                                    <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Prix Total (€)</FormLabel>
+                                                    <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Prix Total (€)</FormLabel>
                                                     <FormControl>
                                                         <Input
                                                             inputMode="decimal"
@@ -1901,7 +1879,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                             name="acompte_recu"
                                             render={({ field }: { field: any }) => (
                                                 <FormItem>
-                                                    <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Acompte (€)</FormLabel>
+                                                    <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Acompte (€)</FormLabel>
                                                     <FormControl>
                                                         <Input
                                                             inputMode="decimal"
@@ -1924,7 +1902,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         name="note_interne"
                                         render={({ field }: { field: any }) => (
                                             <FormItem>
-                                                <FormLabel className="uppercase text-xs font-bold text-muted-foreground">Note interne</FormLabel>
+                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Note interne</FormLabel>
                                                 <FormControl>
                                                     <Textarea placeholder="Note privée..." {...field} />
                                                 </FormControl>
@@ -1939,13 +1917,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                         <TabsContent value="livraison" className="space-y-6">
                             <Card className="border-l-4 border-l-emerald-500/50">
-                                <CardHeader className="pb-3">
-                                    <CardTitle className="text-lg font-semibold flex items-center gap-2">
-                                        <TruckIcon className="size-5 text-emerald-600" />
+                                <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
+                                    <CardTitle className="text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2">
+                                        <TruckIcon className="size-4 sm:size-5 text-emerald-600" />
                                         Logistique
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="px-3 sm:px-6 p-3 sm:p-6 space-y-8">
+                                <CardContent className="px-3 sm:px-6 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-1 space-y-8">
                                     {/* --- PARTIE 2: INSTALLATION ET RETRAIT --- */}
 
                                     {/* --- PARTIE 2: INSTALLATION ET RETRAIT --- */}
@@ -2118,7 +2096,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         name="texte_libre"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel className="text-xs uppercase font-bold text-slate-500 flex items-center gap-1.5">
+                                                <FormLabel className="text-[10px] sm:text-xs uppercase font-bold text-slate-500 flex items-center gap-1.5">
                                                     <FileTextIcon className="size-3.5 text-indigo-400" />
                                                     Notes logistiques / Infos accès
                                                 </FormLabel>

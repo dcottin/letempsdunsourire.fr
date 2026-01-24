@@ -22,6 +22,7 @@ import {
     Camera,
     EuroIcon,
     LayoutDashboard,
+    ScrollText,
 } from "lucide-react"
 
 import {
@@ -122,7 +123,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {
             title: "Contrats",
             url: "/devis-contrats",
-            icon: PanelLeftIcon,
+            icon: ScrollText,
         },
         {
             title: "Planification",
@@ -160,14 +161,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
+                            size="lg"
                             asChild
-                            className="hover:bg-transparent active:bg-transparent"
+                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:bg-transparent active:bg-transparent"
                         >
                             <Link href="/">
-                                <div className="flex aspect-square size-10 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20">
-                                    <Camera className="size-5" />
+                                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-500/20">
+                                    <Camera className="size-4" />
                                 </div>
-                                <div className="grid flex-1 text-left text-sm leading-tight ml-3">
+                                <div className="grid flex-1 text-left text-sm leading-tight ml-2">
                                     <span className="truncate font-bold text-base tracking-tight">{companyName}</span>
                                 </div>
                             </Link>
