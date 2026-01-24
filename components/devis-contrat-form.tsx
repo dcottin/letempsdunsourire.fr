@@ -1305,7 +1305,6 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                         onSend={handleSendEmail}
                         hasRIB={!!statusSettings?.rib_url}
                         defaultTemplateName={computedEmail.defaultName}
-                        signingLink={computedEmail.signingLink}
                     />
 
 

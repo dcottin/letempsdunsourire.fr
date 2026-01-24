@@ -104,7 +104,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 attributes: {
                     class: singleLine
                         ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
-                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base`,
+                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base overflow-x-hidden break-words`,
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {
@@ -234,9 +234,10 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className={`h-7 gap-1 px-2 ${themeColors.text} ${themeColors.border} bg-white font-bold shadow-sm`}>
-                                <TagIcon className="size-3.5" />
-                                <span className="text-[10px]">Balises</span>
+                            <Button variant="outline" size="sm" className={`h-8 sm:h-7 gap-1 px-2 ${themeColors.text} ${themeColors.border} bg-white font-bold shadow-sm shrink-0`}>
+                                <TagIcon className="size-4 sm:size-3.5" />
+                                <span className="text-[10px] hidden sm:inline">Balises</span>
+                                <span className="text-[10px] sm:hidden">Tags</span>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="max-h-[300px] overflow-y-auto w-56">
@@ -270,7 +271,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                                 value={editor.getAttributes('textStyle').fontSize || "16"}
                                 onValueChange={(value) => (editor.chain().focus() as any).setFontSize(value).run()}
                             >
-                                <SelectTrigger className="h-7 w-[60px] border-slate-200 bg-white shadow-sm focus:ring-0 gap-1 text-[10px] px-1 shrink-0">
+                                <SelectTrigger className="h-8 sm:h-7 w-[65px] border-slate-200 bg-white shadow-sm focus:ring-0 gap-1 text-[10px] px-1 shrink-0">
                                     <SelectValue placeholder="14" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -289,27 +290,27 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                             <div className="flex items-center gap-0.5 shrink-0">
                                 <Toggle
                                     size="sm"
-                                    className={`h-7 w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
                                     pressed={editor.isActive('bold')}
                                     onPressedChange={() => editor.chain().focus().toggleBold().run()}
                                 >
-                                    <BoldIcon className="size-3.5" />
+                                    <BoldIcon className="size-4 sm:size-3.5" />
                                 </Toggle>
                                 <Toggle
                                     size="sm"
-                                    className={`h-7 w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
                                     pressed={editor.isActive('italic')}
                                     onPressedChange={() => editor.chain().focus().toggleItalic().run()}
                                 >
-                                    <ItalicIcon className="size-3.5" />
+                                    <ItalicIcon className="size-4 sm:size-3.5" />
                                 </Toggle>
                                 <Toggle
                                     size="sm"
-                                    className={`h-7 w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
                                     pressed={editor.isActive('underline')}
                                     onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
                                 >
-                                    <UnderlineIcon className="size-3.5" />
+                                    <UnderlineIcon className="size-4 sm:size-3.5" />
                                 </Toggle>
                             </div>
 
@@ -318,26 +319,26 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                             <div className="flex items-center gap-0.5 shrink-0">
                                 <Toggle
                                     size="sm"
-                                    className={`h-7 w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
                                     pressed={editor.isActive('bulletList')}
                                     onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
                                 >
-                                    <ListIcon className="size-3.5" />
+                                    <ListIcon className="size-4 sm:size-3.5" />
                                 </Toggle>
                                 <Toggle
                                     size="sm"
-                                    className={`h-7 w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
                                     pressed={editor.isActive('orderedList')}
                                     onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
                                 >
-                                    <ListOrderedIcon className="size-3.5" />
+                                    <ListOrderedIcon className="size-4 sm:size-3.5" />
                                 </Toggle>
                             </div>
 
                             <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
 
-                            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-slate-200 bg-white shrink-0 shadow-sm" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
-                                <RotateCcwIcon className="size-3.5" />
+                            <Button variant="outline" size="sm" className="h-8 w-8 sm:h-7 sm:w-7 p-0 border-slate-200 bg-white shrink-0 shadow-sm" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
+                                <RotateCcwIcon className="size-4 sm:size-3.5" />
                             </Button>
                         </>
                     )}
@@ -399,6 +400,9 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         cursor: text;
                         touch-action: manipulation;
                         min-height: inherit; /* Ensure click area covers full height */
+                        overflow-wrap: break-word;
+                        word-break: break-word;
+                        overflow-x: hidden;
                     }
                     .ProseMirror * {
                         font-size: 16px !important;

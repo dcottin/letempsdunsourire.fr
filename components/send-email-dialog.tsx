@@ -27,7 +27,6 @@ interface SendEmailDialogProps {
     replacements?: Record<string, string>
     hasRIB?: boolean
     defaultTemplateName?: string
-    signingLink?: string
 }
 
 export function SendEmailDialog({
@@ -41,7 +40,6 @@ export function SendEmailDialog({
     replacements,
     hasRIB,
     defaultTemplateName = "Modèle par défaut",
-    signingLink
 }: SendEmailDialogProps) {
     const [to, setTo] = useState(defaultEmail)
     const [subject, setSubject] = useState(defaultSubject)
@@ -104,16 +102,16 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] overflow-hidden flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl !top-0 !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2">
+            <DialogContent className="sm:max-w-[600px] w-full h-screen sm:h-auto sm:max-h-[85dvh] p-0 overflow-hidden flex flex-col border-none shadow-2xl sm:rounded-xl fixed inset-0 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-[2%] data-[state=open]:slide-in-from-top-[2%] duration-200">
                 <DialogHeader className="p-4 pb-0 shrink-0">
-                    <DialogTitle className="flex items-center gap-2">
-                        <MailIcon className="size-5 text-indigo-600" /> Envoyer par Email
+                    <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
                     </DialogTitle>
                     <DialogDescription>
                         Le document sera envoyé en pièce jointe (PDF) au destinataire ci-dessous.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-4 pt-0 grid gap-3">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-0 flex flex-col gap-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
                             <Label>Choisir un modèle</Label>
@@ -179,33 +177,21 @@ export function SendEmailDialog({
                                 className="flex-1"
                             />
                         </div>
-                        {signingLink && (
-                            <div className="flex gap-2 justify-end">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    className="text-xs h-7 gap-1"
-                                    onClick={() => setMessage(prev => prev + `\n\nPour signer votre contrat en ligne, cliquez sur ce lien : ${signingLink}`)}
-                                >
-                                    <LinkIcon className="size-3" /> Insérer le lien de signature
-                                </Button>
-                            </div>
-                        )}
+
                     </div>
                 </div>
                 <DialogFooter className="p-4 pt-2 border-t !m-0 bg-white">
                     <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending}>
                         Annuler
                     </Button>
-                    <Button onClick={handleSend} disabled={isSending} className="gap-2">
+                    <Button onClick={handleSend} disabled={isSending} className="gap-2 sm:min-w-[120px]">
                         {isSending ? (
                             <>
-                                <Loader2 className="h-4 w-4 animate-spin" /> Envoi...
+                                <Loader2 className="h-4 w-4 animate-spin" /> <span className="sm:inline">Envoi...</span>
                             </>
                         ) : (
                             <>
-                                <SendIcon className="h-4 w-4" /> Envoyer
+                                <SendIcon className="h-4 w-4" /> <span>Envoyer</span>
                             </>
                         )}
                     </Button>
