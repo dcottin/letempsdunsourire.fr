@@ -40,6 +40,7 @@ interface RichTextEditorProps {
     placeholder?: string
     minHeight?: string
     singleLine?: boolean
+    autoGrow?: boolean
     theme?: 'indigo' | 'purple' | 'emerald' | 'pink'
     className?: string
 }
@@ -49,7 +50,7 @@ export interface RichTextEditorRef {
 }
 
 export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
-    ({ value, onChange, onFocus, placeholder = "Rédigez votre message...", minHeight = "200px", singleLine = false, theme = 'indigo', className = "" }, ref) => {
+    ({ value, onChange, onFocus, placeholder = "Rédigez votre message...", minHeight = "200px", singleLine = false, autoGrow = false, theme = 'indigo', className = "" }, ref) => {
         const lastValueRef = useRef<string | null>(null);
         const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -347,7 +348,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
+                        : `min-h-[${minHeight}] ${autoGrow ? '' : 'max-h-[500px] overflow-y-auto custom-scrollbar'}`
                     }
                 />
                 <style jsx global>{`
@@ -393,6 +394,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         cursor: text;
                         overflow-wrap: break-word;
                         word-break: break-word;
+                        touch-action: manipulation;
                     }
                     .ProseMirror p {
                         margin: 0;
