@@ -347,7 +347,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[150px] max-h-[500px] overflow-y-auto overflow-x-hidden custom-scrollbar`
+                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
                     }
                 />
                 <style jsx global>{`
@@ -386,20 +386,16 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
-                    /* Global contenteditable fix for iOS */
-                    [contenteditable] {
-                        -webkit-user-select: text !important;
-                        user-select: text !important;
-                    }
-
                     .ProseMirror {
-                        user-select: text !important;
-                        -webkit-user-select: text !important;
-                        -webkit-touch-callout: default !important;
+                        user-select: text;
+                        -webkit-user-select: text;
+                        -webkit-touch-callout: default;
+                        -webkit-tap-highlight-color: rgba(0,0,0,0);
                         cursor: text;
                         min-height: inherit; /* Ensure click area covers full height */
                         overflow-wrap: break-word;
                         word-break: break-word;
+                        outline: none;
                     }
                     .ProseMirror * {
                         font-size: 16px !important;
