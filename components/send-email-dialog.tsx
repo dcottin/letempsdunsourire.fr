@@ -103,7 +103,7 @@ export function SendEmailDialog({
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+        <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl !top-0 !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 max-w-[100vw]"
                 onOpenAutoFocus={(e) => e.preventDefault()}
