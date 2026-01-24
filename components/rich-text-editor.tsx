@@ -390,9 +390,17 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         border-color: #fbcfe8;
                     }
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
+                    .ProseMirror {
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
+                        -webkit-touch-callout: default !important;
+                        cursor: text;
+                    }
                     .ProseMirror * {
                         font-size: 16px !important;
                         line-height: 1.5 !important;
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
                     }
                     .ProseMirror p {
                         margin: 0 !important;
