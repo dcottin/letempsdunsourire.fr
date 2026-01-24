@@ -18,7 +18,26 @@ import {
     Circle,
     CheckCircleIcon,
     PencilIcon,
+    GripVertical,
 } from "lucide-react"
+
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent
+} from '@dnd-kit/core'
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -59,6 +78,54 @@ export default function DashboardPage() {
 
     const [allBookings, setAllBookings] = React.useState<any[]>([])
 
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    )
+
+    const handleDragEnd = async (event: DragEndEvent) => {
+        const { active, over } = event
+
+        if (active.id !== over?.id) {
+            setEvents((items) => {
+                const oldIndex = items.findIndex((item) => item.id === active.id)
+                const newIndex = items.findIndex((item) => item.id === over?.id)
+
+                const newItems = arrayMove(items, oldIndex, newIndex)
+
+                // Update rank based on new order
+                // We assign rank = index * 1000 to leave space for insertions
+                const updates = newItems.map((item, index) => ({
+                    id: item.id,
+                    rank: index * 1000,
+                    data: { ...item.data, dashboard_rank: index * 1000 }
+                }))
+
+                // Optimistic update
+                const updatedState = newItems.map((item, index) => ({
+                    ...item,
+                    data: { ...item.data, dashboard_rank: index * 1000 }
+                }))
+
+                // Background save
+                // We need to update specific tables based on ID prefix
+                const updatesPromise = async () => {
+                    for (const update of updates) {
+                        const table = update.id.startsWith('D') ? 'devis' : 'contrats'
+                        await supabase.from(table).update({
+                            data: update.data
+                        }).eq('id', update.id)
+                    }
+                }
+                updatesPromise()
+
+                return updatedState
+            })
+        }
+    }
+
     const fetchData = React.useCallback(async (isInitial = false) => {
         if (isInitial) setLoading(true)
 
@@ -92,7 +159,25 @@ export default function DashboardPage() {
 
         const validDevis = (devisRes.data || []).filter(d => d.etat !== 'Annulé' && d.etat !== 'Refusé')
         const validContrats = (contractsRes.data || []).filter(c => c.etat !== 'Annulé' && c.etat !== 'Archivé')
-        setAllBookings([...validContrats, ...validDevis])
+
+        const merged = [...validContrats, ...validDevis]
+
+        // Sort by Rank then Date
+        const sorted = merged.sort((a, b) => {
+            const rankA = a.data?.dashboard_rank ?? 999999
+            const rankB = b.data?.dashboard_rank ?? 999999
+
+            if (rankA !== rankB) return rankA - rankB
+
+            const dateA = a.data?.date_debut || a.date_debut
+            const dateB = b.data?.date_debut || b.date_debut
+            if (dateA < dateB) return -1
+            if (dateA > dateB) return 1
+            return 0
+        })
+
+        setEvents(sorted)
+        setAllBookings(merged)
 
         if (settingsRes.data?.data) {
             setSettings(settingsRes.data.data)
@@ -356,11 +441,24 @@ export default function DashboardPage() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="space-y-3">
-                            {currentWeekEvents.map(event => (
-                                <EventCard key={event.id} event={event} isNextWeek={false} settings={settings} onPay={(item) => { setPaymentContext({ item, field: 'solde_paye' }); setIsPaymentDialogOpen(true); }} onToggleStep={handleToggleStep} onEditDelivery={openDeliveryDialog} onEquipmentChange={handleEquipmentChange} allEvents={allBookings} />
-                            ))}
-                        </div>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={currentWeekEvents.map(e => e.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="min-h-[50px] pb-1">
+                                    {currentWeekEvents.map(event => (
+                                        <SortableEventCard key={event.id} id={event.id}>
+                                            <EventCard event={event} isNextWeek={false} settings={settings} onPay={(item) => { setPaymentContext({ item, field: 'solde_paye' }); setIsPaymentDialogOpen(true); }} onToggleStep={handleToggleStep} onEditDelivery={openDeliveryDialog} onEquipmentChange={handleEquipmentChange} allEvents={allBookings} />
+                                        </SortableEventCard>
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
                     )}
                 </div>
 
@@ -393,11 +491,24 @@ export default function DashboardPage() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="space-y-3">
-                            {nextWeekEvents.map(event => (
-                                <EventCard key={event.id} event={event} isNextWeek={true} settings={settings} onPay={(item) => { setPaymentContext({ item, field: 'solde_paye' }); setIsPaymentDialogOpen(true); }} onToggleStep={handleToggleStep} onEditDelivery={openDeliveryDialog} onEquipmentChange={handleEquipmentChange} allEvents={allBookings} />
-                            ))}
-                        </div>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={nextWeekEvents.map(e => e.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="space-y-3">
+                                    {nextWeekEvents.map(event => (
+                                        <SortableEventCard key={event.id} id={event.id}>
+                                            <EventCard event={event} isNextWeek={true} settings={settings} onPay={(item) => { setPaymentContext({ item, field: 'solde_paye' }); setIsPaymentDialogOpen(true); }} onToggleStep={handleToggleStep} onEditDelivery={openDeliveryDialog} onEquipmentChange={handleEquipmentChange} allEvents={allBookings} />
+                                        </SortableEventCard>
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
                     )}
                 </div>
             </div>
@@ -729,5 +840,35 @@ END:VCARD`
                 </div>
             </CardContent>
         </Card>
+    )
+}
+
+function SortableEventCard({ id, children }: { id: string, children: React.ReactNode }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id })
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 'auto',
+        position: 'relative' as 'relative',
+        opacity: isDragging ? 0.5 : 1,
+    }
+
+    return (
+        <div ref={setNodeRef} style={style} className="touch-none group/card flex items-center gap-2 mb-3">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1.5 text-slate-300 hover:text-indigo-600 hover:bg-slate-50 rounded transition-colors shrink-0">
+                <GripVertical className="size-4" />
+            </div>
+            <div className="flex-1 min-w-0">
+                {children}
+            </div>
+        </div>
     )
 }

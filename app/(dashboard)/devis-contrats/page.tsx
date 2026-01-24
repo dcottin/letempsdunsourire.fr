@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus, XIcon } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -21,6 +21,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogFooter,
+    DialogClose,
 } from "@/components/ui/dialog"
 import { DevisContratForm } from "@/components/devis-contrat-form"
 import { supabase } from "@/lib/supabase"
@@ -811,7 +812,7 @@ END:VCARD`
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent
-                    className="sm:max-w-[1000px] w-full h-[100dvh] sm:h-auto sm:max-h-[95vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] overflow-hidden overflow-x-hidden flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl"
+                    className="w-screen h-[100dvh] max-w-none m-0 p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] overflow-hidden flex flex-col border-none shadow-none rounded-none sm:rounded-none"
                     onOpenAutoFocus={(e) => e.preventDefault()}
                 >
                     <DialogHeader className="px-3 sm:px-6 py-2 sm:py-3 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between min-h-[52px]">
@@ -821,7 +822,7 @@ END:VCARD`
                                 {editingItem ? `Modifier ${formMode === "devis" ? "Devis" : "Contrat"}` : `Nouveau ${formMode === "devis" ? "Devis" : "Contrat"}`}
                             </span>
                         </DialogTitle>
-                        <div className="flex items-center gap-2 sm:gap-3 mr-12 sm:mr-8">
+                        <div className="flex items-center gap-2 sm:gap-3">
                             <Button
                                 type="submit"
                                 form="devis-contrat-form"
@@ -840,9 +841,14 @@ END:VCARD`
                                     </>
                                 )}
                             </Button>
+                            <DialogClose asChild>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-9 sm:w-9 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100">
+                                    <XIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                </Button>
+                            </DialogClose>
                         </div>
                     </DialogHeader>
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-2 sm:px-6 py-2 sm:py-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 bg-slate-50/50 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
                         <DevisContratForm
                             id="devis-contrat-form"
                             key={editingItem?.id || `${formMode}-${isDialogOpen}`}

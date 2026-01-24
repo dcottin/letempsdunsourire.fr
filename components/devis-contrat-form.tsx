@@ -958,8 +958,8 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     return (
         <Form {...form}>
             <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
-                <Tabs defaultValue="infos" className="w-full">
-                    <div className="sticky top-[-8px] bg-white z-40 pb-1 sm:pb-4 no-print -mx-6 px-4 sm:px-6 border-b mb-2 sm:mb-6 shadow-sm flex flex-col gap-1 sm:gap-4">
+                <Tabs defaultValue="infos" className="w-full !mt-0">
+                    <div className="sticky top-0 bg-white z-50 pt-0 pb-2 no-print px-4 sm:px-6 border-b mb-2 shadow-sm flex flex-col gap-2">
                         <div className="flex flex-col gap-1 relative">
                             {isSaving && (
                                 <div className="absolute -top-6 right-0 text-[10px] text-indigo-500 font-bold animate-pulse flex items-center gap-1">
@@ -1309,9 +1309,9 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                     />
 
 
-                    <div className="pt-2">
+                    <div className="px-4 sm:px-6 pt-2">
 
-                        <TabsContent value="infos" className="space-y-6">
+                        <TabsContent value="infos" className="grid grid-cols-1 xl:grid-cols-2 gap-4 content-start">
                             {/* Client Info */}
                             <Card className="border-l-4 border-l-primary/20">
                                 <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
@@ -1574,7 +1574,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                             </Card>
                         </TabsContent>
 
-                        <TabsContent value="details" className="space-y-6">
+                        <TabsContent value="details" className="h-full">
                             {/* Event & Material */}
                             <Card className="border-l-4 border-l-primary/50">
                                 <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
@@ -1583,7 +1583,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         Évènement & Tarifs
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="px-3 sm:px-6 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <CardContent className="px-3 sm:px-6 pb-3 pt-0 sm:px-6 sm:pb-6 sm:pt-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                                     <FormField
                                         control={form.control}
                                         name="date_debut"
@@ -1614,7 +1614,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         control={form.control}
                                         name="nom_evenement"
                                         render={({ field }: { field: any }) => (
-                                            <FormItem className="md:col-span-2">
+                                            <FormItem className="md:col-span-2 xl:col-span-2">
                                                 <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-primary">Nom de l'événement (Optionnel)</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Ex: Anniversaire Maël 18 ans" {...field} />
@@ -1628,7 +1628,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         control={form.control}
                                         name="offre"
                                         render={({ field }: { field: any }) => (
-                                            <FormItem className="md:col-span-2">
+                                            <FormItem className="md:col-span-2 xl:col-span-2">
                                                 <div className="flex items-center justify-between">
                                                     <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-indigo-600">Offre / Formule</FormLabel>
                                                     <Button type="button" variant="ghost" size="icon" className="size-6 text-slate-400 hover:text-indigo-600" onClick={fetchSettings} disabled={isLoadingSettings} title="Actualiser le catalogue">
@@ -1691,7 +1691,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                             const clientWish = preferences[initialChoice] || preferences[field.value]
 
                                             return (
-                                                <FormItem className="md:col-span-2">
+                                                <FormItem className="md:col-span-2 xl:col-span-2">
                                                     <div className="flex items-center justify-between">
                                                         <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-indigo-600">Matériel (Disponibilité auto)</FormLabel>
                                                         {clientWish && (
@@ -1750,7 +1750,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                             <Loader2Icon className="size-3 animate-spin" /> Chargement des options...
                                         </div>
                                     ) : (
-                                        <div className="md:col-span-2 space-y-3 pt-2">
+                                        <div className="md:col-span-2 xl:col-span-4 space-y-3 pt-2">
                                             <div className="flex items-center justify-between">
                                                 <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-pink-600 flex items-center gap-1">
                                                     <CameraIcon className="size-3" /> Options du catalogue

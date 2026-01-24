@@ -41,6 +41,7 @@ interface RichTextEditorProps {
     minHeight?: string
     singleLine?: boolean
     theme?: 'indigo' | 'purple' | 'emerald' | 'pink'
+    className?: string
 }
 
 export interface RichTextEditorRef {
@@ -48,7 +49,7 @@ export interface RichTextEditorRef {
 }
 
 export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
-    ({ value, onChange, onFocus, placeholder = "Rédigez votre message...", minHeight = "200px", singleLine = false, theme = 'indigo' }, ref) => {
+    ({ value, onChange, onFocus, placeholder = "Rédigez votre message...", minHeight = "200px", singleLine = false, theme = 'indigo', className = "" }, ref) => {
         const lastValueRef = useRef<string | null>(null);
         const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -229,7 +230,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         }[theme];
 
         return (
-            <div className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""}`}>
+            <div className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}>
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
