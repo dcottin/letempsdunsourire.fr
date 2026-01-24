@@ -386,31 +386,20 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
-                    /* Global contenteditable fix for iOS */
-                    [contenteditable] {
-                        -webkit-user-select: text !important;
-                        user-select: text !important;
-                    }
-
+                    /* ProseMirror Defaults Cleanup */
                     .ProseMirror {
-                        user-select: text !important;
-                        -webkit-user-select: text !important;
-                        -webkit-touch-callout: default !important;
+                        outline: none;
+                        min-height: inherit;
                         cursor: text;
-                        min-height: inherit; /* Ensure click area covers full height */
                         overflow-wrap: break-word;
                         word-break: break-word;
                     }
-                    .ProseMirror * {
-                        font-size: 16px !important;
-                        line-height: 1.5 !important;
-                    }
                     .ProseMirror p {
-                        margin: 0 !important;
+                        margin: 0;
                     }
                     .ProseMirror h1, .ProseMirror h2, .ProseMirror h3, .ProseMirror h4, .ProseMirror h5, .ProseMirror h6 {
-                        font-weight: 700 !important;
-                        margin: 0.5em 0 !important;
+                        font-weight: 700;
+                        margin: 0.5em 0;
                     }
                     .ProseMirror ul {
                         list-style-type: disc;
