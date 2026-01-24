@@ -104,7 +104,7 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] overflow-hidden flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl !top-0 !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2">
+            <DialogContent className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[90vh] p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] overflow-hidden flex flex-col border-none shadow-2xl !rounded-none sm:!rounded-xl !top-0 !left-0 !translate-x-0 !translate-y-0 sm:!top-1/2 sm:!left-1/2 sm:!-translate-x-1/2 sm:!-translate-y-1/2 max-w-[100vw] overflow-x-hidden">
                 <DialogHeader className="p-4 pb-0 shrink-0">
                     <DialogTitle className="flex items-center gap-2">
                         <MailIcon className="size-5 text-indigo-600" /> Envoyer par Email
@@ -113,12 +113,12 @@ export function SendEmailDialog({
                         Le document sera envoyé en pièce jointe (PDF) au destinataire ci-dessous.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto p-4 pt-0 grid gap-3">
+                <div className="flex-1 overflow-y-auto p-4 pt-0 flex flex-col gap-3 w-full max-w-full overflow-x-hidden">
                     {templates && templates.length > 0 && (
-                        <div className="grid gap-1">
+                        <div className="flex flex-col gap-1 w-full">
                             <Label>Choisir un modèle</Label>
                             <Select onValueChange={handleTemplateChange}>
-                                <SelectTrigger>
+                                <SelectTrigger className="w-full">
                                     <SelectValue placeholder="Sélectionner un modèle..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -130,11 +130,11 @@ export function SendEmailDialog({
                             </Select>
                         </div>
                     )}
-                    <div className="grid gap-1">
-                        <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-1 w-full">
+                        <div className="flex items-center justify-between w-full">
                             <Label htmlFor="email">À</Label>
                             {hasRIB && (
-                                <div className="flex items-center space-x-2 bg-indigo-50 py-1 px-2 rounded-md border border-indigo-100 w-fit scale-90 origin-right">
+                                <div className="flex items-center space-x-2 bg-indigo-50 py-1 px-2 rounded-md border border-indigo-100 w-fit scale-90 origin-right shrink-0">
                                     <Checkbox
                                         id="attach-rib"
                                         checked={attachRIB}
@@ -154,9 +154,10 @@ export function SendEmailDialog({
                             id="email"
                             value={to}
                             onChange={(e) => setTo(e.target.value)}
+                            className="w-full"
                         />
                     </div>
-                    <div className="grid gap-1">
+                    <div className="flex flex-col gap-1 w-full">
                         <Label htmlFor="subject">
                             Sujet
                         </Label>
@@ -164,23 +165,24 @@ export function SendEmailDialog({
                             id="subject"
                             value={subject}
                             onChange={(e) => setSubject(e.target.value)}
+                            className="w-full"
                         />
                     </div>
-                    <div className="grid gap-1 flex-1 min-h-[150px] flex flex-col">
+                    <div className="flex flex-col gap-1 flex-1 min-h-[150px] w-full">
                         <Label htmlFor="message">
                             Message
                         </Label>
-                        <div className="flex-1 flex flex-col min-h-0">
+                        <div className="flex-1 flex flex-col min-h-0 w-full">
                             <RichTextEditor
                                 value={message}
                                 onChange={setMessage}
                                 placeholder="Votre message..."
                                 minHeight="150px"
-                                className="flex-1"
+                                className="flex-1 w-full max-w-full"
                             />
                         </div>
                         {signingLink && (
-                            <div className="flex gap-2 justify-end">
+                            <div className="flex gap-2 justify-end w-full">
                                 <Button
                                     type="button"
                                     variant="outline"
