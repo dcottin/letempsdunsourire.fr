@@ -397,14 +397,11 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         -webkit-user-select: text !important;
                         -webkit-touch-callout: default !important;
                         cursor: text;
-                        touch-action: manipulation;
                         min-height: inherit; /* Ensure click area covers full height */
                     }
                     .ProseMirror * {
                         font-size: 16px !important;
                         line-height: 1.5 !important;
-                        user-select: text !important;
-                        -webkit-user-select: text !important;
                     }
                     .ProseMirror p {
                         margin: 0 !important;
