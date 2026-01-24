@@ -104,7 +104,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 attributes: {
                     class: singleLine
                         ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
-                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base`,
+                        : `max-w-none focus:outline-none px-5 py-3 min-h-[${minHeight}] cursor-text bg-white text-base`,
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {
@@ -336,7 +336,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                             <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
 
-                            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-slate-200 bg-white shrink-0 shadow-sm" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
+                            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-slate-200 bg-white shrink-0 shadow-sm" type="button" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
                                 <RotateCcwIcon className="size-3.5" />
                             </Button>
                         </>
