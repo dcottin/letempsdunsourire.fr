@@ -103,8 +103,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             editorProps: {
                 attributes: {
                     class: singleLine
-                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-sm`
-                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-sm`,
+                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
+                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base`,
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {
@@ -267,7 +267,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         <>
                             <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
                             <Select
-                                value={editor.getAttributes('textStyle').fontSize || "14"}
+                                value={editor.getAttributes('textStyle').fontSize || "16"}
                                 onValueChange={(value) => (editor.chain().focus() as any).setFontSize(value).run()}
                             >
                                 <SelectTrigger className="h-7 w-[60px] border-slate-200 bg-white shadow-sm focus:ring-0 gap-1 text-[10px] px-1 shrink-0">
@@ -391,7 +391,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     }
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     .ProseMirror * {
-                        font-size: 14px !important;
+                        font-size: 16px !important;
                         line-height: 1.5 !important;
                     }
                     .ProseMirror p {
