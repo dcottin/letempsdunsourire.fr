@@ -55,27 +55,27 @@ function DialogContent({
   return (
     <DialogPortal>
       <DialogOverlay />
-      <div className="fixed inset-0 z-50 flex items-center justify-center data-[state=closed]:pointer-events-none">
-        <DialogPrimitive.Content
-          data-slot="dialog-content"
-          className={cn(
-            // Base styles
-            "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid gap-4 text-sm ring-1 duration-100 w-[calc(100%-2rem)] rounded-xl p-4 select-text shadow-lg",
-            // Desktop specific
-            "sm:max-w-sm sm:max-w-[calc(100%-2rem)]",
-            className
-          )}
-          {...props}
-        >
-          {children}
-          {showCloseButton && (
-            <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground outline-none border-none ring-0">
-              <XIcon className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </DialogPrimitive.Close>
-          )}
-        </DialogPrimitive.Content>
-      </div>
+      <DialogPrimitive.Content
+        data-slot="dialog-content"
+        className={cn(
+          // Base styles
+          "bg-background data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 grid gap-4 text-sm ring-1 duration-100 fixed z-50 w-[calc(100%-2rem)] rounded-xl p-4 select-text",
+          // Positioning
+          "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+          // Desktop specific
+          "sm:max-w-sm sm:max-w-[calc(100%-2rem)]",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        {showCloseButton && (
+          <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground outline-none border-none ring-0">
+            <XIcon className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
+      </DialogPrimitive.Content>
     </DialogPortal>
   )
 }

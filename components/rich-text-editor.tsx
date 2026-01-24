@@ -104,7 +104,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 attributes: {
                     class: singleLine
                         ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
-                        : `max-w-none focus:outline-none px-5 py-3 min-h-[${minHeight}] cursor-text bg-white text-base`,
+                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base`,
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {
@@ -229,11 +229,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             pink: { text: "text-pink-600", border: "border-pink-100", ring: "focus-within:ring-pink-500/20", borderFocus: "focus-within:border-pink-400", toggleBg: "data-[state=on]:bg-pink-50", toggleText: "data-[state=on]:text-pink-600" },
         }[theme];
 
-        const SAFELIST = "text-indigo-600 border-indigo-100 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 data-[state=on]:bg-indigo-50 data-[state=on]:text-indigo-600 text-purple-600 border-purple-100 focus-within:ring-purple-500/20 focus-within:border-purple-400 data-[state=on]:bg-purple-50 data-[state=on]:text-purple-600 text-emerald-600 border-emerald-100 focus-within:ring-emerald-500/20 focus-within:border-emerald-400 data-[state=on]:bg-emerald-50 data-[state=on]:text-emerald-600 text-pink-600 border-pink-100 focus-within:ring-pink-500/20 focus-within:border-pink-400 data-[state=on]:bg-pink-50 data-[state=on]:text-pink-600"
-
         return (
             <div className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}>
-                <div className="hidden">{SAFELIST}</div>
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -339,7 +336,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                             <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
 
-                            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-slate-200 bg-white shrink-0 shadow-sm" type="button" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
+                            <Button variant="outline" size="sm" className="h-7 w-7 p-0 border-slate-200 bg-white shrink-0 shadow-sm" onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}>
                                 <RotateCcwIcon className="size-3.5" />
                             </Button>
                         </>
@@ -350,7 +347,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[${minHeight}] max-h-[500px] overflow-y-auto custom-scrollbar`
+                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
                     }
                 />
                 <style jsx global>{`
@@ -389,20 +386,32 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
-                    /* ProseMirror Defaults Cleanup */
+                    /* Global contenteditable fix for iOS */
+                    [contenteditable] {
+                        -webkit-user-select: text !important;
+                        user-select: text !important;
+                    }
+
                     .ProseMirror {
-                        outline: none;
-                        min-height: inherit;
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
+                        -webkit-touch-callout: default !important;
                         cursor: text;
-                        overflow-wrap: break-word;
-                        word-break: break-word;
+                        touch-action: manipulation;
+                        min-height: inherit; /* Ensure click area covers full height */
+                    }
+                    .ProseMirror * {
+                        font-size: 16px !important;
+                        line-height: 1.5 !important;
+                        user-select: text !important;
+                        -webkit-user-select: text !important;
                     }
                     .ProseMirror p {
-                        margin: 0;
+                        margin: 0 !important;
                     }
                     .ProseMirror h1, .ProseMirror h2, .ProseMirror h3, .ProseMirror h4, .ProseMirror h5, .ProseMirror h6 {
-                        font-weight: 700;
-                        margin: 0.5em 0;
+                        font-weight: 700 !important;
+                        margin: 0.5em 0 !important;
                     }
                     .ProseMirror ul {
                         list-style-type: disc;
