@@ -229,8 +229,11 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             pink: { text: "text-pink-600", border: "border-pink-100", ring: "focus-within:ring-pink-500/20", borderFocus: "focus-within:border-pink-400", toggleBg: "data-[state=on]:bg-pink-50", toggleText: "data-[state=on]:text-pink-600" },
         }[theme];
 
+        const SAFELIST = "text-indigo-600 border-indigo-100 focus-within:ring-indigo-500/20 focus-within:border-indigo-400 data-[state=on]:bg-indigo-50 data-[state=on]:text-indigo-600 text-purple-600 border-purple-100 focus-within:ring-purple-500/20 focus-within:border-purple-400 data-[state=on]:bg-purple-50 data-[state=on]:text-purple-600 text-emerald-600 border-emerald-100 focus-within:ring-emerald-500/20 focus-within:border-emerald-400 data-[state=on]:bg-emerald-50 data-[state=on]:text-emerald-600 text-pink-600 border-pink-100 focus-within:ring-pink-500/20 focus-within:border-pink-400 data-[state=on]:bg-pink-50 data-[state=on]:text-pink-600"
+
         return (
             <div className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}>
+                <div className="hidden">{SAFELIST}</div>
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -347,7 +350,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
+                        : `min-h-[${minHeight}] max-h-[500px] overflow-y-auto custom-scrollbar`
                     }
                 />
                 <style jsx global>{`
