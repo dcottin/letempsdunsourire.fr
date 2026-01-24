@@ -102,7 +102,7 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] w-full h-screen sm:h-auto sm:max-h-[85dvh] p-0 overflow-hidden flex flex-col border-none shadow-2xl sm:rounded-xl fixed inset-0 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-top-[2%] data-[state=open]:slide-in-from-top-[2%] duration-200">
+            <DialogContent className="sm:max-w-[600px] w-full h-[100dvh] sm:h-auto sm:max-h-[85dvh] p-0 overflow-hidden flex flex-col border-none shadow-2xl sm:rounded-xl fixed inset-0 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200 !rounded-none sm:!rounded-xl">
                 <DialogHeader className="p-4 pb-0 shrink-0">
                     <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                         <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
@@ -111,9 +111,9 @@ export function SendEmailDialog({
                         Le document sera envoyé en pièce jointe (PDF) au destinataire ci-dessous.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 pt-0 flex flex-col gap-3">
+                <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-3 min-h-0">
                     {templates && templates.length > 0 && (
-                        <div className="grid gap-1">
+                        <div className="grid gap-1 shrink-0">
                             <Label>Choisir un modèle</Label>
                             <Select onValueChange={handleTemplateChange}>
                                 <SelectTrigger>
@@ -128,7 +128,7 @@ export function SendEmailDialog({
                             </Select>
                         </div>
                     )}
-                    <div className="grid gap-1">
+                    <div className="grid gap-1 shrink-0">
                         <div className="flex items-center justify-between">
                             <Label htmlFor="email">À</Label>
                             {hasRIB && (
@@ -154,7 +154,7 @@ export function SendEmailDialog({
                             onChange={(e) => setTo(e.target.value)}
                         />
                     </div>
-                    <div className="grid gap-1">
+                    <div className="grid gap-1 shrink-0">
                         <Label htmlFor="subject">
                             Sujet
                         </Label>
@@ -173,8 +173,8 @@ export function SendEmailDialog({
                                 value={message}
                                 onChange={setMessage}
                                 placeholder="Votre message..."
-                                minHeight="150px"
-                                className="flex-1"
+                                minHeight="100%"
+                                className="flex-1 min-h-0"
                             />
                         </div>
 
