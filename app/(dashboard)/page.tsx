@@ -916,9 +916,7 @@ END:VCARD`
                             >
                                 <SelectTrigger className="h-7 w-fit min-w-[80px] max-w-[140px] text-[10px] bg-slate-50 border-slate-200 hover:border-indigo-400 transition-colors px-2.5 rounded-md">
                                     <CameraIcon className="size-3 mr-1.5 text-slate-400 shrink-0" />
-                                    <SelectValue placeholder="Matériel">
-                                        {settings?.materiels?.find((m: any) => m.id === equipmentId)?.nom || (equipmentId === 'none' ? 'Aucun' : equipmentId)}
-                                    </SelectValue>
+                                    <SelectValue placeholder="Matériel" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="none" className="text-[10px]">Aucun</SelectItem>
