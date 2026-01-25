@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react"
+import { createPortal } from "react-dom"
 import { cn } from "@/lib/utils"
 import {
     Dialog,
@@ -260,13 +261,20 @@ export function SendEmailDialog({
         </div>
     )
 
-    if (isIOS && open) {
-        return (
+    const [mounted, setMounted] = useState(false)
+    useEffect(() => {
+        setMounted(true)
+    }, [])
+
+    if (isIOS && open && mounted) {
+        return createPortal(
             <div
-                className="fixed inset-0 z-[9999] bg-white h-[100dvh] w-screen overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
+                className="fixed inset-0 z-[99999] bg-white h-[100dvh] w-screen overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
+                style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             >
                 {content}
-            </div>
+            </div>,
+            document.body
         )
     }
 
