@@ -114,7 +114,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             editorProps: {
                 attributes: {
                     class: singleLine
-                        ? `focus:outline-none p-1.5 min-h-0 h-9 bg-white text-base`
+                        ? "focus:outline-none bg-white text-sm"
                         : `focus:outline-none min-h-[${minHeight}] bg-white text-base`,
                     // Platform specific fixes
                     spellcheck: isIOS ? "false" : "true",
@@ -253,10 +253,10 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 <div className={`flex flex-wrap items-center gap-1 border-b bg-slate-50/50 ${singleLine ? "p-0.5" : "p-1"}`}>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className={`${singleLine ? 'h-6 sm:h-6' : 'h-8 sm:h-7'} gap-1 px-2 ${themeColors.text} ${themeColors.border} bg-white font-bold shadow-sm shrink-0`}>
-                                <TagIcon className="size-4 sm:size-3.5" />
-                                <span className="text-[10px] hidden sm:inline">Balises</span>
-                                <span className="text-[10px] sm:hidden">Tags</span>
+                            <Button variant="outline" size="sm" className={`${singleLine ? 'h-6 sm:h-6 px-1.5' : 'h-8 sm:h-7 px-2'} gap-1 ${themeColors.text} ${themeColors.border} bg-white font-bold shadow-sm shrink-0`}>
+                                <TagIcon className="size-3.5 sm:size-3" />
+                                <span className="text-[9px] hidden sm:inline">Balises</span>
+                                <span className="text-[9px] sm:hidden">Tags</span>
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="max-h-[300px] overflow-y-auto w-56">
@@ -384,7 +384,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         margin: 0 2px;
                         display: inline-block;
                         line-height: normal;
-                        vertical-align: middle;
+                        vertical-align: text-top;
                     }
                     .variable-badge:hover {
                         background-color: #e0e7ff;
@@ -421,7 +421,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         -webkit-tap-highlight-color: transparent;
                         overflow-wrap: break-word;
                         word-break: break-word;
-                        padding: ${singleLine ? '6px 12px' : '12px'};
+                        padding: ${singleLine ? '3px 10px' : '12px'};
                         touch-action: pan-y;
                         -webkit-user-select: text;
                         user-select: text;
