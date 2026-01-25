@@ -33,9 +33,10 @@ interface CustomCalendarProps {
     events: CalendarEvent[]
     onEventClick: (info: { event: CalendarEvent }) => void
     onMoreLinkClick: (args: { date: Date, allSegs: any[] }) => void
+    onDateClick?: (date: Date) => void
 }
 
-export function CustomCalendar({ events, onEventClick, onMoreLinkClick }: CustomCalendarProps) {
+export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateClick }: CustomCalendarProps) {
     const [currentDate, setCurrentDate] = React.useState(new Date())
     const [view, setView] = React.useState<'month' | 'list'>('month')
 
@@ -181,8 +182,9 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick }: Custom
                             return (
                                 <div
                                     key={day.toString()}
+                                    onClick={() => onDateClick?.(day)}
                                     className={cn(
-                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50/50",
+                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50/50 cursor-pointer",
                                         !isCurrentMonth && "bg-slate-50/30 text-slate-400",
                                         isTodayDate && "bg-indigo-50/30"
                                     )}

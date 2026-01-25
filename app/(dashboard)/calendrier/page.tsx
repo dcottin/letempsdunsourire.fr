@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 
 import React, { useEffect, useState, useMemo, useRef } from "react"
 import { CustomCalendar } from "@/components/custom-calendar"
-import { format } from "date-fns"
+import { format, isSameDay, parseISO } from "date-fns"
 import { fr } from "date-fns/locale"
 import {
     ChevronRightIcon,
@@ -40,11 +40,18 @@ interface CalendarEvent {
 export default function CalendarPage() {
     const [devisList, setDevisList] = useState<any[]>([])
     const [contratsList, setContratsList] = useState<any[]>([])
+    const [materiels, setMateriels] = useState<any[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [formMode, setFormMode] = useState<"devis" | "contrat">("devis")
     const [editingItem, setEditingItem] = useState<any | null>(null)
     const [isFormSaving, setIsFormSaving] = useState(false)
+
+    // Availability Dialog State
+    const [availabilityOpen, setAvailabilityOpen] = useState(false)
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+    const [availableMat, setAvailableMat] = useState<any[]>([])
+    const [bookedMat, setBookedMat] = useState<any[]>([])
 
     useEffect(() => {
         fetchData()
@@ -55,9 +62,14 @@ export default function CalendarPage() {
         try {
             const { data: devisData } = await supabase.from('devis').select('*')
             const { data: contratsData } = await supabase.from('contrats').select('*')
+            const { data: settingsData } = await supabase.from('settings').select('data').single()
 
             setDevisList((devisData || []).map(item => ({ ...item, ...item.data })))
             setContratsList((contratsData || []).map(item => ({ ...item, ...item.data })))
+
+            if (settingsData?.data?.materiels) {
+                setMateriels(settingsData.data.materiels)
+            }
         } catch (e) {
             console.error("Fetch error", e)
         } finally {
@@ -117,6 +129,47 @@ export default function CalendarPage() {
         setFormMode(item.type)
         setEditingItem(item)
         setIsDialogOpen(true)
+    }
+
+    const handleDateClick = (date: Date) => {
+        setSelectedDate(date)
+
+        // Find all bookings overlapping with this date
+        const allBookings = [...devisList, ...contratsList]
+
+        // Normalize date to midnight for comparison
+        const checkTime = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
+
+        const bookingsToday = allBookings.filter(b => {
+            if (!b.date_debut) return false
+
+            // Parse start
+            const start = new Date(b.date_debut)
+            const startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime()
+
+            // Parse end (or default to start)
+            let endTime = startTime
+            if (b.date_fin) {
+                const end = new Date(b.date_fin)
+                endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime()
+            }
+
+            return checkTime >= startTime && checkTime <= endTime
+        })
+
+        const busyEquipmentIds = bookingsToday.map(b => b.equipment_id).filter(Boolean)
+
+        const available = materiels.filter(m => !busyEquipmentIds.includes(m.id))
+        const booked = materiels
+            .filter(m => busyEquipmentIds.includes(m.id))
+            .map(m => {
+                const booking = bookingsToday.find(b => b.equipment_id === m.id)
+                return { mat: m, booking }
+            })
+
+        setAvailableMat(available)
+        setBookedMat(booked)
+        setAvailabilityOpen(true)
     }
 
     const openCreateForm = (mode: "devis" | "contrat") => {
@@ -190,6 +243,7 @@ export default function CalendarPage() {
                             events={events}
                             onEventClick={handleEventClick}
                             onMoreLinkClick={handleMoreLinkClick}
+                            onDateClick={handleDateClick}
                         />
                     </div>
                 </CardContent>
@@ -245,6 +299,68 @@ export default function CalendarPage() {
                             }}
                             onSavingChange={setIsFormSaving}
                         />
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={availabilityOpen} onOpenChange={setAvailabilityOpen}>
+                <DialogContent className="sm:max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+                    <DialogHeader className="pb-2 text-center border-b shrink-0">
+                        <DialogTitle>Disponibilités du {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: fr }) : ''}</DialogTitle>
+                    </DialogHeader>
+                    <div className="overflow-y-auto flex-1 p-1 space-y-4">
+                        <div className="space-y-2">
+                            <h4 className="text-sm font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2">
+                                <CheckCircle2Icon className="h-4 w-4" /> Disponible(s)
+                            </h4>
+                            {availableMat.length > 0 ? (
+                                <div className="grid gap-2">
+                                    {availableMat.map((mat: any) => (
+                                        <div key={mat.id} className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg flex items-center gap-3">
+                                            {mat.img_main ? (
+                                                <img src={mat.img_main} className="w-10 h-10 rounded object-cover bg-white" />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
+                                                    IMG
+                                                </div>
+                                            )}
+                                            <span className="font-semibold text-slate-700">{mat.nom}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-slate-400 italic">Aucun matériel disponible.</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
+                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                                <ClockIcon className="h-4 w-4" /> Réservé(s)
+                            </h4>
+                            {bookedMat.length > 0 ? (
+                                <div className="grid gap-2">
+                                    {bookedMat.map((item: any) => (
+                                        <div key={item.mat.id} className="bg-slate-50 border border-slate-100 p-3 rounded-lg flex items-center gap-3 opacity-75">
+                                            {item.mat.img_main ? (
+                                                <img src={item.mat.img_main} className="w-10 h-10 rounded object-cover bg-white grayscale" />
+                                            ) : (
+                                                <div className="w-10 h-10 rounded bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
+                                                    IMG
+                                                </div>
+                                            )}
+                                            <div className="flex-1 min-w-0">
+                                                <p className="font-semibold text-slate-700 truncate">{item.mat.nom}</p>
+                                                <p className="text-[10px] text-slate-500 flex items-center gap-1">
+                                                    Réservé par: <span className="font-bold">{item.booking.nom_client}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-slate-400 italic">Aucune réservation ce jour.</p>
+                            )}
+                        </div>
                     </div>
                 </DialogContent>
             </Dialog>
