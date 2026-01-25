@@ -250,10 +250,10 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             <div
                 className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}
             >
-                <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
+                <div className={`flex flex-wrap items-center gap-1 border-b bg-slate-50/50 ${singleLine ? "p-0.5" : "p-1"}`}>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className={`h-8 sm:h-7 gap-1 px-2 ${themeColors.text} ${themeColors.border} bg-white font-bold shadow-sm shrink-0`}>
+                            <Button variant="outline" size="sm" className={`${singleLine ? 'h-6 sm:h-6' : 'h-8 sm:h-7'} gap-1 px-2 ${themeColors.text} ${themeColors.border} bg-white font-bold shadow-sm shrink-0`}>
                                 <TagIcon className="size-4 sm:size-3.5" />
                                 <span className="text-[10px] hidden sm:inline">Balises</span>
                                 <span className="text-[10px] sm:hidden">Tags</span>
@@ -366,7 +366,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 <EditorContent
                     editor={editor}
                     className={singleLine
-                        ? "min-h-0 max-h-12 overflow-hidden"
+                        ? "min-h-0 max-h-12 overflow-hidden flex-1"
                         : contentClassName || `min-h-[150px]`
                     }
                 />
@@ -374,17 +374,17 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     .variable-badge {
                         background-color: #eef2ff;
                         color: #4338ca;
-                        padding: 0px 4px;
+                        padding: 1px 6px;
                         border-radius: 4px;
                         border: 1px solid #c7d2fe;
-                        font-size: inherit;
+                        font-size: 0.85em;
                         font-family: inherit;
                         font-weight: bold;
                         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.05);
-                        margin: 0 1px;
+                        margin: 0 2px;
                         display: inline-block;
-                        line-height: inherit;
-                        vertical-align: baseline;
+                        line-height: normal;
+                        vertical-align: middle;
                     }
                     .variable-badge:hover {
                         background-color: #e0e7ff;
@@ -404,6 +404,11 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     }
                     .rte-theme-emerald .variable-badge:hover { background-color: #d1fae5; }
 
+                    .rte-theme-pink .variable-badge {
+                        background-color: #fdf2f8;
+                        color: #be185d;
+                        border-color: #fbcfe8;
+                    }
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
                     /* Global styles for the editor */
@@ -416,7 +421,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         -webkit-tap-highlight-color: transparent;
                         overflow-wrap: break-word;
                         word-break: break-word;
-                        padding: 12px;
+                        padding: ${singleLine ? '6px 12px' : '12px'};
                         touch-action: pan-y;
                         -webkit-user-select: text;
                         user-select: text;
