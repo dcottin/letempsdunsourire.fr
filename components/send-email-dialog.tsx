@@ -201,7 +201,7 @@ export function SendEmailDialog({
     if (isIOS && open) {
         return (
             <div
-                className="fixed inset-0 z-[9999] bg-white overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-200"
+                className="absolute inset-0 z-[9999] bg-white overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-200"
             >
                 {content}
             </div>
