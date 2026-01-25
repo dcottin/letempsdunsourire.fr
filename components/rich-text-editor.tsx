@@ -369,7 +369,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         border: 1px solid #c7d2fe;
                         font-size: inherit;
                         font-family: inherit;
-                        font-weight: inherit;
+                        font-weight: bold;
                         box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.05);
                         margin: 0 1px;
                         display: inline-block;
