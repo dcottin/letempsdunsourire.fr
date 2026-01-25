@@ -313,6 +313,7 @@ export default function CalendarPage() {
                             <div className="space-y-3">
                                 <h4 className="text-sm font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-emerald-100">
                                     <CheckCircle2Icon className="h-4 w-4" /> Disponible(s)
+                                    <span className="bg-emerald-100 text-emerald-700 text-[10px] px-1.5 py-0.5 rounded-full ml-auto">{availableMat.length}</span>
                                 </h4>
                                 {availableMat.length > 0 ? (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
