@@ -154,12 +154,10 @@ export default function DashboardPage() {
 
         if (contractsRes.error) {
             console.error("Error fetching contracts:", contractsRes.error)
-        } else {
-            const allContracts = contractsRes.data || []
-            const visibleContracts = allContracts.filter(c =>
-                c.etat !== 'Annulé' && c.etat !== 'Archivé'
-            )
-            setEvents(visibleContracts)
+        }
+
+        if (devisRes.error) {
+            console.error("Error fetching devis:", devisRes.error)
         }
 
         const validDevis = (devisRes.data || []).filter(d => d.etat !== 'Annulé' && d.etat !== 'Refusé')
@@ -188,6 +186,7 @@ export default function DashboardPage() {
             setSettings(settingsRes.data.data)
         }
 
+        setLoading(false)
     }, [])
 
     React.useEffect(() => {
@@ -210,19 +209,33 @@ export default function DashboardPage() {
 
     if (!mounted) return null
 
-    const currentWeekEvents = events.filter(e => {
-        const dateStr = e.data?.date_debut || e.date_debut
-        if (!dateStr) return false
-        const d = parseISO(dateStr)
-        return d >= startCurrentWeek && d <= endCurrentWeek
-    })
+    const currentWeekEvents = React.useMemo(() => {
+        if (loading) return []
+        return events.filter(e => {
+            const dateStr = e.data?.date_debut || e.date_debut
+            if (!dateStr) return false
+            try {
+                const d = parseISO(dateStr)
+                return d.getTime() >= startCurrentWeek.getTime() && d.getTime() <= endCurrentWeek.getTime()
+            } catch (err) {
+                return false
+            }
+        })
+    }, [events, loading, startCurrentWeek, endCurrentWeek])
 
-    const nextWeekEvents = events.filter(e => {
-        const dateStr = e.data?.date_debut || e.date_debut
-        if (!dateStr) return false
-        const d = parseISO(dateStr)
-        return d >= startNextWeek && d <= endNextWeek
-    })
+    const nextWeekEvents = React.useMemo(() => {
+        if (loading) return []
+        return events.filter(e => {
+            const dateStr = e.data?.date_debut || e.date_debut
+            if (!dateStr) return false
+            try {
+                const d = parseISO(dateStr)
+                return d.getTime() >= startNextWeek.getTime() && d.getTime() <= endNextWeek.getTime()
+            } catch (err) {
+                return false
+            }
+        })
+    }, [events, loading, startNextWeek, endNextWeek])
 
     const handleConfirmPayment = async () => {
         if (!paymentContext || !selectedPaymentMethod) return
