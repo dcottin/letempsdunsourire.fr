@@ -111,7 +111,7 @@ export function SendEmailDialog({
 
                     uniqueValues.forEach(val => {
                         // Escape special regex characters in the value
-                        const escapedVal = escapeRegExp(val)
+                        const escapedVal = val.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
                         const regex = new RegExp(escapedVal, 'g')
                         // We wrap only if not already wrapped (to be safe)
                         finalMessage = finalMessage.replace(regex, (match) => `<strong>${match}</strong>`)
