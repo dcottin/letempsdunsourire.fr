@@ -297,7 +297,7 @@ export default function CalendarPage() {
                             </DialogClose>
                         </div>
                     </DialogHeader>
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-2 sm:px-6 py-2 sm:py-4 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-0 py-0 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
                         <DevisContratForm
                             id="devis-contrat-form"
                             key={editingItem?.id || `${formMode}-${isDialogOpen}`}

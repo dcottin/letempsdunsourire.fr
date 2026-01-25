@@ -959,7 +959,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         <Form {...form}>
             <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
                 <Tabs defaultValue="infos" className="w-full !mt-0">
-                    <div className="sticky top-0 bg-white z-50 pt-0 pb-2 no-print px-4 sm:px-6 border-b mb-2 shadow-sm flex flex-col gap-2">
+                    <div className="bg-white pt-2 pb-4 no-print px-4 sm:px-6 flex flex-col gap-2">
                         <div className="flex flex-col gap-1 relative">
                             {isSaving && (
                                 <div className="absolute -top-6 right-0 text-[10px] text-indigo-500 font-bold animate-pulse flex items-center gap-1">
