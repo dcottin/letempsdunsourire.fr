@@ -242,7 +242,8 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                     ? "bg-amber-100 text-amber-700 border border-amber-200"
                                                     : availability.count > 0
                                                         ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                                                        : "bg-red-100 text-red-600 border border-red-200"
+                                                        : "bg-red-100 text-red-600 border border-red-200",
+                                                !isCurrentMonth && "opacity-30 grayscale"
                                             )}>
                                                 {availability.hasUnassigned && "⚠️ "}{availability.count} dispo
                                             </span>
@@ -264,7 +265,10 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                     e.stopPropagation()
                                                     onEventClick({ event })
                                                 }}
-                                                className="text-[10px] md:text-xs truncate px-1.5 py-0.5 rounded cursor-pointer text-white font-medium hover:opacity-80 transition-opacity"
+                                                className={cn(
+                                                    "text-[10px] md:text-xs truncate px-1.5 py-0.5 rounded cursor-pointer text-white font-medium hover:opacity-80 transition-opacity",
+                                                    !isCurrentMonth && "opacity-40"
+                                                )}
                                                 style={{ backgroundColor: event.color || event.backgroundColor || '#6366f1' }}
                                                 title={event.title}
                                             >
