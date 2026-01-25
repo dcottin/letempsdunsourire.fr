@@ -66,9 +66,8 @@ export function SendEmailDialog({
 
         if (replacements && templateId !== "default") {
             Object.entries(replacements).forEach(([key, value]) => {
-                const replacementValue = isIOS ? `<strong>${value}</strong>` : value
-                newSubject = newSubject.split(key).join(value) // Subject stays clean
-                newBody = newBody.split(key).join(replacementValue)
+                newSubject = newSubject.split(key).join(value)
+                newBody = newBody.split(key).join(value)
             })
         }
 
@@ -93,11 +92,33 @@ export function SendEmailDialog({
     const handleSend = async () => {
         setIsSending(true)
         try {
-            // On iOS, convert final textarea value (plain text) back to HTML format
-            // Most bolding is now handled during replacement, but we keep the structure
-            const finalMessage = isIOS
-                ? message.trim().replace(/\n/g, "<br>")
-                : message
+            let finalMessage = message.trim()
+
+            // On iOS, we need to convert to HTML and manually bold the values
+            if (isIOS) {
+                // 1. Convert newlines
+                finalMessage = finalMessage.replace(/\n/g, "<br>")
+
+                // 2. Bold all values that were injected from replacements
+                if (replacements) {
+                    // Extract values and sort by length descending to avoid partial matches
+                    const valuesToBold = Object.values(replacements)
+                        .filter(v => v.length > 0)
+                        .sort((a, b) => b.length - a.length)
+
+                    // Deduplicate values
+                    const uniqueValues = Array.from(new Set(valuesToBold))
+
+                    uniqueValues.forEach(val => {
+                        // Escape special regex characters in the value
+                        const escapedVal = escapeRegExp(val)
+                        const regex = new RegExp(escapedVal, 'g')
+                        // We wrap only if not already wrapped (to be safe)
+                        finalMessage = finalMessage.replace(regex, (match) => `<strong>${match}</strong>`)
+                    })
+                }
+            }
+
             await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
         } catch (error) {
