@@ -7,6 +7,7 @@ import Underline from '@tiptap/extension-underline'
 import { TextStyle } from '@tiptap/extension-text-style'
 import Placeholder from '@tiptap/extension-placeholder'
 import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
 import { BoldIcon, ItalicIcon, UnderlineIcon, StrikethroughIcon, ListIcon, ListOrderedIcon, RotateCcwIcon, TagIcon } from "lucide-react"
 import { Toggle } from "@/components/ui/toggle"
 import { Button } from "@/components/ui/button"
@@ -82,6 +83,13 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 Underline,
                 TextStyle,
                 FontSize,
+                Link.configure({
+                    openOnClick: false,
+                    HTMLAttributes: {
+                        class: 'text-indigo-600 underline cursor-pointer',
+                        style: 'color: #4f46e5 !important; text-decoration: underline !important;',
+                    }
+                }),
                 Image.configure({
                     inline: true,
                     allowBase64: true,
@@ -406,8 +414,6 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         overflow-x: hidden;
                     }
                     .ProseMirror * {
-                        font-size: 16px !important;
-                        line-height: 1.5 !important;
                         user-select: text !important;
                         -webkit-user-select: text !important;
                     }
@@ -433,6 +439,11 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         padding-left: 1em;
                         margin-left: 0;
                         font-style: italic;
+                    }
+                    .ProseMirror a, .ProseMirror a:visited, .ProseMirror a:hover {
+                        color: #4f46e5 !important;
+                        text-decoration: underline !important;
+                        cursor: pointer !important;
                     }
                 `}</style>
             </div>

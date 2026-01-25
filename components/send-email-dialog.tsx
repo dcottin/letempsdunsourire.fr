@@ -46,9 +46,11 @@ export function SendEmailDialog({
     const [message, setMessage] = useState(defaultMessage || "Bonjour,\n\nVeuillez trouver ci-joint le document concernant votre événement.\n\nCordialement,")
     const [attachRIB, setAttachRIB] = useState(false)
     const [isSending, setIsSending] = useState(false)
+    const [selectedTemplate, setSelectedTemplate] = useState("default")
 
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
+        setSelectedTemplate(templateId)
         if (templateId === "default") {
             setSubject(defaultSubject)
             setMessage(defaultMessage || "")
@@ -79,6 +81,7 @@ export function SendEmailDialog({
         setSubject(defaultSubject)
         setMessage(defaultMessage || "Bonjour,\n\nVeuillez trouver ci-joint le document concernant votre événement.\n\nCordialement,")
         setAttachRIB(hasRIB ? true : false) // Default to true if RIB exists
+        setSelectedTemplate("default")
     }
     if (open !== prevOpen) {
         setPrevOpen(open)
@@ -104,7 +107,7 @@ export function SendEmailDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="fixed z-50 w-screen h-[100dvh] max-w-none p-0 gap-0 border-none bg-zinc-950/20 backdrop-blur-sm flex items-center justify-center !left-0 !top-0 !translate-x-0 !translate-y-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200">
                 <div className="flex flex-col bg-white w-full h-full md:h-auto md:max-h-[85dvh] md:w-full md:max-w-3xl md:rounded-xl md:shadow-2xl overflow-hidden border-none shadow-none rounded-none select-text cursor-auto">
-                    <DialogHeader className="p-4 pb-0 shrink-0">
+                    <DialogHeader className="p-4 pb-3 shrink-0">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                             <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
                         </DialogTitle>
@@ -116,7 +119,7 @@ export function SendEmailDialog({
                         {templates && templates.length > 0 && (
                             <div className="grid gap-1 shrink-0">
                                 <Label>Choisir un modèle</Label>
-                                <Select onValueChange={handleTemplateChange}>
+                                <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Sélectionner un modèle..." />
                                     </SelectTrigger>
@@ -130,7 +133,7 @@ export function SendEmailDialog({
                             </div>
                         )}
                         <div className="grid gap-1 shrink-0">
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between h-6">
                                 <Label htmlFor="email">À</Label>
                                 {hasRIB && (
                                     <div className="flex items-center space-x-2 bg-indigo-50 py-1 px-2 rounded-md border border-indigo-100 w-fit scale-90 origin-right">
