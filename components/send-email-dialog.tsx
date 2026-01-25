@@ -79,18 +79,17 @@ export function SendEmailDialog({
         }
     }
 
-    // Reset/Sync form when dialog opens or defaults change
     const [prevOpen, setPrevOpen] = useState(false)
-    if (open && !prevOpen) {
-        setTo(defaultEmail)
-        setSubject(defaultSubject)
-        setMessage(defaultMessage || "Bonjour,\n\nVeuillez trouver ci-joint le document concernant votre événement.\n\nCordialement,")
-        setAttachRIB(hasRIB ? true : false) // Default to true if RIB exists
-        setSelectedTemplate("default")
-    }
-    if (open !== prevOpen) {
+    useEffect(() => {
+        if (open && !prevOpen) {
+            setTo(defaultEmail)
+            setSubject(defaultSubject)
+            setMessage(defaultMessage || "Bonjour,\n\nVeuillez trouver ci-joint le document concernant votre événement.\n\nCordialement,")
+            setAttachRIB(hasRIB ? true : false)
+            setSelectedTemplate("default")
+        }
         setPrevOpen(open)
-    }
+    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen])
 
     const handleSend = async () => {
         setIsSending(true)
@@ -105,7 +104,24 @@ export function SendEmailDialog({
     }
 
     const stripHtml = (html: string) => {
-        return html.replace(/<[^>]*>?/gm, '');
+        if (!html) return "";
+        let text = html;
+        // Replace block tags with newlines
+        text = text.replace(/<p[^>]*>/gi, '');
+        text = text.replace(/<\/p>/gi, '\n');
+        text = text.replace(/<br\s*\/?>/gi, '\n');
+        text = text.replace(/<div[^>]*>/gi, '');
+        text = text.replace(/<\/div>/gi, '\n');
+        text = text.replace(/<li[^>]*>/gi, '\n- ');
+        // Remove all other tags
+        text = text.replace(/<[^>]*>?/gm, '');
+        // Decode common entities
+        text = text.replace(/&nbsp;/g, ' ');
+        text = text.replace(/&amp;/g, '&');
+        text = text.replace(/&lt;/g, '<');
+        text = text.replace(/&gt;/g, '>');
+        text = text.replace(/&quot;/g, '"');
+        return text.trim();
     }
 
     return (
@@ -183,7 +199,7 @@ export function SendEmailDialog({
                                         value={stripHtml(message)}
                                         onChange={(e) => setMessage(e.target.value)}
                                         placeholder="Votre message..."
-                                        className="h-full min-h-[250px] resize-none focus-visible:ring-indigo-500"
+                                        className="h-full min-h-[250px] overflow-y-auto resize-none focus-visible:ring-indigo-500 custom-scrollbar"
                                     />
                                 ) : (
                                     <RichTextEditor
