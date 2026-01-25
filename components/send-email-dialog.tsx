@@ -184,12 +184,25 @@ export function SendEmailDialog({
 
                 <div className="space-y-2 pb-4">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
-                    <RichTextEditor
-                        value={message}
-                        onChange={setMessage}
-                        className="border-slate-200"
-                        minHeight={isIOS ? "200px" : "250px"}
-                    />
+                    {isIOS ? (
+                        <textarea
+                            id="message"
+                            value={stripHtml(message)} // Show plain text on iOS to avoid HTML tags
+                            onChange={(e) => {
+                                // Simple update, we lose HTML formatting on iOS edit but it's usable
+                                setMessage(e.target.value.replace(/\n/g, "<br>"))
+                            }}
+                            className="flex w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 disabled:cursor-not-allowed disabled:opacity-50 min-h-[200px]"
+                            placeholder="Rédigez votre message..."
+                        />
+                    ) : (
+                        <RichTextEditor
+                            value={message}
+                            onChange={setMessage}
+                            className="border-slate-200"
+                            minHeight="250px"
+                        />
+                    )}
                 </div>
             </div>
 
