@@ -23,6 +23,7 @@ import {
     CheckCircleIcon,
     PencilIcon,
     GripVertical,
+    Settings2,
 } from "lucide-react"
 
 import {
@@ -74,6 +75,11 @@ export default function DashboardPage() {
     const [paymentContext, setPaymentContext] = React.useState<{ item: any; field: 'acompte_paye' | 'solde_paye' } | null>(null)
     const [selectedPaymentMethod, setSelectedPaymentMethod] = React.useState<string>("")
     const [isSavingPayment, setIsSavingPayment] = React.useState(false)
+
+    // Layout Settings
+    const [visibleWeeks, setVisibleWeeks] = React.useState(2)
+    const [columnsCount, setColumnsCount] = React.useState(2)
+    const [isLayoutSettingsOpen, setIsLayoutSettingsOpen] = React.useState(false)
 
     // Quick Delivery Edit State
     const [isDeliveryDialogOpen, setIsDeliveryDialogOpen] = React.useState(false)
@@ -193,6 +199,12 @@ export default function DashboardPage() {
         setMounted(true)
         fetchData(true)
 
+        // Load layout settings
+        const savedWeeks = localStorage.getItem('dashboard_visible_weeks')
+        const savedCols = localStorage.getItem('dashboard_columns')
+        if (savedWeeks) setVisibleWeeks(parseInt(savedWeeks))
+        if (savedCols) setColumnsCount(parseInt(savedCols))
+
         // Silent background sync when user returns to this tab
         const onFocus = () => fetchData(false)
         window.addEventListener('focus', onFocus)
@@ -201,39 +213,29 @@ export default function DashboardPage() {
 
     const today = React.useMemo(() => new Date(), [])
 
-    const startCurrentWeek = React.useMemo(() => startOfDay(startOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 })), [today, weekOffset])
-    const endCurrentWeek = React.useMemo(() => endOfDay(endOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 })), [today, weekOffset])
+    // Generate an array of weeks to display
+    const displayedWeeks = React.useMemo(() => {
+        return Array.from({ length: visibleWeeks }).map((_, i) => {
+            const start = startOfDay(startOfWeek(addWeeks(today, weekOffset + i), { weekStartsOn: 1 }))
+            const end = endOfDay(endOfWeek(addWeeks(today, weekOffset + i), { weekStartsOn: 1 }))
+            const isCurrent = weekOffset + i === 0
+            const isNext = weekOffset + i === 1
 
-    const startNextWeek = React.useMemo(() => startOfDay(startOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
-    const endNextWeek = React.useMemo(() => endOfDay(endOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
+            // Filter events for this specific week
+            const weekEvents = events.filter(e => {
+                const dateStr = e.data?.date_debut || e.date_debut
+                if (!dateStr) return false
+                try {
+                    const d = parseISO(dateStr)
+                    return d.getTime() >= start.getTime() && d.getTime() <= end.getTime()
+                } catch (err) {
+                    return false
+                }
+            })
 
-    const currentWeekEvents = React.useMemo(() => {
-        if (loading) return []
-        return events.filter(e => {
-            const dateStr = e.data?.date_debut || e.date_debut
-            if (!dateStr) return false
-            try {
-                const d = parseISO(dateStr)
-                return d.getTime() >= startCurrentWeek.getTime() && d.getTime() <= endCurrentWeek.getTime()
-            } catch (err) {
-                return false
-            }
+            return { start, end, events: weekEvents, isCurrent, isNext, index: i }
         })
-    }, [events, loading, startCurrentWeek, endCurrentWeek])
-
-    const nextWeekEvents = React.useMemo(() => {
-        if (loading) return []
-        return events.filter(e => {
-            const dateStr = e.data?.date_debut || e.date_debut
-            if (!dateStr) return false
-            try {
-                const d = parseISO(dateStr)
-                return d.getTime() >= startNextWeek.getTime() && d.getTime() <= endNextWeek.getTime()
-            } catch (err) {
-                return false
-            }
-        })
-    }, [events, loading, startNextWeek, endNextWeek])
+    }, [today, weekOffset, visibleWeeks, events])
 
     if (!mounted) return null
 
@@ -431,149 +433,122 @@ export default function DashboardPage() {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <h2 className="text-3xl font-bold tracking-tight text-slate-900">Tableau de bord</h2>
 
-                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm self-stretch sm:self-auto justify-center">
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
-                        onClick={() => setWeekOffset(prev => prev - 1)}
-                        title="Semaine précédente"
-                    >
-                        <ChevronLeft className="size-5" />
-                    </Button>
+                <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm self-stretch sm:self-auto justify-center">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                            onClick={() => setWeekOffset(prev => prev - 1)}
+                            title="Précédent"
+                        >
+                            <ChevronLeft className="size-5" />
+                        </Button>
 
-                    <div className="px-3 py-1 flex flex-col items-center min-w-[140px]">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 leading-none mb-1">
-                            {weekOffset === 0 ? "Cette semaine" : (weekOffset === 1 ? "La semaine prochaine" : `Offset: ${weekOffset > 0 ? '+' : ''}${weekOffset} sem.`)}
-                        </span>
-                        <span className="text-xs font-bold text-indigo-700 whitespace-nowrap">
-                            {format(startCurrentWeek, 'dd MMM', { locale: fr })} - {format(endCurrentWeek, 'dd MMM', { locale: fr })}
-                        </span>
+                        <div className="px-3 py-1 flex flex-col items-center min-w-[120px]">
+                            <span className="text-xs font-bold text-indigo-700 whitespace-nowrap">
+                                Semaine {weekOffset === 0 ? "actuelle" : (weekOffset > 0 ? `+${weekOffset}` : weekOffset)}
+                            </span>
+                        </div>
+
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                            onClick={() => setWeekOffset(prev => prev + 1)}
+                            title="Suivant"
+                        >
+                            <ChevronRight className="size-5" />
+                        </Button>
+
+                        {weekOffset !== 0 && (
+                            <>
+                                <div className="w-px h-6 bg-slate-200 mx-1" />
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 px-2 text-[10px] font-bold uppercase tracking-tight text-indigo-600 hover:bg-indigo-50"
+                                    onClick={() => setWeekOffset(0)}
+                                >
+                                    Auj.
+                                </Button>
+                            </>
+                        )}
                     </div>
 
                     <Button
-                        variant="ghost"
+                        variant="outline"
                         size="icon"
-                        className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
-                        onClick={() => setWeekOffset(prev => prev + 1)}
-                        title="Semaine suivante"
+                        className="h-10 w-10 border-slate-200 shadow-sm bg-white hover:bg-slate-50 text-slate-500"
+                        onClick={() => setIsLayoutSettingsOpen(true)}
+                        title="Paramètres d'affichage"
                     >
-                        <ChevronRight className="size-5" />
+                        <Settings2 className="size-5" />
                     </Button>
-
-                    {weekOffset !== 0 && (
-                        <>
-                            <div className="w-px h-6 bg-slate-200 mx-1" />
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 px-2 text-[10px] font-bold uppercase tracking-tight text-indigo-600 hover:bg-indigo-50"
-                                onClick={() => setWeekOffset(0)}
-                            >
-                                Aujourd'hui
-                            </Button>
-                        </>
-                    )}
                 </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                {/* Current Week Column */}
-                <div className="col-span-4 lg:col-span-3 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-base sm:text-lg font-semibold text-indigo-900 flex items-center gap-2">
-                            <CalendarIcon className="size-5 text-indigo-600" />
-                            {weekOffset === 0 ? "Cette semaine" : "Semaine du " + format(startCurrentWeek, 'dd/MM')}
-                            <Badge variant="secondary" className="ml-2 font-normal text-[10px] sm:text-xs">
-                                {format(startCurrentWeek, 'd MMM', { locale: fr })} - {format(endCurrentWeek, 'd MMM', { locale: fr })}
+            <div className={`grid gap-6`} style={{
+                gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
+            }}>
+                {displayedWeeks.map((week, idx) => (
+                    <div key={idx} className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className={`text-base sm:text-lg font-semibold flex items-center gap-2 ${week.isCurrent ? 'text-indigo-900' : 'text-slate-700'}`}>
+                                <CalendarIcon className={`size-5 ${week.isCurrent ? 'text-indigo-600' : 'text-slate-400'}`} />
+                                {week.isCurrent ? "Cette semaine" : (week.isNext ? "Semaine prochaine" : "Semaine du " + format(week.start, 'dd/MM'))}
+                                <Badge variant="secondary" className="ml-2 font-normal text-[10px] sm:text-xs">
+                                    {format(week.start, 'd MMM', { locale: fr })} - {format(week.end, 'd MMM', { locale: fr })}
+                                </Badge>
+                            </h3>
+                            <Badge className={`${week.isCurrent ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-700'} border-none`}>
+                                {week.events.length}
                             </Badge>
-                        </h3>
-                        <Badge className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 border-none">{currentWeekEvents.length}</Badge>
-                    </div>
-
-                    {loading ? (
-                        <div className="space-y-3">
-                            <Skeleton className="h-32 w-full rounded-xl" />
-                            <Skeleton className="h-32 w-full rounded-xl" />
                         </div>
-                    ) : currentWeekEvents.length === 0 ? (
-                        <Card className="bg-slate-50 border-dashed border-2">
-                            <CardContent className="flex flex-col items-center justify-center h-40 text-slate-400">
-                                <CalendarIcon className="size-10 mb-2 opacity-20" />
-                                <p className="text-sm font-medium">Aucun événement cette semaine</p>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={currentWeekEvents.map(e => e.id)}
-                                strategy={verticalListSortingStrategy}
+
+                        {loading ? (
+                            <div className="space-y-3">
+                                <Skeleton className="h-32 w-full rounded-xl" />
+                                <Skeleton className="h-32 w-full rounded-xl" />
+                            </div>
+                        ) : week.events.length === 0 ? (
+                            <Card className="bg-slate-50 border-dashed border-2">
+                                <CardContent className="flex flex-col items-center justify-center h-40 text-slate-400 p-6 text-center">
+                                    <CalendarIcon className="size-10 mb-2 opacity-20" />
+                                    <p className="text-sm font-medium leading-tight">Aucun événement<br />{format(week.start, 'dd MMM')} au {format(week.end, 'dd MMM')}</p>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
                             >
-                                <div className="min-h-[50px] pb-1">
-                                    {currentWeekEvents.map(event => (
-                                        <SortableEventCard key={event.id} id={event.id}>
-                                            <EventCard event={event} isNextWeek={false} settings={settings} onPay={(item) => { setPaymentContext({ item, field: 'solde_paye' }); setIsPaymentDialogOpen(true); }} onToggleStep={handleToggleStep} onEditDelivery={openDeliveryDialog} onEquipmentChange={handleEquipmentChange} allEvents={allBookings} />
-                                        </SortableEventCard>
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
-                    )}
-                </div>
-
-                {/* Divider / Spacer on Desktop */}
-                <div className="hidden lg:block col-span-1"></div>
-
-                {/* Next Week Column */}
-                <div className="col-span-4 lg:col-span-3 space-y-4">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-base sm:text-lg font-semibold text-slate-700 flex items-center gap-2">
-                            <CalendarIcon className="size-5 text-slate-500" />
-                            {weekOffset === 0 ? "Semaine prochaine" : "Semaine suivante"}
-                            <Badge variant="secondary" className="ml-2 font-normal text-[10px] sm:text-xs">
-                                {format(startNextWeek, 'd MMM', { locale: fr })} - {format(endNextWeek, 'd MMM', { locale: fr })}
-                            </Badge>
-                        </h3>
-                        <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none">{nextWeekEvents.length}</Badge>
+                                <SortableContext
+                                    items={week.events.map(e => e.id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    <div className="space-y-3 min-h-[50px]">
+                                        {week.events.map(event => (
+                                            <SortableEventCard key={event.id} id={event.id}>
+                                                <EventCard
+                                                    event={event}
+                                                    isNextWeek={!week.isCurrent}
+                                                    settings={settings}
+                                                    onPay={(item) => { setPaymentContext({ item, field: 'solde_paye' }); setIsPaymentDialogOpen(true); }}
+                                                    onToggleStep={handleToggleStep}
+                                                    onEditDelivery={openDeliveryDialog}
+                                                    onEquipmentChange={handleEquipmentChange}
+                                                    allEvents={allBookings}
+                                                />
+                                            </SortableEventCard>
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
+                        )}
                     </div>
-
-                    {loading ? (
-                        <div className="space-y-3">
-                            <Skeleton className="h-32 w-full rounded-xl" />
-                            <Skeleton className="h-32 w-full rounded-xl" />
-                        </div>
-                    ) : nextWeekEvents.length === 0 ? (
-                        <Card className="bg-slate-50/50 border-dashed border-2">
-                            <CardContent className="flex flex-col items-center justify-center h-40 text-slate-400">
-                                <CalendarIcon className="size-10 mb-2 opacity-20" />
-                                <p className="text-sm font-medium">Rien de prévu la semaine prochaine</p>
-                            </CardContent>
-                        </Card>
-                    ) : (
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={nextWeekEvents.map(e => e.id)}
-                                strategy={verticalListSortingStrategy}
-                            >
-                                <div className="space-y-3">
-                                    {nextWeekEvents.map(event => (
-                                        <SortableEventCard key={event.id} id={event.id}>
-                                            <EventCard event={event} isNextWeek={true} settings={settings} onPay={(item) => { setPaymentContext({ item, field: 'solde_paye' }); setIsPaymentDialogOpen(true); }} onToggleStep={handleToggleStep} onEditDelivery={openDeliveryDialog} onEquipmentChange={handleEquipmentChange} allEvents={allBookings} />
-                                        </SortableEventCard>
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
-                    )}
-                </div>
+                ))}
             </div>
 
             {/* Payment Dialog */}
@@ -616,6 +591,72 @@ export default function DashboardPage() {
                             ) : (
                                 "Confirmer le paiement"
                             )}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Layout Settings Dialog */}
+            <Dialog open={isLayoutSettingsOpen} onOpenChange={setIsLayoutSettingsOpen}>
+                <DialogContent className="sm:max-w-[400px]">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2">
+                            <Settings2 className="size-5 text-indigo-600" />
+                            Configuration de l'affichage
+                        </DialogTitle>
+                        <DialogDescription>
+                            Personnalisez le nombre de semaines et la disposition des colonnes.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-6 py-4">
+                        <div className="space-y-3">
+                            <Label className="text-sm font-bold flex items-center justify-between">
+                                Semaines à afficher
+                                <Badge variant="outline" className="ml-2 bg-indigo-50 text-indigo-700 border-indigo-200">{visibleWeeks} sem.</Badge>
+                            </Label>
+                            <div className="grid grid-cols-6 gap-2">
+                                {[1, 2, 3, 4, 5, 6].map(num => (
+                                    <Button
+                                        key={num}
+                                        variant={visibleWeeks === num ? "default" : "outline"}
+                                        className={`h-10 w-full ${visibleWeeks === num ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                                        onClick={() => {
+                                            setVisibleWeeks(num)
+                                            localStorage.setItem('dashboard_visible_weeks', num.toString())
+                                        }}
+                                    >
+                                        {num}
+                                    </Button>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <Label className="text-sm font-bold flex items-center justify-between">
+                                Colonnes par ligne
+                                <Badge variant="outline" className="ml-2 bg-slate-50 text-slate-700 border-slate-200">{columnsCount} col.</Badge>
+                            </Label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {[1, 2, 3, 4].map(num => (
+                                    <Button
+                                        key={num}
+                                        variant={columnsCount === num ? "default" : "outline"}
+                                        className={`h-10 w-full ${columnsCount === num ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                                        onClick={() => {
+                                            setColumnsCount(num)
+                                            localStorage.setItem('dashboard_columns', num.toString())
+                                        }}
+                                    >
+                                        {num}
+                                    </Button>
+                                ))}
+                            </div>
+                            <p className="text-[10px] text-slate-400 italic">Note: Sur mobile, l'affichage passera automatiquement en 1 colonne pour plus de lisibilité.</p>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button className="w-full bg-slate-900" onClick={() => setIsLayoutSettingsOpen(false)}>
+                            Terminer
                         </Button>
                     </DialogFooter>
                 </DialogContent>
