@@ -302,6 +302,7 @@ export default function CalendarPage() {
                             id="devis-contrat-form"
                             key={editingItem?.id || `${formMode}-${isDialogOpen}`}
                             mode={formMode}
+                            initialData={editingItem}
                             onSuccess={() => {
                                 setIsDialogOpen(false)
                                 fetchData()

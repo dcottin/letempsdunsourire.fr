@@ -124,21 +124,15 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     const [internalMode, setInternalMode] = React.useState<"devis" | "contrat">(initialMode)
     const { setSaving, setSaved, setError } = useSaveStatus()
 
-    // Debug logging
-    console.log("DevisContratForm rendered. ID:", id, "Mode:", initialMode, "InitialData:", initialData)
-
-    // Sanitize initialData to ensure it matches formSchema expectations
     const sanitizedInitialData = React.useMemo(() => {
         if (!initialData) return null
         const data = initialData.data || {}
-        const result = {
+        return {
             ...initialData,
             ...data,
             prix_total: (initialData.prix_total || data.prix_total || "0").toString(),
             selected_options: data.selected_options || initialData.selected_options || []
         }
-        console.log("Sanitized Data:", result)
-        return result
     }, [initialData])
 
     const form = useForm<z.infer<typeof formSchema>>({
