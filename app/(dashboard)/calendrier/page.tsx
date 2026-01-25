@@ -304,62 +304,68 @@ export default function CalendarPage() {
             </Dialog>
 
             <Dialog open={availabilityOpen} onOpenChange={setAvailabilityOpen}>
-                <DialogContent className="sm:max-w-md max-h-[80vh] overflow-hidden flex flex-col">
+                <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
                     <DialogHeader className="pb-2 text-center border-b shrink-0">
                         <DialogTitle>Disponibilités du {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: fr }) : ''}</DialogTitle>
                     </DialogHeader>
-                    <div className="overflow-y-auto flex-1 p-1 space-y-4">
-                        <div className="space-y-2">
-                            <h4 className="text-sm font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2">
-                                <CheckCircle2Icon className="h-4 w-4" /> Disponible(s)
-                            </h4>
-                            {availableMat.length > 0 ? (
-                                <div className="grid gap-2">
-                                    {availableMat.map((mat: any) => (
-                                        <div key={mat.id} className="bg-emerald-50 border border-emerald-100 p-3 rounded-lg flex items-center gap-3">
-                                            {mat.img_main ? (
-                                                <img src={mat.img_main} className="w-10 h-10 rounded object-cover bg-white" />
-                                            ) : (
-                                                <div className="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs">
-                                                    IMG
-                                                </div>
-                                            )}
-                                            <span className="font-semibold text-slate-700">{mat.nom}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-xs text-slate-400 italic">Aucun matériel disponible.</p>
-                            )}
-                        </div>
-
-                        <div className="space-y-2">
-                            <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-                                <ClockIcon className="h-4 w-4" /> Réservé(s)
-                            </h4>
-                            {bookedMat.length > 0 ? (
-                                <div className="grid gap-2">
-                                    {bookedMat.map((item: any) => (
-                                        <div key={item.mat.id} className="bg-slate-50 border border-slate-100 p-3 rounded-lg flex items-center gap-3 opacity-75">
-                                            {item.mat.img_main ? (
-                                                <img src={item.mat.img_main} className="w-10 h-10 rounded object-cover bg-white grayscale" />
-                                            ) : (
-                                                <div className="w-10 h-10 rounded bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs">
-                                                    IMG
-                                                </div>
-                                            )}
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-semibold text-slate-700 truncate">{item.mat.nom}</p>
-                                                <p className="text-[10px] text-slate-500 flex items-center gap-1">
-                                                    Réservé par: <span className="font-bold">{item.booking.nom_client}</span>
-                                                </p>
+                    <div className="overflow-y-auto flex-1 p-2 md:p-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+                            <div className="space-y-3">
+                                <h4 className="text-sm font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-emerald-100">
+                                    <CheckCircle2Icon className="h-4 w-4" /> Disponible(s)
+                                </h4>
+                                {availableMat.length > 0 ? (
+                                    <div className="grid gap-2">
+                                        {availableMat.map((mat: any) => (
+                                            <div key={mat.id} className="bg-emerald-50 border border-emerald-100 p-2 rounded-lg flex items-center gap-3">
+                                                {mat.img_main ? (
+                                                    <img src={mat.img_main} className="w-10 h-10 rounded object-cover bg-white shrink-0" />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded bg-emerald-100 flex items-center justify-center text-emerald-600 font-bold text-xs shrink-0">
+                                                        IMG
+                                                    </div>
+                                                )}
+                                                <span className="font-semibold text-slate-700 text-sm">{mat.nom}</span>
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-xs text-slate-400 italic">Aucune réservation ce jour.</p>
-                            )}
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-4 text-center bg-slate-50 rounded-lg border border-slate-100 border-dashed">
+                                        <p className="text-xs text-slate-400 italic">Aucun matériel disponible.</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="space-y-3 md:border-l md:pl-4 border-slate-100">
+                                <h4 className="text-sm font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-slate-100">
+                                    <ClockIcon className="h-4 w-4" /> Réservé(s)
+                                </h4>
+                                {bookedMat.length > 0 ? (
+                                    <div className="grid gap-2">
+                                        {bookedMat.map((item: any) => (
+                                            <div key={item.mat.id} className="bg-slate-50 border border-slate-100 p-2 rounded-lg flex items-center gap-3 opacity-75">
+                                                {item.mat.img_main ? (
+                                                    <img src={item.mat.img_main} className="w-10 h-10 rounded object-cover bg-white grayscale shrink-0" />
+                                                ) : (
+                                                    <div className="w-10 h-10 rounded bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs shrink-0">
+                                                        IMG
+                                                    </div>
+                                                )}
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-semibold text-slate-700 truncate text-sm">{item.mat.nom}</p>
+                                                    <p className="text-[10px] text-slate-500 flex items-center gap-1">
+                                                        <span className="truncate">Par: <span className="font-bold">{item.booking.nom_client}</span></span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-4 text-center bg-slate-50 rounded-lg border border-slate-100 border-dashed">
+                                        <p className="text-xs text-slate-400 italic">Aucune réservation ce jour.</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </DialogContent>
