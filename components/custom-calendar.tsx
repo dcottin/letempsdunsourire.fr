@@ -229,9 +229,9 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                     key={day.toString()}
                                     onClick={() => onDateClick?.(day)}
                                     className={cn(
-                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50/50 cursor-pointer relative group",
-                                        !isCurrentMonth && "bg-slate-50/30 text-slate-400",
-                                        isTodayDate && "bg-indigo-50/30"
+                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors cursor-pointer relative group",
+                                        isCurrentMonth ? "bg-white hover:bg-slate-50" : "bg-slate-100/80 text-slate-400",
+                                        isTodayDate && "bg-indigo-50 hover:bg-indigo-100/50"
                                     )}
                                 >
                                     <div className="flex justify-between items-start">
