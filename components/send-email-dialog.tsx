@@ -171,7 +171,13 @@ export function SendEmailDialog({
 
                         <div className="grid gap-1">
                             <Label htmlFor="subject" className="text-xs uppercase font-bold text-slate-500">Sujet</Label>
-                            <Input id="subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="h-9" />
+                            <Input
+                                id="subject"
+                                value={subject}
+                                onChange={(e) => setSubject(e.target.value)}
+                                className="h-9 font-medium"
+                                placeholder="Sujet de l'email..."
+                            />
                         </div>
                     </div>
                 </div>
