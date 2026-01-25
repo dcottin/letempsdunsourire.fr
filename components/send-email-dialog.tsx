@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from "react"
-import { createPortal } from "react-dom"
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import {
     Dialog,
@@ -185,12 +184,29 @@ export function SendEmailDialog({
 
                 <div className="space-y-2 pb-4">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
-                    <RichTextEditor
-                        value={message}
-                        onChange={setMessage}
-                        className="border-slate-200"
-                        minHeight={isIOS ? "200px" : "250px"}
-                    />
+                    {isIOS ? (
+                        <div
+                            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 min-h-[200px] overflow-y-auto"
+                            contentEditable={true}
+                            suppressContentEditableWarning={true}
+                            dangerouslySetInnerHTML={{ __html: message }}
+                            onInput={(e) => {
+                                setMessage(e.currentTarget.innerHTML)
+                            }}
+                            style={{
+                                WebkitUserSelect: 'text',
+                                userSelect: 'text',
+                                WebkitTouchCallout: 'default'
+                            }}
+                        />
+                    ) : (
+                        <RichTextEditor
+                            value={message}
+                            onChange={setMessage}
+                            className="border-slate-200"
+                            minHeight="250px"
+                        />
+                    )}
                 </div>
             </div>
 
@@ -212,40 +228,13 @@ export function SendEmailDialog({
         </div>
     )
 
-    const [mounted, setMounted] = useState(false)
-    useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    if (isIOS && open && mounted) {
-        return createPortal(
+    if (isIOS && open) {
+        return (
             <div
-                className="fixed inset-0 z-[999999] bg-white h-[100dvh] w-screen flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200 pointer-events-auto"
-                style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                onMouseDown={(e) => e.stopPropagation()}
-                onMouseUp={(e) => e.stopPropagation()}
-                onMouseMove={(e) => e.stopPropagation()}
-                onPointerDown={(e) => e.stopPropagation()}
-                onPointerUp={(e) => e.stopPropagation()}
-                onPointerMove={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-                onKeyUp={(e) => e.stopPropagation()}
-                onKeyPress={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
-                onTouchMove={(e) => e.stopPropagation()}
-                onTouchEnd={(e) => e.stopPropagation()}
-                onInput={(e) => e.stopPropagation()}
-                onChange={(e) => e.stopPropagation()}
-                onWheel={(e) => e.stopPropagation()}
-                onScroll={(e) => e.stopPropagation()}
-                onCompositionStart={(e) => e.stopPropagation()}
-                onCompositionUpdate={(e) => e.stopPropagation()}
-                onCompositionEnd={(e) => e.stopPropagation()}
+                className="fixed inset-0 z-[9999] bg-white h-[100dvh] w-screen overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
             >
                 {content}
-            </div>,
-            document.body
+            </div>
         )
     }
 
