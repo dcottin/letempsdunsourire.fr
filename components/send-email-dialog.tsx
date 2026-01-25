@@ -93,7 +93,12 @@ export function SendEmailDialog({
         setIsSending(true)
         try {
             // On iOS, convert final textarea value (plain text) back to HTML format
-            const finalMessage = isIOS ? message.trim().replace(/\n/g, "<br>") : message
+            // and automatically bold all variables {{...}}
+            const finalMessage = isIOS
+                ? message.trim()
+                    .replace(/\n/g, "<br>")
+                    .replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, "<strong>{{$1}}</strong>")
+                : message
             await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
         } catch (error) {
