@@ -42,6 +42,7 @@ interface RichTextEditorProps {
     singleLine?: boolean
     theme?: 'indigo' | 'purple' | 'emerald' | 'pink'
     className?: string
+    contentClassName?: string
 }
 
 export interface RichTextEditorRef {
@@ -49,7 +50,7 @@ export interface RichTextEditorRef {
 }
 
 export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(
-    ({ value, onChange, onFocus, placeholder = "Rédigez votre message...", minHeight = "200px", singleLine = false, theme = 'indigo', className = "" }, ref) => {
+    ({ value, onChange, onFocus, placeholder = "Rédigez votre message...", minHeight = "200px", singleLine = false, theme = 'indigo', className = "", contentClassName }, ref) => {
         const lastValueRef = useRef<string | null>(null);
         const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -348,7 +349,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
+                        : contentClassName || `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
                     }
                 />
                 <style jsx global>{`
