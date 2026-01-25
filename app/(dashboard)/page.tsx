@@ -188,7 +188,6 @@ export default function DashboardPage() {
             setSettings(settingsRes.data.data)
         }
 
-        setLoading(false)
     }, [])
 
     React.useEffect(() => {
@@ -201,8 +200,6 @@ export default function DashboardPage() {
         return () => window.removeEventListener('focus', onFocus)
     }, [fetchData])
 
-    if (!mounted) return null
-
     const today = React.useMemo(() => new Date(), [])
 
     const startCurrentWeek = React.useMemo(() => startOfDay(startOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 })), [today, weekOffset])
@@ -210,6 +207,8 @@ export default function DashboardPage() {
 
     const startNextWeek = React.useMemo(() => startOfDay(startOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
     const endNextWeek = React.useMemo(() => endOfDay(endOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
+
+    if (!mounted) return null
 
     const currentWeekEvents = events.filter(e => {
         const dateStr = e.data?.date_debut || e.date_debut
