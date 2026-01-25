@@ -13,6 +13,7 @@ import {
     isSameMonth,
     isSameDay,
     isToday,
+    isWeekend,
     parseISO
 } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -212,6 +213,8 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                             // If overflow, show NO events, just the button. Otherwise show all (up to max).
                             const visibleEvents = isOverflow ? [] : dayEvents
 
+                            const isWeekendDay = isWeekend(day)
+
                             return (
                                 <div
                                     key={day.toString()}
@@ -223,7 +226,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                     )}
                                 >
                                     <div className="flex justify-between items-start">
-                                        {availableCount !== null && (
+                                        {availableCount !== null && isWeekendDay && (
                                             <span className={cn(
                                                 "text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full",
                                                 availableCount > 0
