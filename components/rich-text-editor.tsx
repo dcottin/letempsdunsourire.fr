@@ -282,7 +282,35 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Toolbar separator only if we have more items */}
+                    <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
+
+                    <div className="flex items-center gap-0.5 shrink-0">
+                        <Toggle
+                            size="sm"
+                            className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                            pressed={editor.isActive('bold')}
+                            onPressedChange={() => editor.chain().focus().toggleBold().run()}
+                        >
+                            <BoldIcon className="size-4 sm:size-3.5" />
+                        </Toggle>
+                        <Toggle
+                            size="sm"
+                            className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                            pressed={editor.isActive('italic')}
+                            onPressedChange={() => editor.chain().focus().toggleItalic().run()}
+                        >
+                            <ItalicIcon className="size-4 sm:size-3.5" />
+                        </Toggle>
+                        <Toggle
+                            size="sm"
+                            className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
+                            pressed={editor.isActive('underline')}
+                            onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
+                        >
+                            <UnderlineIcon className="size-4 sm:size-3.5" />
+                        </Toggle>
+                    </div>
+
                     {!singleLine && (
                         <>
                             <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
@@ -303,35 +331,6 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                                     <SelectItem value="30" className="text-xs">30px</SelectItem>
                                 </SelectContent>
                             </Select>
-
-                            <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
-
-                            <div className="flex items-center gap-0.5 shrink-0">
-                                <Toggle
-                                    size="sm"
-                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
-                                    pressed={editor.isActive('bold')}
-                                    onPressedChange={() => editor.chain().focus().toggleBold().run()}
-                                >
-                                    <BoldIcon className="size-4 sm:size-3.5" />
-                                </Toggle>
-                                <Toggle
-                                    size="sm"
-                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
-                                    pressed={editor.isActive('italic')}
-                                    onPressedChange={() => editor.chain().focus().toggleItalic().run()}
-                                >
-                                    <ItalicIcon className="size-4 sm:size-3.5" />
-                                </Toggle>
-                                <Toggle
-                                    size="sm"
-                                    className={`h-8 w-8 sm:h-7 sm:w-7 p-0 border border-slate-200 bg-white ${themeColors.toggleBg} ${themeColors.toggleText} shadow-sm`}
-                                    pressed={editor.isActive('underline')}
-                                    onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
-                                >
-                                    <UnderlineIcon className="size-4 sm:size-3.5" />
-                                </Toggle>
-                            </div>
 
                             <div className="w-px h-4 bg-slate-200 mx-0.5 shrink-0" />
 
@@ -469,7 +468,7 @@ const Variable = Node.create({
     name: 'variable',
     group: 'inline',
     inline: true,
-    selectable: false,
+    selectable: true,
     draggable: false,
     atom: true,
 
