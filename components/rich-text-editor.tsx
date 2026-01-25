@@ -114,8 +114,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             editorProps: {
                 attributes: {
                     class: singleLine
-                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text select-text bg-white text-base`
-                        : `max-w-none focus:outline-none min-h-[${minHeight}] cursor-text select-text bg-white text-base break-words`,
+                        ? `focus:outline-none p-1.5 min-h-0 h-9 bg-white text-base`
+                        : `focus:outline-none min-h-[${minHeight}] bg-white text-base`,
                     // Platform specific fixes
                     spellcheck: isIOS ? "false" : "true",
                     autocorrect: isIOS ? "off" : "on",
@@ -248,7 +248,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
         return (
             <div
-                className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}
+                className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}
             >
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
@@ -406,20 +406,18 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                     .rte-theme-pink .variable-badge:hover { background-color: #fce7f3; }
                     
-                    /* Global contenteditable fix for iOS */
-                    [contenteditable] {
-                        -webkit-user-select: text !important;
-                        user-select: text !important;
-                    }
+                    /* Global styles for the editor */
+
 
                     .ProseMirror {
+                        display: block;
+                        width: 100%;
                         outline: none;
                         -webkit-tap-highlight-color: transparent;
-                        cursor: text;
                         overflow-wrap: break-word;
                         word-break: break-word;
-                        min-height: 100%;
                         padding: 12px;
+                        touch-action: manipulation;
                     }
                     .ProseMirror * {
                         box-sizing: border-box;

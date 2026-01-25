@@ -178,7 +178,6 @@ export function SendEmailDialog({
                         value={message}
                         onChange={setMessage}
                         className="border-slate-200"
-                        contentClassName="overflow-visible"
                         minHeight={isIOS ? "200px" : "250px"}
                     />
                 </div>
@@ -203,7 +202,6 @@ export function SendEmailDialog({
         return (
             <div
                 className="fixed inset-0 z-[9999] bg-white overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-200"
-                style={{ WebkitOverflowScrolling: 'touch' }}
             >
                 {content}
             </div>
