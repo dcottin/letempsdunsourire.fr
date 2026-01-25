@@ -177,7 +177,7 @@ export function SendEmailDialog({
                                 value={message}
                                 onChange={setMessage}
                                 className="flex-1 overflow-hidden border-slate-200"
-                                contentClassName="flex-1 overflow-y-auto custom-scrollbar p-3 min-h-0"
+                                contentClassName="flex-1 overflow-y-auto custom-scrollbar min-h-0"
                                 minHeight="100%"
                             />
                         </div>

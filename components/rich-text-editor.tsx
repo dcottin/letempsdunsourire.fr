@@ -241,11 +241,6 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         return (
             <div
                 className={`rte-theme-${theme} border rounded-md overflow-hidden bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}
-                onClick={() => {
-                    if (editor && !editor.isFocused) {
-                        editor.chain().focus().run()
-                    }
-                }}
             >
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
@@ -418,6 +413,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         word-break: break-word;
                         overflow-x: hidden;
                         min-height: 100%;
+                        padding: 12px;
+                        touch-action: pan-y;
                     }
                     .ProseMirror * {
                         user-select: text !important;
