@@ -114,8 +114,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             editorProps: {
                 attributes: {
                     class: singleLine
-                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text select-text touch-action-manipulation bg-white text-base`
-                        : `max-w-none focus:outline-none min-h-[${minHeight}] cursor-text select-text touch-action-manipulation bg-white text-base overflow-x-hidden break-words`,
+                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text select-text bg-white text-base`
+                        : `max-w-none focus:outline-none min-h-[${minHeight}] cursor-text select-text bg-white text-base overflow-x-hidden break-words`,
                     // Platform specific fixes
                     spellcheck: isIOS ? "false" : "true",
                     autocorrect: isIOS ? "off" : "on",
@@ -195,20 +195,6 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             }
         })
 
-        // iOS specific touch fix: Ensure tapping focused area immediately triggers cursor
-        useEffect(() => {
-            if (!isIOS || !editor) return;
-
-            const handleTouchStart = () => {
-                if (!editor.isFocused) {
-                    editor.commands.focus();
-                }
-            }
-
-            const view = editor.view.dom;
-            view.addEventListener('touchstart', handleTouchStart, { passive: true });
-            return () => view.removeEventListener('touchstart', handleTouchStart);
-        }, [editor, isIOS]);
 
         useEffect(() => {
             if (!editor || value === undefined) return;
@@ -427,9 +413,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     }
 
                     .ProseMirror {
-                        user-select: text !important;
-                        -webkit-user-select: text !important;
-                        -webkit-touch-callout: default !important;
+                        outline: none;
                         -webkit-tap-highlight-color: transparent;
                         cursor: text;
                         overflow-wrap: break-word;
@@ -438,8 +422,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         padding: 12px;
                     }
                     .ProseMirror * {
-                        user-select: text !important;
-                        -webkit-user-select: text !important;
+                        box-sizing: border-box;
                     }
                     .ProseMirror p {
                         margin: 0 !important;
