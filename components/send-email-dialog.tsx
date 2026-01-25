@@ -112,9 +112,9 @@ export function SendEmailDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
-                className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col"
+                className="fixed inset-0 z-50 p-0 m-0 w-screen h-svh max-w-none border-none bg-white rounded-none flex flex-col shadow-none outline-none overflow-hidden"
             >
-                <div className="flex flex-col w-full h-full bg-white overflow-hidden">
+                <div className="flex flex-col h-full bg-white">
                     <DialogHeader className="p-4 pb-3 shrink-0 border-b">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                             <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
@@ -124,8 +124,8 @@ export function SendEmailDialog({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
-                        <div className="shrink-0 space-y-3">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div className="space-y-3">
                             {templates && templates.length > 0 && (
                                 <div className="grid gap-1">
                                     <Label className="text-xs uppercase font-bold text-slate-500">Modèle</Label>
@@ -169,7 +169,7 @@ export function SendEmailDialog({
                             </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-2 pb-4">
                             <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                             <RichTextEditor
                                 value={message}
