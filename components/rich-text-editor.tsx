@@ -115,7 +115,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 attributes: {
                     class: singleLine
                         ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text select-text bg-white text-base`
-                        : `max-w-none focus:outline-none min-h-[${minHeight}] cursor-text select-text bg-white text-base overflow-x-hidden break-words`,
+                        : `max-w-none focus:outline-none min-h-[${minHeight}] cursor-text select-text bg-white text-base break-words`,
                     // Platform specific fixes
                     spellcheck: isIOS ? "false" : "true",
                     autocorrect: isIOS ? "off" : "on",
