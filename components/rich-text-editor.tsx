@@ -455,8 +455,8 @@ const Variable = Node.create({
     name: 'variable',
     group: 'inline',
     inline: true,
-    selectable: true,
-    draggable: true,
+    selectable: false,
+    draggable: false,
     atom: true,
 
     addAttributes() {

@@ -47,11 +47,6 @@ export function SendEmailDialog({
     const [attachRIB, setAttachRIB] = useState(false)
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
-    const [isMobile, setIsMobile] = useState(false)
-
-    useEffect(() => {
-        setIsMobile(window.matchMedia("(max-width: 768px)").matches)
-    }, [])
 
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
@@ -194,23 +189,14 @@ export function SendEmailDialog({
                                 Message
                             </Label>
                             <div className="flex-1 flex flex-col min-h-[250px]">
-                                {isMobile ? (
-                                    <Textarea
-                                        value={stripHtml(message)}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        placeholder="Votre message..."
-                                        className="h-full min-h-[250px] overflow-y-auto resize-none focus-visible:ring-indigo-500 custom-scrollbar"
-                                    />
-                                ) : (
-                                    <RichTextEditor
-                                        value={message}
-                                        onChange={setMessage}
-                                        placeholder="Votre message..."
-                                        minHeight="250px"
-                                        className="flex-1"
-                                        contentClassName="min-h-[200px]"
-                                    />
-                                )}
+                                <RichTextEditor
+                                    value={message}
+                                    onChange={setMessage}
+                                    placeholder="Votre message..."
+                                    minHeight="250px"
+                                    className="flex-1"
+                                    contentClassName="min-h-[250px]"
+                                />
                             </div>
                         </div>
                     </div>
