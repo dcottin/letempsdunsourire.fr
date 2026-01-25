@@ -112,11 +112,9 @@ export function SendEmailDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 onOpenAutoFocus={(e) => e.preventDefault()}
-                onPointerDownOutside={(e) => e.preventDefault()}
-                onInteractOutside={(e) => e.preventDefault()}
-                className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col duration-200"
+                className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col"
             >
-                <div className="flex flex-col w-full h-full select-text cursor-auto bg-white overflow-hidden">
+                <div className="flex flex-col w-full h-full bg-white overflow-hidden">
                     <DialogHeader className="p-4 pb-3 shrink-0 border-b">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                             <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
@@ -126,7 +124,7 @@ export function SendEmailDialog({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
+                    <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
                         <div className="shrink-0 space-y-3">
                             {templates && templates.length > 0 && (
                                 <div className="grid gap-1">
@@ -171,13 +169,12 @@ export function SendEmailDialog({
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-1.5 min-h-[250px] flex-1">
+                        <div className="space-y-2">
                             <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                             <RichTextEditor
                                 value={message}
                                 onChange={setMessage}
-                                className="border-slate-200 min-h-[250px]"
-                                minHeight="250px"
+                                className="border-slate-200"
                             />
                         </div>
                     </div>
