@@ -220,7 +220,7 @@ export function SendEmailDialog({
     if (isIOS && open && mounted) {
         return createPortal(
             <div
-                className="fixed inset-0 z-[99999] bg-white h-[100dvh] w-screen overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
+                className="fixed inset-0 z-[999999] bg-white h-[100dvh] w-screen overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200 pointer-events-auto touch-none"
                 style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
             >
                 {content}
