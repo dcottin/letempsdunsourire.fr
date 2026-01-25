@@ -119,6 +119,14 @@ export function SendEmailDialog({
                 }
             }
 
+            // 3. Late Logo Injection (for both iOS and Desktop)
+            // This ensures the logo tag survives any text-only editing
+            if (replacements && replacements["{{company_logo}}"]) {
+                const logoHtml = replacements["{{company_logo}}"]
+                // Use split/join to replace all occurrences
+                finalMessage = finalMessage.split("{{company_logo}}").join(logoHtml)
+            }
+
             await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
         } catch (error) {

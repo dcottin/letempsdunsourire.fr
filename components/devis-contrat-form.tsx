@@ -931,7 +931,10 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
         Object.entries(replacements).forEach(([key, value]) => {
             subject = subject.split(key).join(value || "");
-            body = body.split(key).join(value || "");
+            // Don't replace company_logo in the body yet, let the dialog handle it at send-time
+            if (key !== "{{company_logo}}") {
+                body = body.split(key).join(value || "");
+            }
         });
 
         const templates = (statusSettings?.mail_templates || []).filter((t: any) => t.type === (type === "invoice" ? "facture" : (type === "contract" ? (internalMode === "contrat" ? "contrat" : "devis") : type)))
