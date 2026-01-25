@@ -66,8 +66,8 @@ export default function CalendarPage() {
             const { data: contratsData } = await supabase.from('contrats').select('*')
             const { data: settingsData } = await supabase.from('settings').select('data').single()
 
-            setDevisList((devisData || []).map(item => ({ ...item, ...item.data })))
-            setContratsList((contratsData || []).map(item => ({ ...item, ...item.data })))
+            setDevisList((devisData || []).map(item => ({ ...item, ...item.data, type: 'devis' })))
+            setContratsList((contratsData || []).map(item => ({ ...item, ...item.data, type: 'contrat' })))
 
             if (settingsData?.data?.materiels) {
                 setMateriels(settingsData.data.materiels)
