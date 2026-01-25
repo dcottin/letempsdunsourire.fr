@@ -213,7 +213,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
             // CRITICAL: Block all updates from props if focusing (typing) on iOS
             // This prevents the state loop from resetting the cursor position
-            if (editor.isFocused()) {
+            if (editor.isFocused) {
                 lastValueRef.current = value;
                 return;
             }
