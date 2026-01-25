@@ -430,13 +430,12 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         user-select: text !important;
                         -webkit-user-select: text !important;
                         -webkit-touch-callout: default !important;
+                        -webkit-tap-highlight-color: transparent;
                         cursor: text;
                         overflow-wrap: break-word;
                         word-break: break-word;
-                        overflow-x: hidden;
                         min-height: 100%;
                         padding: 12px;
-                        touch-action: pan-y;
                     }
                     .ProseMirror * {
                         user-select: text !important;

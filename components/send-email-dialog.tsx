@@ -127,7 +127,10 @@ export function SendEmailDialog({
                 )}
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 pb-[env(safe-area-inset-bottom,40px)]">
+            <div
+                className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 pb-[env(safe-area-inset-bottom,40px)]"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+            >
                 <div className="shrink-0 space-y-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
@@ -200,7 +203,7 @@ export function SendEmailDialog({
 
     if (isIOS && open) {
         return (
-            <div className="fixed inset-0 z-[9999] bg-white flex flex-col overscroll-none animate-in fade-in slide-in-from-bottom-4 duration-200 overflow-hidden">
+            <div className="fixed inset-0 z-[9999] bg-white flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200 overflow-hidden">
                 <InternalContent />
             </div>
         )
