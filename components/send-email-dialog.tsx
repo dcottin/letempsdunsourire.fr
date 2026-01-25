@@ -222,6 +222,10 @@ export function SendEmailDialog({
             <div
                 className="fixed inset-0 z-[999999] bg-white h-[100dvh] w-screen flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200"
                 style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
             >
                 {content}
             </div>,
