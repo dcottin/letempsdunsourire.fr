@@ -121,7 +121,7 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col duration-200">
+            <DialogContent className="w-full h-full max-w-none md:max-w-4xl md:h-[90dvh] md:rounded-2xl p-0 overflow-hidden bg-white flex flex-col gap-0 border-none shadow-2xl duration-200">
                 <div className="flex flex-col w-full h-full select-text cursor-auto bg-white">
                     <DialogHeader className="p-4 pb-3 shrink-0 border-b">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">

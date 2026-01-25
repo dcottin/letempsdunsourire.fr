@@ -812,7 +812,7 @@ END:VCARD`
 
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogContent
-                    className="fixed z-50 !w-[100vw] !h-[100vh] !max-w-none !m-0 !rounded-none p-0 !pt-[env(safe-area-inset-top,0px)] !pb-[env(safe-area-inset-bottom,0px)] border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col"
+                    className="w-full h-full max-w-none lg:max-w-[1200px] lg:h-[95dvh] lg:rounded-2xl p-0 overflow-hidden bg-white flex flex-col gap-0 border-none shadow-2xl"
                     onOpenAutoFocus={(e) => e.preventDefault()}
                 >
                     <DialogHeader className="px-3 sm:px-6 py-2 sm:py-3 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between min-h-[52px]">
