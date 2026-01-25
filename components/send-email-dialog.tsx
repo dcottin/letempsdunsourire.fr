@@ -188,14 +188,14 @@ export function SendEmailDialog({
                             <Label htmlFor="message">
                                 Message
                             </Label>
-                            <div className="flex-1 flex flex-col min-h-[250px]">
+                            <div className="flex-1 flex flex-col min-h-[100px]">
                                 <RichTextEditor
                                     value={message}
                                     onChange={setMessage}
                                     placeholder="Votre message..."
-                                    minHeight="250px"
+                                    minHeight="100px"
                                     className="flex-1"
-                                    contentClassName="min-h-[250px]"
+                                    contentClassName="min-h-[100px]"
                                 />
                             </div>
                         </div>
