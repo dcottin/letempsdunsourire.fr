@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SendIcon, Loader2, MailIcon, XIcon } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useIsIOS } from "@/hooks/use-ios"
+import { cn } from "@/lib/utils"
 
 interface SendEmailDialogProps {
     open: boolean
@@ -110,8 +111,11 @@ export function SendEmailDialog({
     }
 
     const content = (
-        <div className="bg-white w-full h-full flex flex-col overflow-hidden">
-            <DialogHeader className="p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between bg-white z-20">
+        <div className={`bg-white w-full ${isIOS ? 'h-[100dvh] overflow-y-auto' : 'h-full flex flex-col overflow-hidden'}`}>
+            <DialogHeader className={cn(
+                "p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between bg-white z-30",
+                isIOS && "sticky top-0 shadow-sm"
+            )}>
                 <div className="space-y-1">
                     <DialogTitle className="flex items-center gap-2 text-base sm:text-lg text-slate-900">
                         <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
@@ -127,7 +131,10 @@ export function SendEmailDialog({
                 )}
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+            <div className={cn(
+                "p-4 flex flex-col gap-4",
+                isIOS ? "pb-10" : "flex-1 overflow-y-auto"
+            )}>
                 <div className="shrink-0 space-y-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
@@ -172,14 +179,13 @@ export function SendEmailDialog({
                     </div>
                 </div>
 
-                <div className="space-y-2 flex-1 flex flex-col min-h-[300px]">
+                <div className="space-y-2">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                     <RichTextEditor
                         value={message}
                         onChange={setMessage}
-                        className="border-slate-200 flex-1"
-                        contentClassName="flex-1"
-                        minHeight="200px"
+                        className="border-slate-200"
+                        minHeight="250px"
                     />
                 </div>
 
@@ -187,7 +193,10 @@ export function SendEmailDialog({
                 <div className="h-4 sm:hidden shrink-0" />
             </div>
 
-            <DialogFooter className={`p-4 pt-3 border-t bg-slate-50/50 flex flex-row items-center justify-end gap-3 shrink-0 ${isIOS ? 'pb-[calc(env(safe-area-inset-bottom,20px)+12px)]' : 'pb-4'}`}>
+            <DialogFooter className={cn(
+                "p-4 pt-3 border-t bg-white flex flex-row items-center justify-end gap-3 shrink-0 z-30",
+                isIOS && "sticky bottom-0 pb-[calc(env(safe-area-inset-bottom,20px)+12px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
+            )}>
                 <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="flex-1 sm:flex-none uppercase text-[10px] sm:text-xs font-bold tracking-wider h-10 px-3">
                     Annuler
                 </Button>
@@ -205,7 +214,7 @@ export function SendEmailDialog({
     if (isIOS && open) {
         return (
             <div
-                className="fixed inset-0 z-[9999] bg-white h-[100dvh] flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200"
+                className="fixed inset-0 z-[9999] bg-white animate-in fade-in slide-in-from-bottom-4 duration-200"
             >
                 {content}
             </div>
