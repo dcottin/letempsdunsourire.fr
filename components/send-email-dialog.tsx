@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { RichTextEditor } from "@/components/rich-text-editor"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -49,6 +50,17 @@ export function SendEmailDialog({
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
 
+    const stripHtml = (html: string) => {
+        if (!html) return "";
+        let text = html;
+        text = text.replace(/<p[^>]*>/gi, '');
+        text = text.replace(/<\/p>/gi, '\n');
+        text = text.replace(/<br\s*\/?>/gi, '\n');
+        text = text.replace(/<[^>]*>?/gm, '');
+        text = text.replace(/&nbsp;/g, ' ');
+        return text.trim();
+    }
+
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
         setSelectedTemplate(templateId)
@@ -71,7 +83,8 @@ export function SendEmailDialog({
         }
 
         setSubject(newSubject)
-        setMessage(newBody)
+        // On iOS, we show plain text in the textarea
+        setMessage(isIOS ? stripHtml(newBody) : newBody)
     }
 
     const [prevOpen, setPrevOpen] = useState(false)
@@ -79,34 +92,29 @@ export function SendEmailDialog({
         if (open && !prevOpen) {
             setTo(defaultEmail)
             setSubject(defaultSubject)
-            setMessage(defaultMessage || "")
+            // Initialize with plain text on iOS
+            setMessage(isIOS ? stripHtml(defaultMessage || "") : (defaultMessage || ""))
             setAttachRIB(hasRIB ? true : false)
             setSelectedTemplate("default")
         }
         setPrevOpen(open)
-    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen])
+    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen, isIOS])
 
     const handleSend = async () => {
         setIsSending(true)
         try {
-            await onSend({ to, subject, message, attachRIB })
+            // If on iOS, convert plain text newlines back to HTML paragraphs for sending
+            const finalMessage = isIOS
+                ? message.split('\n').map(line => `<p>${line}</p>`).join('')
+                : message
+
+            await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
         } catch (error) {
             console.error("Error sending email:", error)
         } finally {
             setIsSending(false)
         }
-    }
-
-    const stripHtml = (html: string) => {
-        if (!html) return "";
-        let text = html;
-        text = text.replace(/<p[^>]*>/gi, '');
-        text = text.replace(/<\/p>/gi, '\n');
-        text = text.replace(/<br\s*\/?>/gi, '\n');
-        text = text.replace(/<[^>]*>?/gm, '');
-        text = text.replace(/&nbsp;/g, ' ');
-        return text.trim();
     }
 
     const content = (
@@ -174,12 +182,21 @@ export function SendEmailDialog({
 
                 <div className="space-y-2">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
-                    <RichTextEditor
-                        value={message}
-                        onChange={setMessage}
-                        className="border-slate-200"
-                        minHeight={isIOS ? "200px" : "250px"}
-                    />
+                    {isIOS ? (
+                        <Textarea
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            className="text-base min-h-[200px] border-slate-200 focus:ring-indigo-500"
+                            placeholder="Votre message..."
+                        />
+                    ) : (
+                        <RichTextEditor
+                            value={message}
+                            onChange={setMessage}
+                            className="border-slate-200"
+                            minHeight="250px"
+                        />
+                    )}
                 </div>
             </div>
 
