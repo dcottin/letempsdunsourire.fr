@@ -104,7 +104,10 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
         // Total load = unique machines blocked + unassigned demands
         const totalLoad = uniqueBusyIds.size + unassignedCount
 
-        return Math.max(0, materiels.length - totalLoad)
+        return {
+            count: Math.max(0, materiels.length - totalLoad),
+            hasUnassigned: unassignedCount > 0
+        }
     }
 
     return (
@@ -210,7 +213,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                             const dayEvents = getEventsForDay(day)
                             const isCurrentMonth = isSameMonth(day, monthStart)
                             const isTodayDate = isToday(day)
-                            const availableCount = getAvailabilityForDay(day)
+                            const availability = getAvailabilityForDay(day)
 
                             // Show individual events only if they fit. If there are too many, show just the summary button.
                             const MAX_EVENTS = 2
@@ -232,14 +235,16 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                     )}
                                 >
                                     <div className="flex justify-between items-start">
-                                        {availableCount !== null && isWeekendDay && (
+                                        {availability && isWeekendDay && (
                                             <span className={cn(
-                                                "text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full",
-                                                availableCount > 0
-                                                    ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                                                    : "bg-red-100 text-red-600 border border-red-200"
+                                                "text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-1",
+                                                availability.hasUnassigned
+                                                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                                                    : availability.count > 0
+                                                        ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                                        : "bg-red-100 text-red-600 border border-red-200"
                                             )}>
-                                                {availableCount} dispo
+                                                {availability.hasUnassigned && "⚠️ "}{availability.count} dispo
                                             </span>
                                         )}
                                         <span className={cn(
