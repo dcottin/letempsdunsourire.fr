@@ -72,6 +72,8 @@ export async function POST(req: Request) {
                             body, p, div, span, strong, b, ul, ol, li {
                                 color: #000000 !important;
                                 font-family: sans-serif;
+                                margin: 0 !important;
+                                padding: 0 !important;
                             }
                         </style>
                     </head>
