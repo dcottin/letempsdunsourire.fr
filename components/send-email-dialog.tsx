@@ -110,8 +110,8 @@ export function SendEmailDialog({
     }
 
     const InternalContent = () => (
-        <div className="flex flex-col w-full h-full bg-white">
-            <DialogHeader className="p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between sticky top-0 bg-white z-10">
+        <div className={`bg-white w-full ${isIOS ? 'min-h-full' : 'h-full flex flex-col'}`}>
+            <DialogHeader className={`p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between bg-white z-20 ${isIOS ? 'sticky top-0' : ''}`}>
                 <div className="space-y-1">
                     <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                         <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
@@ -127,10 +127,7 @@ export function SendEmailDialog({
                 )}
             </DialogHeader>
 
-            <div
-                className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 pb-[env(safe-area-inset-bottom,40px)]"
-                style={{ WebkitOverflowScrolling: 'touch' }}
-            >
+            <div className={`p-4 flex flex-col gap-4 pb-[env(safe-area-inset-bottom,40px)] ${isIOS ? '' : 'flex-1 overflow-y-auto'}`}>
                 <div className="shrink-0 space-y-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
@@ -175,18 +172,18 @@ export function SendEmailDialog({
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className={`space-y-2 ${isIOS ? 'flex-1' : ''}`}>
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                     <RichTextEditor
                         value={message}
                         onChange={setMessage}
                         className="border-slate-200"
-                        minHeight="250px"
+                        minHeight={isIOS ? "200px" : "250px"}
                     />
                 </div>
             </div>
 
-            <DialogFooter className="m-0 p-4 pt-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] sm:pb-4 border-t bg-slate-50/50 shrink-0 flex flex-row items-center justify-end gap-3 sticky bottom-0 z-10">
+            <DialogFooter className={`p-4 pt-3 border-t bg-slate-50/50 flex flex-row items-center justify-end gap-3 bg-white z-20 ${isIOS ? 'sticky bottom-0 pb-[calc(env(safe-area-inset-bottom,20px)+12px)]' : 'm-0 shrink-0 pb-4'}`}>
                 <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="flex-1 sm:flex-none uppercase text-[10px] sm:text-xs font-bold tracking-wider h-10 px-3">
                     Annuler
                 </Button>
@@ -203,7 +200,10 @@ export function SendEmailDialog({
 
     if (isIOS && open) {
         return (
-            <div className="fixed inset-0 z-[9999] bg-white flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200 overflow-hidden">
+            <div
+                className="fixed inset-0 z-[9999] bg-white overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-200"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+            >
                 <InternalContent />
             </div>
         )
