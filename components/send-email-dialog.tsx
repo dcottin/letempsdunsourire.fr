@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { RichTextEditor } from "@/components/rich-text-editor"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -50,17 +49,6 @@ export function SendEmailDialog({
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
 
-    const stripHtml = (html: string) => {
-        if (!html) return "";
-        let text = html;
-        text = text.replace(/<p[^>]*>/gi, '');
-        text = text.replace(/<\/p>/gi, '\n');
-        text = text.replace(/<br\s*\/?>/gi, '\n');
-        text = text.replace(/<[^>]*>?/gm, '');
-        text = text.replace(/&nbsp;/g, ' ');
-        return text.trim();
-    }
-
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
         setSelectedTemplate(templateId)
@@ -83,7 +71,7 @@ export function SendEmailDialog({
         }
 
         setSubject(newSubject)
-        setMessage(isIOS ? stripHtml(newBody) : newBody)
+        setMessage(newBody)
     }
 
     const [prevOpen, setPrevOpen] = useState(false)
@@ -91,19 +79,17 @@ export function SendEmailDialog({
         if (open && !prevOpen) {
             setTo(defaultEmail)
             setSubject(defaultSubject)
-            setMessage(isIOS ? stripHtml(defaultMessage || "") : (defaultMessage || ""))
+            setMessage(defaultMessage || "")
             setAttachRIB(hasRIB ? true : false)
             setSelectedTemplate("default")
         }
         setPrevOpen(open)
-    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen, isIOS])
+    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen])
 
     const handleSend = async () => {
         setIsSending(true)
         try {
-            // If on iOS, we convert plain text back to something HTML-ish for the email API
-            const finalMessage = isIOS ? message.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br/>') : message
-            await onSend({ to, subject, message: finalMessage, attachRIB })
+            await onSend({ to, subject, message, attachRIB })
             onOpenChange(false)
         } catch (error) {
             console.error("Error sending email:", error)
@@ -112,15 +98,26 @@ export function SendEmailDialog({
         }
     }
 
+    const stripHtml = (html: string) => {
+        if (!html) return "";
+        let text = html;
+        text = text.replace(/<p[^>]*>/gi, '');
+        text = text.replace(/<\/p>/gi, '\n');
+        text = text.replace(/<br\s*\/?>/gi, '\n');
+        text = text.replace(/<[^>]*>?/gm, '');
+        text = text.replace(/&nbsp;/g, ' ');
+        return text.trim();
+    }
+
     const InternalContent = () => (
-        <div className="flex flex-col w-full h-full bg-white overflow-hidden">
-            <DialogHeader className="p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between">
+        <div className="flex flex-col w-full h-full bg-white">
+            <DialogHeader className="p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between sticky top-0 bg-white z-10">
                 <div className="space-y-1">
                     <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                         <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
                     </DialogTitle>
                     <DialogDescription className="text-[10px] sm:text-xs">
-                        Le document sera envoyé en pièce jointe (PDF) au destinataire ci-dessous.
+                        Le document sera envoyé en pièce jointe (PDF).
                     </DialogDescription>
                 </div>
                 {isIOS && (
@@ -130,7 +127,7 @@ export function SendEmailDialog({
                 )}
             </DialogHeader>
 
-            <div className={`flex-1 ${isIOS ? 'overflow-y-auto' : 'overflow-hidden'} p-4 flex flex-col gap-4 pb-[env(safe-area-inset-bottom,20px)]`}>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 pb-[env(safe-area-inset-bottom,40px)]">
                 <div className="shrink-0 space-y-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
@@ -175,29 +172,18 @@ export function SendEmailDialog({
                     </div>
                 </div>
 
-                <div className="flex-1 flex flex-col min-h-0 min-h-[200px] gap-2">
+                <div className="space-y-2">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
-                    {isIOS ? (
-                        <Textarea
-                            id="message"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            placeholder="Écrivez votre message ici..."
-                            className="flex-1 min-h-[200px] text-base border-slate-200 focus:ring-indigo-500"
-                        />
-                    ) : (
-                        <RichTextEditor
-                            value={message}
-                            onChange={setMessage}
-                            className="flex-1 overflow-hidden border-slate-200"
-                            contentClassName="flex-1 overflow-y-auto custom-scrollbar min-h-0"
-                            minHeight="100%"
-                        />
-                    )}
+                    <RichTextEditor
+                        value={message}
+                        onChange={setMessage}
+                        className="border-slate-200"
+                        minHeight="250px"
+                    />
                 </div>
             </div>
 
-            <DialogFooter className="m-0 p-4 pt-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] sm:pb-4 border-t bg-slate-50/50 shrink-0 flex flex-row items-center justify-end gap-3">
+            <DialogFooter className="m-0 p-4 pt-3 pb-[calc(env(safe-area-inset-bottom,0px)+12px)] sm:pb-4 border-t bg-slate-50/50 shrink-0 flex flex-row items-center justify-end gap-3 sticky bottom-0 z-10">
                 <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="flex-1 sm:flex-none uppercase text-[10px] sm:text-xs font-bold tracking-wider h-10 px-3">
                     Annuler
                 </Button>
@@ -214,7 +200,7 @@ export function SendEmailDialog({
 
     if (isIOS && open) {
         return (
-            <div className="fixed inset-0 z-[9999] bg-white flex flex-col overscroll-none animate-in fade-in slide-in-from-bottom-4 duration-200">
+            <div className="fixed inset-0 z-[9999] bg-white flex flex-col overscroll-none animate-in fade-in slide-in-from-bottom-4 duration-200 overflow-hidden">
                 <InternalContent />
             </div>
         )
@@ -231,5 +217,6 @@ export function SendEmailDialog({
         </Dialog>
     )
 }
+
 
 
