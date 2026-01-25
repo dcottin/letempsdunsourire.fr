@@ -65,7 +65,23 @@ export async function POST(req: Request) {
             to: [to],
             subject: subject,
             attachments: attachments,
-            html: `<div style="font-family: sans-serif; font-size: 16px; line-height: 1.5; color: #333;">${message}</div>`,
+            html: `
+                <html>
+                    <head>
+                        <style>
+                            body, p, div, span, strong, b, ul, ol, li {
+                                color: #000000 !important;
+                                font-family: sans-serif;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div style="font-family: sans-serif; font-size: 16px; line-height: 1.5; color: #000000;">
+                            ${message}
+                        </div>
+                    </body>
+                </html>
+            `,
         });
 
         if (error) {
