@@ -220,12 +220,28 @@ export function SendEmailDialog({
     if (isIOS && open && mounted) {
         return createPortal(
             <div
-                className="fixed inset-0 z-[999999] bg-white h-[100dvh] w-screen flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200"
+                className="fixed inset-0 z-[999999] bg-white h-[100dvh] w-screen flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-200 pointer-events-auto"
                 style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
                 onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
-                onTouchStart={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
+                onMouseUp={(e) => e.stopPropagation()}
+                onMouseMove={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+                onPointerUp={(e) => e.stopPropagation()}
+                onPointerMove={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onKeyUp={(e) => e.stopPropagation()}
+                onKeyPress={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onInput={(e) => e.stopPropagation()}
+                onChange={(e) => e.stopPropagation()}
+                onWheel={(e) => e.stopPropagation()}
+                onScroll={(e) => e.stopPropagation()}
+                onCompositionStart={(e) => e.stopPropagation()}
+                onCompositionUpdate={(e) => e.stopPropagation()}
+                onCompositionEnd={(e) => e.stopPropagation()}
             >
                 {content}
             </div>,

@@ -44,6 +44,8 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, Dialog
 import { Switch } from "@/components/ui/switch"
 import { ContractPreview } from "@/components/contract-preview"
 import { SendEmailDialog } from "@/components/send-email-dialog"
+import { useIsIOS } from "@/hooks/use-ios"
+import { cn } from "@/lib/utils"
 
 import { supabase } from "@/lib/supabase"
 import { Label } from "@/components/ui/label"
@@ -955,9 +957,15 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         form.handleSubmit((data) => onSubmit(data, true, newMode))()
     }
 
+    const isIOS = useIsIOS()
+
     return (
         <Form {...form}>
-            <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
+            <form
+                id={id}
+                onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))}
+                className={cn("space-y-6", showEmail && isIOS && "hidden")}
+            >
                 <Tabs defaultValue="infos" className="w-full !mt-0">
                     <div className="bg-white pt-0 pb-4 no-print px-4 sm:px-6 flex flex-col gap-2">
                         <div className="flex flex-col gap-1 relative">
@@ -1294,18 +1302,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                         </DialogContent>
                     </Dialog>
 
-                    <SendEmailDialog
-                        open={showEmail}
-                        onOpenChange={setShowEmail}
-                        defaultEmail={form.watch("email_client") || ""}
-                        defaultSubject={computedEmail.subject}
-                        defaultMessage={computedEmail.message}
-                        templates={computedEmail.templates}
-                        replacements={computedEmail.replacements}
-                        onSend={handleSendEmail}
-                        hasRIB={!!statusSettings?.rib_url}
-                        defaultTemplateName={computedEmail.defaultName}
-                    />
+
 
 
                     <div className="px-4 sm:px-6 pt-2">
@@ -2157,6 +2154,19 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                 </Tabs>
             </form>
+
+            <SendEmailDialog
+                open={showEmail}
+                onOpenChange={setShowEmail}
+                defaultEmail={form.watch("email_client") || ""}
+                defaultSubject={computedEmail.subject}
+                defaultMessage={computedEmail.message}
+                templates={computedEmail.templates}
+                replacements={computedEmail.replacements}
+                onSend={handleSendEmail}
+                hasRIB={!!statusSettings?.rib_url}
+                defaultTemplateName={computedEmail.defaultName}
+            />
         </Form >
     )
 }
