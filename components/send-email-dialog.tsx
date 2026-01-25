@@ -109,7 +109,7 @@ export function SendEmailDialog({
         return text.trim();
     }
 
-    const InternalContent = () => (
+    const content = (
         <div className={`bg-white w-full ${isIOS ? 'min-h-full' : 'h-full flex flex-col'}`}>
             <DialogHeader className={`p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between bg-white z-20 ${isIOS ? 'sticky top-0' : ''}`}>
                 <div className="space-y-1">
@@ -204,7 +204,7 @@ export function SendEmailDialog({
                 className="fixed inset-0 z-[9999] bg-white overflow-y-auto animate-in fade-in slide-in-from-bottom-4 duration-200"
                 style={{ WebkitOverflowScrolling: 'touch' }}
             >
-                <InternalContent />
+                {content}
             </div>
         )
     }
@@ -215,7 +215,7 @@ export function SendEmailDialog({
                 onOpenAutoFocus={(e) => e.preventDefault()}
                 className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col"
             >
-                <InternalContent />
+                {content}
             </DialogContent>
         </Dialog>
     )
