@@ -388,9 +388,18 @@ export default function CalendarPage() {
                                 {bookedMat.length > 0 ? (
                                     <div className="grid gap-2">
                                         {bookedMat.map((item: any) => (
-                                            <div key={item.mat.id} className="bg-slate-50 border border-slate-100 p-2 rounded-lg flex items-center gap-3 opacity-75">
+                                            <div
+                                                key={item.mat.id}
+                                                className="bg-slate-50 border border-slate-100 p-2 rounded-lg flex items-center gap-3 opacity-75 hover:opacity-100 cursor-pointer hover:bg-slate-100 transition-all"
+                                                onClick={() => {
+                                                    setAvailabilityOpen(false)
+                                                    setFormMode(item.booking.type)
+                                                    setEditingItem(item.booking)
+                                                    setIsDialogOpen(true)
+                                                }}
+                                            >
                                                 {item.mat.img_main ? (
-                                                    <img src={item.mat.img_main} className="w-10 h-10 rounded object-cover bg-white grayscale shrink-0" />
+                                                    <img src={item.mat.img_main} className="w-10 h-10 rounded object-cover bg-white shrink-0" />
                                                 ) : (
                                                     <div className="w-10 h-10 rounded bg-slate-200 flex items-center justify-center text-slate-500 font-bold text-xs shrink-0">
                                                         IMG
