@@ -71,6 +71,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             return normalized;
         };
 
+        const isIOS = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+
         const editor = useEditor({
             extensions: [
                 StarterKit.configure({
@@ -112,8 +114,13 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             editorProps: {
                 attributes: {
                     class: singleLine
-                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
-                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base overflow-x-hidden break-words`,
+                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text select-text touch-action-manipulation bg-white text-base`
+                        : `max-w-none focus:outline-none min-h-[${minHeight}] cursor-text select-text touch-action-manipulation bg-white text-base overflow-x-hidden break-words`,
+                    // Platform specific fixes
+                    spellcheck: isIOS ? "false" : "true",
+                    autocorrect: isIOS ? "off" : "on",
+                    autocapitalize: "off",
+                    inputmode: "text",
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {
@@ -187,6 +194,21 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 }
             }
         })
+
+        // iOS specific touch fix: Ensure tapping focused area immediately triggers cursor
+        useEffect(() => {
+            if (!isIOS || !editor) return;
+
+            const handleTouchStart = () => {
+                if (!editor.isFocused) {
+                    editor.commands.focus();
+                }
+            }
+
+            const view = editor.view.dom;
+            view.addEventListener('touchstart', handleTouchStart, { passive: true });
+            return () => view.removeEventListener('touchstart', handleTouchStart);
+        }, [editor, isIOS]);
 
         useEffect(() => {
             if (!editor || value === undefined) return;
@@ -412,6 +434,9 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         overflow-wrap: break-word;
                         word-break: break-word;
                         overflow-x: hidden;
+                        min-height: 100%;
+                        padding: 12px;
+                        touch-action: pan-y;
                     }
                     .ProseMirror * {
                         user-select: text !important;
