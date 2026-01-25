@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import {
     Dialog,
@@ -50,6 +50,15 @@ export function SendEmailDialog({
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
 
+    // Use a ref for iOS to avoid re-renders during typing
+    const iosEditorRef = useRef<HTMLDivElement>(null)
+    const messageRef = useRef(message)
+
+    // Sync state to ref for sending purposes
+    useEffect(() => {
+        messageRef.current = message
+    }, [message])
+
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
         setSelectedTemplate(templateId)
@@ -73,6 +82,11 @@ export function SendEmailDialog({
 
         setSubject(newSubject)
         setMessage(newBody)
+
+        // Force update the native div if on iOS
+        if (isIOS && iosEditorRef.current) {
+            iosEditorRef.current.innerHTML = newBody
+        }
     }
 
     const [prevOpen, setPrevOpen] = useState(false)
@@ -83,6 +97,10 @@ export function SendEmailDialog({
             setMessage(defaultMessage || "")
             setAttachRIB(hasRIB ? true : false)
             setSelectedTemplate("default")
+
+            if (isIOS && iosEditorRef.current) {
+                iosEditorRef.current.innerHTML = defaultMessage || ""
+            }
         }
         setPrevOpen(open)
     }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen, isIOS])
@@ -90,7 +108,9 @@ export function SendEmailDialog({
     const handleSend = async () => {
         setIsSending(true)
         try {
-            await onSend({ to, subject, message, attachRIB })
+            // On iOS, read content directly from the div to get latest edits
+            const finalMessage = isIOS ? (iosEditorRef.current?.innerHTML || messageRef.current) : message
+            await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
         } catch (error) {
             console.error("Error sending email:", error)
@@ -184,20 +204,26 @@ export function SendEmailDialog({
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                     {isIOS ? (
                         <div
-                            key={`${open}-${selectedTemplate}`}
+                            ref={iosEditorRef}
                             className="w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 min-h-[300px] overflow-y-auto"
                             contentEditable={true}
                             suppressContentEditableWarning={true}
                             dangerouslySetInnerHTML={{ __html: message }}
                             onInput={(e) => {
-                                // Update state without triggering a re-render that resets THIS div
+                                // Just update the ref, NO state change here to avoid cursor jumps
+                                messageRef.current = e.currentTarget.innerHTML
+                            }}
+                            onBlur={(e) => {
+                                // Sync back to state only when leaving the field
                                 setMessage(e.currentTarget.innerHTML)
                             }}
                             style={{
                                 WebkitUserSelect: 'text',
                                 userSelect: 'text',
                                 WebkitTouchCallout: 'default',
-                                cursor: 'text'
+                                WebkitTapHighlightColor: 'transparent',
+                                cursor: 'text',
+                                minHeight: '300px'
                             }}
                         />
                     ) : (
