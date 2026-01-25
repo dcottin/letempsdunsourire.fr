@@ -815,7 +815,7 @@ END:VCARD`
                     className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col"
                     onOpenAutoFocus={(e) => e.preventDefault()}
                 >
-                    <DialogHeader className="px-3 sm:px-6 py-2 sm:py-3 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between min-h-[52px]">
+                    <DialogHeader className="px-3 sm:px-6 py-1 sm:py-2 border-b bg-white flex-shrink-0 z-50 flex flex-row items-center justify-between min-h-[48px]">
                         <DialogTitle className="flex items-center gap-1.5 text-sm sm:text-2xl font-bold tracking-tight text-slate-900">
                             {formMode === "devis" ? <FileTextIcon className="size-4 sm:size-7 text-indigo-600" /> : <ScrollTextIcon className="size-4 sm:size-7 text-indigo-600" />}
                             <span className="truncate max-w-[120px] sm:max-w-none">
@@ -848,7 +848,7 @@ END:VCARD`
                             </DialogClose>
                         </div>
                     </DialogHeader>
-                    <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 bg-slate-50/50 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+                    <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 px-0 py-0 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
                         <DevisContratForm
                             id="devis-contrat-form"
                             key={editingItem?.id || `${formMode}-${isDialogOpen}`}
