@@ -1,5 +1,6 @@
 "use client"
 
+import { cn } from "@/lib/utils"
 import { useEffect, forwardRef, useImperativeHandle, useRef } from 'react'
 import { useEditor, EditorContent, Extension, Node, mergeAttributes, InputRule, PasteRule } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
@@ -248,7 +249,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
         return (
             <div
-                className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}
+                className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${minHeight === '100%' ? 'h-full min-h-0' : ''} ${className}`}
             >
                 <div className={`flex flex-wrap items-center gap-1 border-b bg-slate-50/50 ${singleLine ? "p-0.5" : "p-1"}`}>
                     <DropdownMenu>
@@ -364,10 +365,10 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                 <EditorContent
                     editor={editor}
-                    className={singleLine
-                        ? "min-h-0 max-h-12 overflow-hidden flex-1"
-                        : contentClassName || `min-h-[150px]`
-                    }
+                    className={cn(
+                        "flex-1 overflow-y-auto min-h-0",
+                        singleLine ? "max-h-12" : (contentClassName || "")
+                    )}
                 />
                 <style jsx global>{`
                     .variable-badge {
@@ -416,6 +417,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     .ProseMirror {
                         display: block;
                         width: 100%;
+                        min-height: ${singleLine ? '0' : (minHeight === '100%' ? '100%' : minHeight)};
                         outline: none;
                         -webkit-tap-highlight-color: transparent;
                         overflow-wrap: break-word;
