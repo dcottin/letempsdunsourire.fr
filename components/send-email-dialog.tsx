@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { RichTextEditor } from "@/components/rich-text-editor"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -49,56 +50,6 @@ export function SendEmailDialog({
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
 
-    // Handle template change
-    const handleTemplateChange = (templateId: string) => {
-        setSelectedTemplate(templateId)
-        if (templateId === "default") {
-            setSubject(defaultSubject)
-            setMessage(defaultMessage || "")
-            return
-        }
-
-        const template = templates?.find(t => t.id === templateId)
-        if (template) {
-            let newSubject = template.subject
-            let newBody = template.body
-
-            if (replacements) {
-                Object.entries(replacements).forEach(([key, value]) => {
-                    newSubject = newSubject.split(key).join(value)
-                    newBody = newBody.split(key).join(value)
-                })
-            }
-
-            setSubject(newSubject)
-            setMessage(newBody)
-        }
-    }
-
-    const [prevOpen, setPrevOpen] = useState(false)
-    useEffect(() => {
-        if (open && !prevOpen) {
-            setTo(defaultEmail)
-            setSubject(defaultSubject)
-            setMessage(defaultMessage || "")
-            setAttachRIB(hasRIB ? true : false)
-            setSelectedTemplate("default")
-        }
-        setPrevOpen(open)
-    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen])
-
-    const handleSend = async () => {
-        setIsSending(true)
-        try {
-            await onSend({ to, subject, message, attachRIB })
-            onOpenChange(false)
-        } catch (error) {
-            console.error("Error sending email:", error)
-        } finally {
-            setIsSending(false)
-        }
-    }
-
     const stripHtml = (html: string) => {
         if (!html) return "";
         let text = html;
@@ -108,6 +59,57 @@ export function SendEmailDialog({
         text = text.replace(/<[^>]*>?/gm, '');
         text = text.replace(/&nbsp;/g, ' ');
         return text.trim();
+    }
+
+    // Handle template change
+    const handleTemplateChange = (templateId: string) => {
+        setSelectedTemplate(templateId)
+        let newSubject = defaultSubject
+        let newBody = defaultMessage || ""
+
+        if (templateId !== "default") {
+            const template = templates?.find(t => t.id === templateId)
+            if (template) {
+                newSubject = template.subject
+                newBody = template.body
+            }
+        }
+
+        if (replacements && templateId !== "default") {
+            Object.entries(replacements).forEach(([key, value]) => {
+                newSubject = newSubject.split(key).join(value)
+                newBody = newBody.split(key).join(value)
+            })
+        }
+
+        setSubject(newSubject)
+        setMessage(isIOS ? stripHtml(newBody) : newBody)
+    }
+
+    const [prevOpen, setPrevOpen] = useState(false)
+    useEffect(() => {
+        if (open && !prevOpen) {
+            setTo(defaultEmail)
+            setSubject(defaultSubject)
+            setMessage(isIOS ? stripHtml(defaultMessage || "") : (defaultMessage || ""))
+            setAttachRIB(hasRIB ? true : false)
+            setSelectedTemplate("default")
+        }
+        setPrevOpen(open)
+    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen, isIOS])
+
+    const handleSend = async () => {
+        setIsSending(true)
+        try {
+            // If on iOS, we convert plain text back to something HTML-ish for the email API
+            const finalMessage = isIOS ? message.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br/>') : message
+            await onSend({ to, subject, message: finalMessage, attachRIB })
+            onOpenChange(false)
+        } catch (error) {
+            console.error("Error sending email:", error)
+        } finally {
+            setIsSending(false)
+        }
     }
 
     const InternalContent = () => (
@@ -173,13 +175,25 @@ export function SendEmailDialog({
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex-1 flex flex-col min-h-0 min-h-[200px] gap-2">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
-                    <RichTextEditor
-                        value={message}
-                        onChange={setMessage}
-                        className="border-slate-200"
-                    />
+                    {isIOS ? (
+                        <Textarea
+                            id="message"
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            placeholder="Écrivez votre message ici..."
+                            className="flex-1 min-h-[200px] text-base border-slate-200 focus:ring-indigo-500"
+                        />
+                    ) : (
+                        <RichTextEditor
+                            value={message}
+                            onChange={setMessage}
+                            className="flex-1 overflow-hidden border-slate-200"
+                            contentClassName="flex-1 overflow-y-auto custom-scrollbar min-h-0"
+                            minHeight="100%"
+                        />
+                    )}
                 </div>
             </div>
 
@@ -217,4 +231,5 @@ export function SendEmailDialog({
         </Dialog>
     )
 }
+
 
