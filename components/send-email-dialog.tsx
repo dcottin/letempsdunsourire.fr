@@ -102,8 +102,8 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="w-full h-[100dvh] max-w-none p-0 overflow-hidden flex flex-col border-none shadow-none rounded-none fixed inset-0 z-50 !max-w-none !w-full !h-[100dvh] !top-0 !left-0 !transform-none !rounded-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200 bg-slate-50/50">
-                <div className="w-full max-w-3xl mx-auto flex flex-col h-full bg-white shadow-sm border-x border-slate-100">
+            <DialogContent className="fixed z-50 w-screen h-[100dvh] max-w-none p-0 gap-0 border-none bg-zinc-950/20 backdrop-blur-sm flex items-center justify-center !left-0 !top-0 !translate-x-0 !translate-y-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-200">
+                <div className="flex flex-col bg-white w-full h-full md:h-auto md:max-h-[85dvh] md:w-full md:max-w-3xl md:rounded-xl md:shadow-2xl overflow-hidden border-none shadow-none rounded-none">
                     <DialogHeader className="p-4 pb-0 shrink-0">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                             <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
