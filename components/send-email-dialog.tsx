@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
     Dialog,
     DialogContent,
@@ -47,6 +47,11 @@ export function SendEmailDialog({
     const [attachRIB, setAttachRIB] = useState(false)
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        setIsMobile(window.matchMedia("(max-width: 768px)").matches)
+    }, [])
 
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
@@ -115,7 +120,7 @@ export function SendEmailDialog({
                             Le document sera envoyé en pièce jointe (PDF) au destinataire ci-dessous.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-3 min-h-0">
+                    <div className="flex-1 overflow-y-auto p-4 pt-0 flex flex-col gap-3 min-h-0 custom-scrollbar">
                         {templates && templates.length > 0 && (
                             <div className="grid gap-1 shrink-0">
                                 <Label>Choisir un modèle</Label>
@@ -168,21 +173,29 @@ export function SendEmailDialog({
                                 onChange={(e) => setSubject(e.target.value)}
                             />
                         </div>
-                        <div className="grid gap-1 flex-1 min-h-[150px] flex flex-col">
+                        <div className="grid gap-1 shrink-0">
                             <Label htmlFor="message">
                                 Message
                             </Label>
-                            <div className="flex-1 flex flex-col min-h-0">
-                                <RichTextEditor
-                                    value={message}
-                                    onChange={setMessage}
-                                    placeholder="Votre message..."
-                                    minHeight="100%"
-                                    className="flex-1 min-h-0"
-                                    contentClassName="h-full overflow-y-auto custom-scrollbar"
-                                />
+                            <div className="flex-1 flex flex-col min-h-[250px]">
+                                {isMobile ? (
+                                    <Textarea
+                                        value={stripHtml(message)}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        placeholder="Votre message..."
+                                        className="h-full min-h-[250px] resize-none focus-visible:ring-indigo-500"
+                                    />
+                                ) : (
+                                    <RichTextEditor
+                                        value={message}
+                                        onChange={setMessage}
+                                        placeholder="Votre message..."
+                                        minHeight="250px"
+                                        className="flex-1"
+                                        contentClassName="min-h-[200px]"
+                                    />
+                                )}
                             </div>
-
                         </div>
                     </div>
                     <DialogFooter className="p-4 pt-2 border-t !m-0 bg-white">

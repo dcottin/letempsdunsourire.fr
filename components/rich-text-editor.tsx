@@ -357,7 +357,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                     editor={editor}
                     className={singleLine
                         ? "min-h-0 max-h-12 overflow-hidden"
-                        : contentClassName || `min-h-[150px] max-h-[500px] overflow-y-auto custom-scrollbar`
+                        : contentClassName || `min-h-[150px]`
                     }
                 />
                 <style jsx global>{`
@@ -407,8 +407,6 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         -webkit-user-select: text !important;
                         -webkit-touch-callout: default !important;
                         cursor: text;
-                        touch-action: manipulation;
-                        min-height: inherit; /* Ensure click area covers full height */
                         overflow-wrap: break-word;
                         word-break: break-word;
                         overflow-x: hidden;
