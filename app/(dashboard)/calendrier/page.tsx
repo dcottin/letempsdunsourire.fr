@@ -315,7 +315,7 @@ export default function CalendarPage() {
                                     <CheckCircle2Icon className="h-4 w-4" /> Disponible(s)
                                 </h4>
                                 {availableMat.length > 0 ? (
-                                    <div className="grid gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         {availableMat.map((mat: any) => (
                                             <div key={mat.id} className="bg-emerald-50 border border-emerald-100 p-2 rounded-lg flex items-center gap-3">
                                                 {mat.img_main ? (
@@ -325,7 +325,7 @@ export default function CalendarPage() {
                                                         IMG
                                                     </div>
                                                 )}
-                                                <span className="font-semibold text-slate-700 text-sm">{mat.nom}</span>
+                                                <span className="font-semibold text-slate-700 text-sm truncate">{mat.nom}</span>
                                             </div>
                                         ))}
                                     </div>
