@@ -64,8 +64,14 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
         }, []);
 
         const normalizeHtml = (html: string) => {
-            if (!html) return "";
-            let normalized = html.replace(/<span [^>]*data-id="(\{\{[a-zA-Z0-9_]+\}\})"[^>]*>.*?<\/span>/g, "$1");
+            if (!html || html === "<p></p>" || html === "<p><br></p>") return "";
+            // Aggressive normalization
+            let normalized = html
+                .replace(/<span [^>]*data-id="(\{\{[a-zA-Z0-9_]+\}\})"[^>]*>.*?<\/span>/g, "$1")
+                .replace(/\s+/g, ' ') // Collapse spaces
+                .replace(/>\s+</g, '><') // Remove spaces between tags
+                .trim();
+
             if (singleLine) {
                 normalized = normalized.replace(/^<p>/, '').replace(/<\/p>$/, '');
             }
@@ -155,23 +161,28 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                 }
             },
             onUpdate: ({ editor }) => {
-                let rawHtml = editor.getHTML().replace(
+                const rawHtml = editor.getHTML();
+
+                let processedHtml = rawHtml.replace(
                     /<span [^>]*data-id="(\{\{[a-zA-Z0-9_]+\}\})"[^>]*>.*?<\/span>/g,
                     "$1"
                 );
 
                 if (singleLine) {
-                    rawHtml = rawHtml.replace(/^<p>/, '').replace(/<\/p>$/, '');
+                    processedHtml = processedHtml.replace(/^<p>/, '').replace(/<\/p>$/, '');
                 }
 
-                if (rawHtml === "<p></p>") rawHtml = "";
+                if (processedHtml === "<p></p>" || processedHtml === "<p><br></p>") {
+                    processedHtml = "";
+                }
+
+                lastValueRef.current = processedHtml;
 
                 // Debounce the update to parent to avoid lag
                 if (timerRef.current) clearTimeout(timerRef.current);
                 timerRef.current = setTimeout(() => {
-                    lastValueRef.current = rawHtml;
-                    onChange(rawHtml)
-                }, 500); // 500ms delay
+                    onChange(processedHtml)
+                }, 200); // Shorter delay for better reactivity
             },
             onFocus: () => {
                 if (onFocus && editor) {
@@ -199,13 +210,23 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
         useEffect(() => {
             if (!editor || value === undefined) return;
+
+            // CRITICAL: Block all updates from props if focusing (typing) on iOS
+            // This prevents the state loop from resetting the cursor position
+            if (editor.isFocused()) {
+                lastValueRef.current = value;
+                return;
+            }
+
             if (value === lastValueRef.current) return;
-            if (editor.isFocused && !editor.isEmpty) return;
 
             const currentNormalized = normalizeHtml(editor.getHTML());
             const valueNormalized = normalizeHtml(value);
 
-            if (currentNormalized === valueNormalized) return;
+            if (currentNormalized === valueNormalized) {
+                lastValueRef.current = value;
+                return;
+            }
 
             lastValueRef.current = value;
 
