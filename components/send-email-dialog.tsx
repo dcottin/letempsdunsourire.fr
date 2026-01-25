@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { cn } from "@/lib/utils"
 import {
     Dialog,
     DialogContent,
@@ -15,7 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { SendIcon, Loader2, MailIcon, XIcon } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useIsIOS } from "@/hooks/use-ios"
-import { cn } from "@/lib/utils"
 
 interface SendEmailDialogProps {
     open: boolean
@@ -111,16 +111,16 @@ export function SendEmailDialog({
     }
 
     const content = (
-        <div className={`bg-white w-full ${isIOS ? 'h-[100dvh] overflow-y-auto' : 'h-full flex flex-col overflow-hidden'}`}>
+        <div className="bg-white w-full h-full flex flex-col overflow-hidden">
             <DialogHeader className={cn(
-                "p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between bg-white z-30",
-                isIOS && "sticky top-0 shadow-sm"
+                "p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between bg-white z-20",
+                isIOS && "pt-[max(1rem,env(safe-area-inset-top))]"
             )}>
                 <div className="space-y-1">
-                    <DialogTitle className="flex items-center gap-2 text-base sm:text-lg text-slate-900">
+                    <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                         <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
                     </DialogTitle>
-                    <DialogDescription className="text-[10px] sm:text-xs text-slate-500">
+                    <DialogDescription className="text-[10px] sm:text-xs">
                         Le document sera envoyé en pièce jointe (PDF).
                     </DialogDescription>
                 </div>
@@ -131,10 +131,7 @@ export function SendEmailDialog({
                 )}
             </DialogHeader>
 
-            <div className={cn(
-                "p-4 flex flex-col gap-4",
-                isIOS ? "pb-10" : "flex-1 overflow-y-auto"
-            )}>
+            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
                 <div className="shrink-0 space-y-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
@@ -143,7 +140,7 @@ export function SendEmailDialog({
                                 <SelectTrigger className="h-9">
                                     <SelectValue placeholder="Sélectionner un modèle..." />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="z-[10000]">
                                     <SelectItem value="default">{stripHtml(defaultTemplateName)}</SelectItem>
                                     {templates.map((t) => (
                                         <SelectItem key={t.id} value={t.id}>{stripHtml(t.name)}</SelectItem>
@@ -179,23 +176,20 @@ export function SendEmailDialog({
                     </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 pb-4">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                     <RichTextEditor
                         value={message}
                         onChange={setMessage}
                         className="border-slate-200"
-                        minHeight="250px"
+                        minHeight={isIOS ? "200px" : "250px"}
                     />
                 </div>
-
-                {/* Safe area buffer for mobile */}
-                <div className="h-4 sm:hidden shrink-0" />
             </div>
 
             <DialogFooter className={cn(
-                "p-4 pt-3 border-t bg-white flex flex-row items-center justify-end gap-3 shrink-0 z-30",
-                isIOS && "sticky bottom-0 pb-[calc(env(safe-area-inset-bottom,20px)+12px)] shadow-[0_-2px_10px_rgba(0,0,0,0.05)]"
+                "p-4 pt-3 border-t bg-slate-50/50 flex flex-row items-center justify-end gap-3 shrink-0 z-20",
+                isIOS && "pb-[max(1rem,env(safe-area-inset-bottom))]"
             )}>
                 <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="flex-1 sm:flex-none uppercase text-[10px] sm:text-xs font-bold tracking-wider h-10 px-3">
                     Annuler
@@ -214,7 +208,7 @@ export function SendEmailDialog({
     if (isIOS && open) {
         return (
             <div
-                className="fixed inset-0 z-[9999] bg-white animate-in fade-in slide-in-from-bottom-4 duration-200"
+                className="fixed inset-0 z-[9999] bg-white h-[100dvh] w-screen overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
             >
                 {content}
             </div>
