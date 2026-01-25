@@ -14,6 +14,10 @@ import {
     PhoneIcon,
     PackageIcon,
     CameraIcon,
+    RotateCcwIcon,
+    TagIcon,
+    ChevronLeft,
+    ChevronRight,
     UserPlus,
     Circle,
     CheckCircleIcon,
@@ -59,6 +63,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2Icon } from "lucide-react"
 
 export default function DashboardPage() {
+    const [weekOffset, setWeekOffset] = React.useState(0)
     const [events, setEvents] = React.useState<any[]>([])
     const [settings, setSettings] = React.useState<any>(null)
     const [mounted, setMounted] = React.useState(false)
@@ -198,12 +203,13 @@ export default function DashboardPage() {
 
     if (!mounted) return null
 
-    const today = new Date()
-    const startCurrentWeek = startOfDay(startOfWeek(today, { weekStartsOn: 1 }))
-    const endCurrentWeek = endOfDay(endOfWeek(today, { weekStartsOn: 1 }))
+    const today = React.useMemo(() => new Date(), [])
 
-    const startNextWeek = startOfDay(startOfWeek(addWeeks(today, 1), { weekStartsOn: 1 }))
-    const endNextWeek = endOfDay(endOfWeek(addWeeks(today, 1), { weekStartsOn: 1 }))
+    const startCurrentWeek = React.useMemo(() => startOfDay(startOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 })), [today, weekOffset])
+    const endCurrentWeek = React.useMemo(() => endOfDay(endOfWeek(addWeeks(today, weekOffset), { weekStartsOn: 1 })), [today, weekOffset])
+
+    const startNextWeek = React.useMemo(() => startOfDay(startOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
+    const endNextWeek = React.useMemo(() => endOfDay(endOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
 
     const currentWeekEvents = events.filter(e => {
         const dateStr = e.data?.date_debut || e.date_debut
@@ -410,18 +416,63 @@ export default function DashboardPage() {
 
     return (
         <div className="flex-1 space-y-6 p-4 md:p-8 pt-6">
-            <div className="flex items-center justify-between space-y-2">
-                <h2 className="text-3xl font-bold tracking-tight">Tableau de bord</h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <h2 className="text-3xl font-bold tracking-tight text-slate-900">Tableau de bord</h2>
+
+                <div className="flex items-center gap-2 bg-white p-1 rounded-xl border border-slate-200 shadow-sm self-stretch sm:self-auto justify-center">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        onClick={() => setWeekOffset(prev => prev - 1)}
+                        title="Semaine précédente"
+                    >
+                        <ChevronLeft className="size-5" />
+                    </Button>
+
+                    <div className="px-3 py-1 flex flex-col items-center min-w-[140px]">
+                        <span className="text-[10px] uppercase font-bold text-slate-400 leading-none mb-1">
+                            {weekOffset === 0 ? "Cette semaine" : (weekOffset === 1 ? "La semaine prochaine" : `Offset: ${weekOffset > 0 ? '+' : ''}${weekOffset} sem.`)}
+                        </span>
+                        <span className="text-xs font-bold text-indigo-700 whitespace-nowrap">
+                            {format(startCurrentWeek, 'dd MMM', { locale: fr })} - {format(endCurrentWeek, 'dd MMM', { locale: fr })}
+                        </span>
+                    </div>
+
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+                        onClick={() => setWeekOffset(prev => prev + 1)}
+                        title="Semaine suivante"
+                    >
+                        <ChevronRight className="size-5" />
+                    </Button>
+
+                    {weekOffset !== 0 && (
+                        <>
+                            <div className="w-px h-6 bg-slate-200 mx-1" />
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 px-2 text-[10px] font-bold uppercase tracking-tight text-indigo-600 hover:bg-indigo-50"
+                                onClick={() => setWeekOffset(0)}
+                            >
+                                Aujourd'hui
+                            </Button>
+                        </>
+                    )}
+                </div>
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 {/* Current Week Column */}
                 <div className="col-span-4 lg:col-span-3 space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-indigo-900 flex items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-semibold text-indigo-900 flex items-center gap-2">
                             <CalendarIcon className="size-5 text-indigo-600" />
-                            Cette semaine
-                            <Badge variant="secondary" className="ml-2 font-normal text-xs">
+                            {weekOffset === 0 ? "Cette semaine" : "Semaine du " + format(startCurrentWeek, 'dd/MM')}
+                            <Badge variant="secondary" className="ml-2 font-normal text-[10px] sm:text-xs">
                                 {format(startCurrentWeek, 'd MMM', { locale: fr })} - {format(endCurrentWeek, 'd MMM', { locale: fr })}
                             </Badge>
                         </h3>
@@ -468,10 +519,10 @@ export default function DashboardPage() {
                 {/* Next Week Column */}
                 <div className="col-span-4 lg:col-span-3 space-y-4">
                     <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
+                        <h3 className="text-base sm:text-lg font-semibold text-slate-700 flex items-center gap-2">
                             <CalendarIcon className="size-5 text-slate-500" />
-                            Semaine prochaine
-                            <Badge variant="secondary" className="ml-2 font-normal text-xs">
+                            {weekOffset === 0 ? "Semaine prochaine" : "Semaine suivante"}
+                            <Badge variant="secondary" className="ml-2 font-normal text-[10px] sm:text-xs">
                                 {format(startNextWeek, 'd MMM', { locale: fr })} - {format(endNextWeek, 'd MMM', { locale: fr })}
                             </Badge>
                         </h3>
