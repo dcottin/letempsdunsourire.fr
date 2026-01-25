@@ -207,8 +207,6 @@ export default function DashboardPage() {
     const startNextWeek = React.useMemo(() => startOfDay(startOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
     const endNextWeek = React.useMemo(() => endOfDay(endOfWeek(addWeeks(today, weekOffset + 1), { weekStartsOn: 1 })), [today, weekOffset])
 
-    if (!mounted) return null
-
     const currentWeekEvents = React.useMemo(() => {
         if (loading) return []
         return events.filter(e => {
@@ -236,6 +234,8 @@ export default function DashboardPage() {
             }
         })
     }, [events, loading, startNextWeek, endNextWeek])
+
+    if (!mounted) return null
 
     const handleConfirmPayment = async () => {
         if (!paymentContext || !selectedPaymentMethod) return
