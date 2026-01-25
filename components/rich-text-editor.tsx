@@ -248,10 +248,7 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
         return (
             <div
-                className={`rte-theme-${theme} border rounded-md bg-white flex flex-col ${isIOS
-                    ? ""
-                    : `shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus}`
-                    } ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}
+                className={`rte-theme-${theme} border rounded-md bg-white shadow-sm focus-within:ring-2 ${themeColors.ring} ${themeColors.borderFocus} transition-all flex flex-col ${singleLine ? "ring-1 ring-slate-200" : ""} ${className}`}
             >
                 <div className="flex flex-wrap items-center gap-1 p-1 border-b bg-slate-50/50">
                     <DropdownMenu>
@@ -368,10 +365,10 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
 
                 <EditorContent
                     editor={editor}
-                    className={`${singleLine
-                            ? "min-h-0 max-h-12 overflow-hidden"
-                            : `min-h-[${minHeight}]`
-                        } ${contentClassName || ""} ${isIOS ? 'pb-10' : ''}`}
+                    className={singleLine
+                        ? "min-h-0 max-h-12 overflow-hidden"
+                        : contentClassName || `min-h-[150px]`
+                    }
                 />
                 <style jsx global>{`
                     .variable-badge {
@@ -420,7 +417,9 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         overflow-wrap: break-word;
                         word-break: break-word;
                         padding: 12px;
-                        touch-action: manipulation;
+                        touch-action: pan-y;
+                        -webkit-user-select: text;
+                        user-select: text;
                     }
                     .ProseMirror * {
                         box-sizing: border-box;
