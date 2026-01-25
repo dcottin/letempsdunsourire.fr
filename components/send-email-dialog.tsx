@@ -66,8 +66,9 @@ export function SendEmailDialog({
 
         if (replacements && templateId !== "default") {
             Object.entries(replacements).forEach(([key, value]) => {
-                newSubject = newSubject.split(key).join(value)
-                newBody = newBody.split(key).join(value)
+                const replacementValue = isIOS ? `<strong>${value}</strong>` : value
+                newSubject = newSubject.split(key).join(value) // Subject stays clean
+                newBody = newBody.split(key).join(replacementValue)
             })
         }
 
@@ -93,11 +94,9 @@ export function SendEmailDialog({
         setIsSending(true)
         try {
             // On iOS, convert final textarea value (plain text) back to HTML format
-            // and automatically bold all variables {{...}}
+            // Most bolding is now handled during replacement, but we keep the structure
             const finalMessage = isIOS
-                ? message.trim()
-                    .replace(/\n/g, "<br>")
-                    .replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, "<strong>{{$1}}</strong>")
+                ? message.trim().replace(/\n/g, "<br>")
                 : message
             await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
