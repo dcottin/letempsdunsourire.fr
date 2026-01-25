@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import {
     Dialog,
@@ -28,6 +28,47 @@ interface SendEmailDialogProps {
     replacements?: Record<string, string>
     hasRIB?: boolean
     defaultTemplateName?: string
+}
+
+const SafeContentEditable = ({ html, onChange, className }: { html: string, onChange: (v: string) => void, className?: string }) => {
+    const contentEditableRef = useRef<HTMLDivElement>(null)
+    const lastHtml = useRef(html)
+
+    // Only update the DOM if the prop changed internally from the outside (e.g. template change)
+    // and it doesn't match our last known local state.
+    useEffect(() => {
+        if (contentEditableRef.current && html !== lastHtml.current) {
+            // Check if the DOM is really different to avoid losing selection if possible,
+            // though usually this condition implies a big change (template switch)
+            if (contentEditableRef.current.innerHTML !== html) {
+                contentEditableRef.current.innerHTML = html
+            }
+            lastHtml.current = html
+        }
+    }, [html])
+
+    const handleInput = (e: React.FormEvent<HTMLDivElement>) => {
+        const newHtml = e.currentTarget.innerHTML
+        lastHtml.current = newHtml
+        onChange(newHtml)
+    }
+
+    return (
+        <div
+            ref={contentEditableRef}
+            className={className}
+            contentEditable={true}
+            suppressContentEditableWarning={true}
+            onInput={handleInput}
+            // Initialize content once
+            dangerouslySetInnerHTML={{ __html: html }}
+            style={{
+                WebkitUserSelect: 'text',
+                userSelect: 'text',
+                WebkitTouchCallout: 'default'
+            }}
+        />
+    )
 }
 
 export function SendEmailDialog({
@@ -185,19 +226,10 @@ export function SendEmailDialog({
                 <div className="space-y-2 pb-4">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                     {isIOS ? (
-                        <div
+                        <SafeContentEditable
+                            html={message}
+                            onChange={setMessage}
                             className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 min-h-[200px] overflow-y-auto"
-                            contentEditable={true}
-                            suppressContentEditableWarning={true}
-                            dangerouslySetInnerHTML={{ __html: message }}
-                            onInput={(e) => {
-                                setMessage(e.currentTarget.innerHTML)
-                            }}
-                            style={{
-                                WebkitUserSelect: 'text',
-                                userSelect: 'text',
-                                WebkitTouchCallout: 'default'
-                            }}
                         />
                     ) : (
                         <RichTextEditor
