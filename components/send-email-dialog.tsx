@@ -108,9 +108,7 @@ export function SendEmailDialog({
     const handleSend = async () => {
         setIsSending(true)
         try {
-            // On iOS, convert final textarea value back to HTML format
-            const finalMessage = isIOS ? message.trim().replace(/\n/g, "<br>") : message
-            await onSend({ to, subject, message: finalMessage, attachRIB })
+            await onSend({ to, subject, message, attachRIB })
             onOpenChange(false)
         } catch (error) {
             console.error("Error sending email:", error)
@@ -203,26 +201,13 @@ export function SendEmailDialog({
                 <div className="flex-1 min-h-0 flex flex-col space-y-2 pb-4 overflow-x-hidden">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500 shrink-0">Message</Label>
                     <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-                        {isIOS ? (
-                            <textarea
-                                id="message"
-                                value={stripHtml(message)}
-                                onChange={(e) => setMessage(e.target.value)}
-                                className="w-full flex-1 rounded-md border border-slate-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none overflow-auto"
-                                placeholder="Rédigez votre message..."
-                                style={{
-                                    WebkitTapHighlightColor: 'transparent',
-                                }}
-                            />
-                        ) : (
-                            <RichTextEditor
-                                value={message}
-                                onChange={setMessage}
-                                className="flex-1 border-slate-200 overflow-hidden"
-                                contentClassName="flex-1"
-                                minHeight="100%"
-                            />
-                        )}
+                        <RichTextEditor
+                            value={message}
+                            onChange={setMessage}
+                            className="flex-1 border-slate-200 overflow-hidden"
+                            contentClassName="flex-1"
+                            minHeight="100%"
+                        />
                     </div>
                 </div>
             </div>

@@ -422,10 +422,12 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
                         -webkit-tap-highlight-color: transparent;
                         overflow-wrap: break-word;
                         word-break: break-word;
-                        padding: ${singleLine ? '3px 10px' : '12px'};
+                        padding: ${singleLine ? '3px 10px' : '12px 12px 40px 12px'};
                         touch-action: pan-y;
                         -webkit-user-select: text;
                         user-select: text;
+                        -webkit-overflow-scrolling: touch;
+                        caret-color: auto;
                     }
                     .ProseMirror * {
                         box-sizing: border-box;
