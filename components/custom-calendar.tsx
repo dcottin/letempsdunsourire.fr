@@ -94,11 +94,17 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
             return checkTime >= startTime && checkTime <= endTime
         })
 
-        const busyCount = bookingsToday.map(b => b.equipment_id).filter(Boolean).length
-        // Simple count - in reality we should check distinct equipment IDs but this is a good approximation if one booking = one equipment
-        const uniqueBusyIds = new Set(bookingsToday.map(b => b.equipment_id).filter(Boolean))
+        // Count bookings with assigned equipment (unique machines blocked)
+        const assignedBookings = bookingsToday.filter(b => b.equipment_id && b.equipment_id !== 'none')
+        const uniqueBusyIds = new Set(assignedBookings.map(b => b.equipment_id))
 
-        return Math.max(0, materiels.length - uniqueBusyIds.size)
+        // Count bookings without equipment (orphans) - they still consume capacity
+        const unassignedCount = bookingsToday.length - assignedBookings.length
+
+        // Total load = unique machines blocked + unassigned demands
+        const totalLoad = uniqueBusyIds.size + unassignedCount
+
+        return Math.max(0, materiels.length - totalLoad)
     }
 
     return (
