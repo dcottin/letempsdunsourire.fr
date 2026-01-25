@@ -121,9 +121,9 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-y-auto duration-200">
-                <div className="flex flex-col w-full min-h-full select-text cursor-auto">
-                    <DialogHeader className="p-4 pb-3 shrink-0 sticky top-0 z-10 bg-white border-b shadow-sm">
+            <DialogContent className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col duration-200">
+                <div className="flex flex-col w-full h-full select-text cursor-auto bg-white">
+                    <DialogHeader className="p-4 pb-3 shrink-0 border-b">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
                             <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
                         </DialogTitle>
@@ -131,7 +131,7 @@ export function SendEmailDialog({
                             Le document sera envoyé en pièce jointe (PDF) au destinataire ci-dessous.
                         </DialogDescription>
                     </DialogHeader>
-                    <div className="flex-1 p-4 pt-4 flex flex-col gap-3">
+                    <div className="flex-1 overflow-y-auto p-4 pt-4 flex flex-col gap-3 custom-scrollbar">
                         {templates && templates.length > 0 && (
                             <div className="grid gap-1 shrink-0">
                                 <Label>Choisir un modèle</Label>
@@ -200,7 +200,7 @@ export function SendEmailDialog({
                             </div>
                         </div>
                     </div>
-                    <DialogFooter className="p-4 pt-2 border-t !m-0 bg-white sticky bottom-0 z-10 shadow-[0_-1px_3px_rgba(0,0,0,0.05)]">
+                    <DialogFooter className="p-4 pt-2 border-t !m-0 bg-white shrink-0">
                         <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending}>
                             Annuler
                         </Button>
