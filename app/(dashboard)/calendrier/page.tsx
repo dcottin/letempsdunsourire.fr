@@ -19,7 +19,8 @@ import {
     ClockIcon,
     SettingsIcon,
     ChevronLeftIcon,
-    XIcon
+    XIcon,
+    AlertTriangleIcon
 } from "lucide-react"
 
 import { supabase } from "@/lib/supabase"
@@ -52,6 +53,7 @@ export default function CalendarPage() {
     const [selectedDate, setSelectedDate] = useState<Date | null>(null)
     const [availableMat, setAvailableMat] = useState<any[]>([])
     const [bookedMat, setBookedMat] = useState<any[]>([])
+    const [orphanBookings, setOrphanBookings] = useState<any[]>([])
 
     useEffect(() => {
         fetchData()
@@ -167,8 +169,11 @@ export default function CalendarPage() {
                 return { mat: m, booking }
             })
 
+        const orphans = bookingsToday.filter(b => !b.equipment_id || b.equipment_id === 'none')
+
         setAvailableMat(available)
         setBookedMat(booked)
+        setOrphanBookings(orphans)
         setAvailabilityOpen(true)
     }
 
@@ -294,7 +299,6 @@ export default function CalendarPage() {
                             id="devis-contrat-form"
                             key={editingItem?.id || `${formMode}-${isDialogOpen}`}
                             mode={formMode}
-                            initialData={editingItem}
                             onSuccess={() => {
                                 setIsDialogOpen(false)
                                 fetchData()
@@ -310,8 +314,43 @@ export default function CalendarPage() {
                     <DialogHeader className="pb-2 text-center border-b shrink-0">
                         <DialogTitle>Disponibilités du {selectedDate ? format(selectedDate, 'd MMMM yyyy', { locale: fr }) : ''}</DialogTitle>
                     </DialogHeader>
-                    <div className="overflow-y-auto flex-1 p-2 md:p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+                    <div className="overflow-y-auto flex-1 p-2 md:p-4 space-y-4">
+
+                        {orphanBookings.length > 0 && (
+                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                                <h4 className="text-sm font-bold text-amber-700 flex items-center gap-2 mb-2">
+                                    <AlertTriangleIcon className="h-4 w-4" />
+                                    Vigilance : {orphanBookings.length} réservation(s) sans matériel affecté
+                                </h4>
+                                <div className="grid gap-2">
+                                    {orphanBookings.map((b: any) => (
+                                        <div key={b.id} className="bg-white border border-amber-100 p-2 rounded flex items-center justify-between shadow-sm">
+                                            <div>
+                                                <p className="font-semibold text-sm text-slate-800">{b.nom_client}</p>
+                                                <p className="text-[10px] text-slate-500">
+                                                    {b.type === 'devis' ? 'Devis (Option)' : 'Contrat (Validé)'}
+                                                </p>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="h-7 text-xs border-amber-200 text-amber-700 hover:bg-amber-100"
+                                                onClick={() => {
+                                                    setAvailabilityOpen(false)
+                                                    setFormMode(b.type)
+                                                    setEditingItem(b)
+                                                    setIsDialogOpen(true)
+                                                }}
+                                            >
+                                                Corriger
+                                            </Button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-3">
                                 <h4 className="text-sm font-bold text-emerald-600 uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-emerald-100">
                                     <CheckCircle2Icon className="h-4 w-4" /> Disponible(s)
