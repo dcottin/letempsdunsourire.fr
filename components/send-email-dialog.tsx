@@ -133,9 +133,9 @@ export function SendEmailDialog({
                 <div className="shrink-0 space-y-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
-                            <Label className="text-xs uppercase font-bold text-slate-500">Modèle</Label>
+                            <Label className="text-slate-500 uppercase font-bold sm:font-semibold text-[10px] sm:text-xs pl-1 sm:pl-0">Modèle</Label>
                             <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
-                                <SelectTrigger className="h-9">
+                                <SelectTrigger className="h-8 bg-white border-dashed border-indigo-200 text-xs sm:text-sm font-medium w-full">
                                     <SelectValue placeholder="Sélectionner un modèle..." />
                                 </SelectTrigger>
                                 <SelectContent className="z-[10000]">
@@ -151,7 +151,7 @@ export function SendEmailDialog({
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="grid gap-1">
                             <div className="flex items-center justify-between h-5">
-                                <Label htmlFor="email" className="text-xs uppercase font-bold text-slate-500">Destinataire</Label>
+                                <Label htmlFor="email" className="text-slate-500 uppercase font-bold sm:font-semibold text-[10px] sm:text-xs pl-1 sm:pl-0">Destinataire</Label>
                                 {hasRIB && (
                                     <div className="flex items-center space-x-2 bg-indigo-50 py-0.5 px-2 rounded-md border border-indigo-100 scale-90">
                                         <Checkbox
@@ -164,16 +164,16 @@ export function SendEmailDialog({
                                     </div>
                                 )}
                             </div>
-                            <Input id="email" value={to} onChange={(e) => setTo(e.target.value)} className="h-9" />
+                            <Input id="email" value={to} onChange={(e) => setTo(e.target.value)} className="h-8 bg-white border-dashed border-indigo-200 text-xs sm:text-sm font-medium w-full" />
                         </div>
 
                         <div className="grid gap-1">
-                            <Label htmlFor="subject" className="text-xs uppercase font-bold text-slate-500">Sujet</Label>
+                            <Label htmlFor="subject" className="text-slate-500 uppercase font-bold sm:font-semibold text-[10px] sm:text-xs pl-1 sm:pl-0">Sujet</Label>
                             <Input
                                 id="subject"
                                 value={subject}
                                 onChange={(e) => setSubject(e.target.value)}
-                                className="h-9 font-medium"
+                                className="h-8 bg-white border-dashed border-indigo-200 text-xs sm:text-sm font-medium w-full"
                                 placeholder="Sujet de l'email..."
                             />
                         </div>
@@ -181,7 +181,7 @@ export function SendEmailDialog({
                 </div>
 
                 <div className="space-y-2 pb-4">
-                    <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
+                    <Label htmlFor="message" className="text-slate-500 uppercase font-bold sm:font-semibold text-[10px] sm:text-xs pl-1 sm:pl-0">Message</Label>
                     {isIOS ? (
                         <div
                             className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 min-h-[200px] overflow-y-auto"
