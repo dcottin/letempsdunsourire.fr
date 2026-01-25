@@ -67,7 +67,10 @@ export function SendEmailDialog({
         if (replacements && templateId !== "default") {
             Object.entries(replacements).forEach(([key, value]) => {
                 newSubject = newSubject.split(key).join(value)
-                newBody = newBody.split(key).join(value)
+                // Skip logo replacement here, keep it as a placeholder for late injection
+                if (key !== "{{company_logo}}") {
+                    newBody = newBody.split(key).join(value)
+                }
             })
         }
 
