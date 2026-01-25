@@ -50,15 +50,6 @@ export function SendEmailDialog({
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
 
-    // Use a ref for iOS to avoid re-renders during typing
-    const iosEditorRef = useRef<HTMLDivElement>(null)
-    const messageRef = useRef(message)
-
-    // Sync state to ref for sending purposes
-    useEffect(() => {
-        messageRef.current = message
-    }, [message])
-
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
         setSelectedTemplate(templateId)
@@ -81,12 +72,8 @@ export function SendEmailDialog({
         }
 
         setSubject(newSubject)
-        setMessage(newBody)
-
-        // Force update the native div if on iOS
-        if (isIOS && iosEditorRef.current) {
-            iosEditorRef.current.innerHTML = newBody
-        }
+        // If on iOS, convert HTML body to plain text for the textarea
+        setMessage(isIOS ? stripHtml(newBody) : newBody)
     }
 
     const [prevOpen, setPrevOpen] = useState(false)
@@ -94,13 +81,10 @@ export function SendEmailDialog({
         if (open && !prevOpen) {
             setTo(defaultEmail)
             setSubject(defaultSubject)
-            setMessage(defaultMessage || "")
+            // If on iOS, convert default message to plain text for the textarea
+            setMessage(isIOS ? stripHtml(defaultMessage || "") : (defaultMessage || ""))
             setAttachRIB(hasRIB ? true : false)
             setSelectedTemplate("default")
-
-            if (isIOS && iosEditorRef.current) {
-                iosEditorRef.current.innerHTML = defaultMessage || ""
-            }
         }
         setPrevOpen(open)
     }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen, isIOS])
@@ -108,7 +92,9 @@ export function SendEmailDialog({
     const handleSend = async () => {
         setIsSending(true)
         try {
-            await onSend({ to, subject, message, attachRIB })
+            // On iOS, convert final textarea value (plain text) back to HTML format
+            const finalMessage = isIOS ? message.trim().replace(/\n/g, "<br>") : message
+            await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
         } catch (error) {
             console.error("Error sending email:", error)
@@ -201,13 +187,26 @@ export function SendEmailDialog({
                 <div className="flex-1 min-h-0 flex flex-col space-y-2 pb-4 overflow-x-hidden">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500 shrink-0">Message</Label>
                     <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-                        <RichTextEditor
-                            value={message}
-                            onChange={setMessage}
-                            className="flex-1 border-slate-200 overflow-hidden"
-                            contentClassName="flex-1"
-                            minHeight="100%"
-                        />
+                        {isIOS ? (
+                            <textarea
+                                id="message"
+                                value={stripHtml(message)}
+                                onChange={(e) => setMessage(e.target.value)}
+                                className="w-full flex-1 rounded-md border border-slate-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 resize-none overflow-auto"
+                                placeholder="Rédigez votre message..."
+                                style={{
+                                    WebkitTapHighlightColor: 'transparent',
+                                }}
+                            />
+                        ) : (
+                            <RichTextEditor
+                                value={message}
+                                onChange={setMessage}
+                                className="flex-1 border-slate-200 overflow-hidden"
+                                contentClassName="flex-1"
+                                minHeight="100%"
+                            />
+                        )}
                     </div>
                 </div>
             </div>
