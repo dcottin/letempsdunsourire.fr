@@ -108,8 +108,8 @@ export function SendEmailDialog({
     const handleSend = async () => {
         setIsSending(true)
         try {
-            // On iOS, read content directly from the div to get latest edits
-            const finalMessage = isIOS ? (iosEditorRef.current?.innerHTML || messageRef.current) : message
+            // On iOS, convert final textarea value back to HTML format
+            const finalMessage = isIOS ? message.trim().replace(/\n/g, "<br>") : message
             await onSend({ to, subject, message: finalMessage, attachRIB })
             onOpenChange(false)
         } catch (error) {
@@ -203,27 +203,14 @@ export function SendEmailDialog({
                 <div className="space-y-2 pb-4">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                     {isIOS ? (
-                        <div
-                            ref={iosEditorRef}
-                            className="w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 min-h-[300px] overflow-y-auto"
-                            contentEditable={true}
-                            suppressContentEditableWarning={true}
-                            dangerouslySetInnerHTML={{ __html: message }}
-                            onInput={(e) => {
-                                // Just update the ref, NO state change here to avoid cursor jumps
-                                messageRef.current = e.currentTarget.innerHTML
-                            }}
-                            onBlur={(e) => {
-                                // Sync back to state only when leaving the field
-                                setMessage(e.currentTarget.innerHTML)
-                            }}
+                        <textarea
+                            id="message"
+                            value={stripHtml(message)}
+                            onChange={(e) => setMessage(e.target.value)}
+                            className="w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 min-h-[300px] resize-none"
+                            placeholder="Rédigez votre message..."
                             style={{
-                                WebkitUserSelect: 'text',
-                                userSelect: 'text',
-                                WebkitTouchCallout: 'default',
                                 WebkitTapHighlightColor: 'transparent',
-                                cursor: 'text',
-                                minHeight: '300px'
                             }}
                         />
                     ) : (
