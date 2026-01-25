@@ -792,15 +792,15 @@ END:VCARD`
 
     return (
         <Card className={`overflow-hidden transition-all hover:shadow-sm ${isNextWeek ? 'border-l-2 border-l-slate-300' : 'border-l-2 border-l-indigo-500'}`}>
-            <CardContent className="p-2 sm:p-2.5">
+            <CardContent className="p-3 sm:p-4">
                 {/* Header: Date & Status */}
-                <div className="flex justify-between items-start mb-1">
-                    <div className="flex items-center gap-1.5">
+                <div className="flex justify-between items-center mb-2">
+                    <div className="flex items-center gap-2">
                         <h4 className="font-bold text-sm capitalize text-slate-900 leading-none">{dayName} <span className="text-slate-500 font-medium">{dayDate}</span></h4>
-                        {reference && <span className="text-[10px] text-slate-400 font-mono tracking-tighter bg-slate-50 px-1 rounded border border-slate-100">{reference}</span>}
-                        {isSameDay(dateObj, new Date()) && <Badge className="bg-red-100 text-red-600 hover:bg-red-100 border-none text-[9px] px-1 h-4 font-bold">Auj.</Badge>}
+                        {reference && <span className="text-[10px] text-slate-400 font-mono tracking-tighter bg-slate-50 px-1.5 rounded border border-slate-100">{reference}</span>}
+                        {isSameDay(dateObj, new Date()) && <Badge className="bg-red-100 text-red-600 hover:bg-red-100 border-none text-[9px] px-1.5 h-5 font-bold">Auj.</Badge>}
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                         {remainingBalance > 0 && (
                             <button
                                 onClick={(e) => {
@@ -808,22 +808,22 @@ END:VCARD`
                                     e.stopPropagation();
                                     onPay(event);
                                 }}
-                                className="text-sm font-black text-rose-600 hover:text-rose-700 hover:scale-105 transition-all tabular-nums mr-1 px-1.5 py-0.5 rounded bg-rose-50/50 border border-rose-200 hover:bg-rose-100 hover:border-rose-300"
+                                className="text-sm font-black text-rose-600 hover:text-rose-700 hover:scale-105 transition-all tabular-nums mr-1 px-2 py-1 rounded bg-rose-50/50 border border-rose-200 hover:bg-rose-100 hover:border-rose-300"
                                 title="Enregistrer le paiement du solde"
                             >
                                 {remainingBalance}€
                             </button>
                         )}
-                        <div className="flex gap-1 items-center bg-slate-50/50 px-1.5 py-0.5 rounded-full border border-slate-100">
+                        <div className="flex gap-1.5 items-center bg-slate-50/50 px-2 py-1 rounded-full border border-slate-100">
                             {/* Workflow dots similar to "suivi" */}
                             <div title="Contrat Signé" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '0')}>
-                                {isSigned ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}
+                                {isSigned ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                             </div>
                             <div title="Acompte Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '1')}>
-                                {depositPaye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}
+                                {depositPaye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                             </div>
                             <div title="Solde Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '2')}>
-                                {soldePaye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}
+                                {soldePaye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                             </div>
                             {/* Dynamic workflow steps */}
                             {(settings?.workflow_steps || []).slice(3).map((stepName: string, idx: number) => {
@@ -831,7 +831,7 @@ END:VCARD`
                                 const isChecked = event.data?.workflow_status?.[stepKey] === true
                                 return (
                                     <div key={stepKey} title={stepName} className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, stepKey)}>
-                                        {isChecked ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}
+                                        {isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
                                     </div>
                                 )
                             })}
@@ -839,33 +839,33 @@ END:VCARD`
                     </div>
                 </div>
 
-                <div className="space-y-1 ml-0.5">
+                <div className="space-y-1.5 ml-0.5">
                     {/* Line 1: Client Name */}
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-                        <UserIcon className="size-3 text-indigo-500 shrink-0" />
+                    <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                        <UserIcon className="size-3.5 text-indigo-500 shrink-0" />
                         <span className="truncate">{event.nom_client}</span>
                     </div>
 
                     {/* Line 2: Phone | Address | Delivery */}
-                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 ml-4 text-[10px] font-medium text-slate-500">
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 ml-5 text-[10px] font-medium text-slate-500">
                         {phone && (
                             <div className="flex items-center gap-1 text-slate-600">
                                 <a href={`tel:${phone}`} className="flex items-center gap-1 hover:text-indigo-600 transition-colors">
-                                    <PhoneIcon className="size-2.5" />
+                                    <PhoneIcon className="size-3" />
                                     {phone.replace(/(\d{2})(?=\d)/g, '$1 ')}
                                 </a>
                                 <button
                                     onClick={downloadVCard}
-                                    className="p-0.5 rounded-full hover:bg-slate-100 text-indigo-500 transition-colors"
+                                    className="p-1 rounded-full hover:bg-slate-100 text-indigo-500 transition-colors"
                                     title="Enregistrer"
                                 >
-                                    <UserPlus className="size-2.5" />
+                                    <UserPlus className="size-3" />
                                 </button>
                             </div>
                         )}
 
-                        <div className="flex items-center gap-1 truncate max-w-[150px]">
-                            <MapPinIcon className="size-2.5 shrink-0" />
+                        <div className="flex items-center gap-1 truncate max-w-[180px]">
+                            <MapPinIcon className="size-3 shrink-0" />
                             {location ? (
                                 <a
                                     href={`https://waze.com/ul?q=${encodeURIComponent(location)}`}
@@ -881,7 +881,7 @@ END:VCARD`
                         <div className="flex items-center gap-1 text-amber-600 font-bold whitespace-nowrap group/deliv">
                             {deliveryDateStr ? (
                                 <>
-                                    <TruckIcon className="size-2.5 shrink-0" />
+                                    <TruckIcon className="size-3 shrink-0" />
                                     <span>{format(new Date(deliveryDateStr), 'dd/MM')} {deliveryTimeStr}</span>
                                 </>
                             ) : (
@@ -889,18 +889,18 @@ END:VCARD`
                             )}
                             <button
                                 onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEditDelivery(event); }}
-                                className="p-0.5 hover:bg-slate-100 rounded text-slate-400 hover:text-indigo-600 transition-colors ml-0.5"
+                                className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-indigo-600 transition-colors ml-0.5"
                                 title="Modifier la livraison"
                             >
-                                <PencilIcon className="size-2.5" />
+                                <PencilIcon className="size-3" />
                             </button>
                         </div>
                     </div>
 
                     {/* Line 3: Formula & Model */}
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 ml-4 text-[10px] pt-1 border-t border-slate-100/50">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 ml-5 text-[10px] pt-1.5 border-t border-slate-100/50">
                         <div className="flex flex-wrap items-center gap-1 text-slate-700 font-bold">
-                            <PackageIcon className="size-2.5 text-slate-400 shrink-0" />
+                            <PackageIcon className="size-3 text-slate-400 shrink-0" />
                             <span>{displayOffer}</span>
                             {selectedOptions.length > 0 && (
                                 <span className="text-pink-600 font-medium">
@@ -914,8 +914,8 @@ END:VCARD`
                                 value={equipmentId || 'none'}
                                 onValueChange={(val) => onEquipmentChange(event, val)}
                             >
-                                <SelectTrigger className="h-6 w-fit min-w-[70px] max-w-[120px] text-[10px] bg-slate-50 border-slate-200 hover:border-indigo-400 transition-colors px-2 rounded-md">
-                                    <CameraIcon className="size-2.5 mr-1 text-slate-400 shrink-0" />
+                                <SelectTrigger className="h-7 w-fit min-w-[80px] max-w-[140px] text-[10px] bg-slate-50 border-slate-200 hover:border-indigo-400 transition-colors px-2.5 rounded-md">
+                                    <CameraIcon className="size-3 mr-1.5 text-slate-400 shrink-0" />
                                     <SelectValue placeholder="Matériel">
                                         {settings?.materiels?.find((m: any) => m.id === equipmentId)?.nom || (equipmentId === 'none' ? 'Aucun' : equipmentId)}
                                     </SelectValue>
@@ -966,9 +966,9 @@ function SortableEventCard({ id, children }: { id: string, children: React.React
     }
 
     return (
-        <div ref={setNodeRef} style={style} className="touch-none group/card flex items-center gap-2 mb-3">
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1.5 text-slate-300 hover:text-indigo-600 hover:bg-slate-50 rounded transition-colors shrink-0">
-                <GripVertical className="size-4" />
+        <div ref={setNodeRef} style={style} className="touch-none group/card flex items-center gap-3 mb-4">
+            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 text-slate-300 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-colors shrink-0">
+                <GripVertical className="size-5" />
             </div>
             <div className="flex-1 min-w-0">
                 {children}

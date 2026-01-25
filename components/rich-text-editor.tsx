@@ -112,8 +112,8 @@ export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>
             editorProps: {
                 attributes: {
                     class: singleLine
-                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text bg-white text-base`
-                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text bg-white text-base overflow-x-hidden break-words`,
+                        ? `focus:outline-none p-1.5 min-h-0 h-9 cursor-text select-text touch-action-manipulation bg-white text-base`
+                        : `max-w-none focus:outline-none p-2 min-h-[${minHeight}] cursor-text select-text touch-action-manipulation bg-white text-base overflow-x-hidden break-words`,
                 },
                 handleDrop: (view, event, slice, moved) => {
                     if (!moved && event.dataTransfer && event.dataTransfer.files.length === 0) {

@@ -110,7 +110,12 @@ export function SendEmailDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col duration-200">
+            <DialogContent
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                onPointerDownOutside={(e) => e.preventDefault()}
+                onInteractOutside={(e) => e.preventDefault()}
+                className="fixed z-50 !w-[100vw] !h-[100dvh] !max-w-none !m-0 !rounded-none p-0 gap-0 border-none bg-white !left-0 !top-0 !right-0 !bottom-0 !translate-x-0 !translate-y-0 outline-none shadow-none overflow-hidden flex flex-col duration-200"
+            >
                 <div className="flex flex-col w-full h-full select-text cursor-auto bg-white overflow-hidden">
                     <DialogHeader className="p-4 pb-3 shrink-0 border-b">
                         <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
@@ -178,11 +183,11 @@ export function SendEmailDialog({
                         </div>
                     </div>
 
-                    <DialogFooter className="p-4 pt-3 border-t bg-slate-50/50 shrink-0">
-                        <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="uppercase text-xs font-bold tracking-wider">
+                    <DialogFooter className="m-0 p-4 pt-3 pb-8 sm:pb-4 border-t bg-slate-50/50 shrink-0 flex flex-row items-center justify-end gap-3">
+                        <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="flex-1 sm:flex-none uppercase text-[10px] sm:text-xs font-bold tracking-wider h-9 px-3">
                             Annuler
                         </Button>
-                        <Button onClick={handleSend} disabled={isSending} className="gap-2 sm:min-w-[140px] bg-indigo-600 hover:bg-indigo-700 uppercase text-xs font-bold tracking-wider">
+                        <Button onClick={handleSend} disabled={isSending} className="flex-[2] sm:flex-none gap-2 bg-indigo-600 hover:bg-indigo-700 uppercase text-[10px] sm:text-xs font-bold tracking-wider h-9 px-3">
                             {isSending ? (
                                 <><Loader2 className="h-4 w-4 animate-spin" /> Envoi...</>
                             ) : (
