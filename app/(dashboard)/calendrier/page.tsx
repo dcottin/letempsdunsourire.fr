@@ -136,40 +136,37 @@ export default function CalendarPage() {
     const handleDateClick = (date: Date) => {
         setSelectedDate(date)
 
-        // Find all bookings overlapping with this date
-        const allBookings = [...devisList, ...contratsList]
-
         // Normalize date to midnight for comparison
         const checkTime = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
 
-        const bookingsToday = allBookings.filter(b => {
+        // Helper to check overlap
+        const checkOverlap = (b: any) => {
             if (!b.date_debut) return false
-
-            // Parse start
             const start = new Date(b.date_debut)
             const startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime()
-
-            // Parse end (or default to start)
             let endTime = startTime
             if (b.date_fin) {
                 const end = new Date(b.date_fin)
                 endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime()
             }
-
             return checkTime >= startTime && checkTime <= endTime
-        })
+        }
 
-        const busyEquipmentIds = bookingsToday.map(b => b.equipment_id).filter(Boolean)
+        // 1. Aiblity & Reserved (Contracts Only) - Logic requested: Avail = Machines - Contracts
+        const blockingBookings = contratsList.filter(checkOverlap)
+        const busyEquipmentIds = blockingBookings.map(b => b.equipment_id).filter(Boolean)
 
         const available = materiels.filter(m => !busyEquipmentIds.includes(m.id))
         const booked = materiels
             .filter(m => busyEquipmentIds.includes(m.id))
             .map(m => {
-                const booking = bookingsToday.find(b => b.equipment_id === m.id)
+                const booking = blockingBookings.find(b => b.equipment_id === m.id)
                 return { mat: m, booking }
             })
 
-        const orphans = bookingsToday.filter(b => !b.equipment_id || b.equipment_id === 'none')
+        // 2. Orphans (All bookings: Devis + Contrats) - We still want to be alerted if a Devis has no machine
+        const allBookingsToday = [...devisList, ...contratsList].filter(checkOverlap)
+        const orphans = allBookingsToday.filter(b => !b.equipment_id || b.equipment_id === 'none')
 
         setAvailableMat(available)
         setBookedMat(booked)
@@ -250,7 +247,7 @@ export default function CalendarPage() {
                             onMoreLinkClick={handleMoreLinkClick}
                             onDateClick={handleDateClick}
                             materiels={materiels}
-                            bookings={[...devisList, ...contratsList]}
+                            bookings={contratsList}
                         />
                     </div>
                 </CardContent>
