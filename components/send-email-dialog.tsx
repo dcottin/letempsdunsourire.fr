@@ -126,7 +126,7 @@ export function SendEmailDialog({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="flex-1 overflow-hidden p-4 flex flex-col gap-4">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-4">
                         <div className="shrink-0 space-y-3">
                             {templates && templates.length > 0 && (
                                 <div className="grid gap-1">
@@ -171,14 +171,13 @@ export function SendEmailDialog({
                             </div>
                         </div>
 
-                        <div className="flex-1 flex flex-col min-h-0 gap-1.5">
+                        <div className="flex flex-col gap-1.5 min-h-[250px] flex-1">
                             <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                             <RichTextEditor
                                 value={message}
                                 onChange={setMessage}
-                                className="flex-1 overflow-hidden border-slate-200"
-                                contentClassName="flex-1 overflow-y-auto custom-scrollbar min-h-0"
-                                minHeight="100%"
+                                className="border-slate-200 min-h-[250px]"
+                                minHeight="250px"
                             />
                         </div>
                     </div>
