@@ -172,12 +172,13 @@ export function SendEmailDialog({
                     </div>
                 </div>
 
-                <div className={`space-y-2 ${isIOS ? 'flex-1' : ''}`}>
+                <div className="space-y-2">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500">Message</Label>
                     <RichTextEditor
                         value={message}
                         onChange={setMessage}
                         className="border-slate-200"
+                        contentClassName="overflow-visible"
                         minHeight={isIOS ? "200px" : "250px"}
                     />
                 </div>
