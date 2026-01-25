@@ -34,9 +34,11 @@ interface CustomCalendarProps {
     onEventClick: (info: { event: CalendarEvent }) => void
     onMoreLinkClick: (args: { date: Date, allSegs: any[] }) => void
     onDateClick?: (date: Date) => void
+    materiels?: any[]
+    bookings?: any[]
 }
 
-export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateClick }: CustomCalendarProps) {
+export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateClick, materiels = [], bookings = [] }: CustomCalendarProps) {
     const [currentDate, setCurrentDate] = React.useState(new Date())
     const [view, setView] = React.useState<'month' | 'list'>('month')
 
@@ -66,6 +68,36 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
             const eventDate = parseISO(event.start)
             return isSameDay(eventDate, day)
         })
+    }
+
+    // Helper to get availability for a day
+    const getAvailabilityForDay = (day: Date) => {
+        if (!materiels || materiels.length === 0) return null
+
+        const checkTime = new Date(day.getFullYear(), day.getMonth(), day.getDate()).getTime()
+
+        const bookingsToday = bookings.filter(b => {
+            if (!b.date_debut) return false
+
+            // Parse start
+            const start = new Date(b.date_debut)
+            const startTime = new Date(start.getFullYear(), start.getMonth(), start.getDate()).getTime()
+
+            // Parse end (or default to start)
+            let endTime = startTime
+            if (b.date_fin) {
+                const end = new Date(b.date_fin)
+                endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime()
+            }
+
+            return checkTime >= startTime && checkTime <= endTime
+        })
+
+        const busyCount = bookingsToday.map(b => b.equipment_id).filter(Boolean).length
+        // Simple count - in reality we should check distinct equipment IDs but this is a good approximation if one booking = one equipment
+        const uniqueBusyIds = new Set(bookingsToday.map(b => b.equipment_id).filter(Boolean))
+
+        return Math.max(0, materiels.length - uniqueBusyIds.size)
     }
 
     return (
@@ -171,6 +203,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                             const dayEvents = getEventsForDay(day)
                             const isCurrentMonth = isSameMonth(day, monthStart)
                             const isTodayDate = isToday(day)
+                            const availableCount = getAvailabilityForDay(day)
 
                             // Show individual events only if they fit. If there are too many, show just the summary button.
                             const MAX_EVENTS = 2
@@ -184,14 +217,24 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                     key={day.toString()}
                                     onClick={() => onDateClick?.(day)}
                                     className={cn(
-                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50/50 cursor-pointer",
+                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50/50 cursor-pointer relative group",
                                         !isCurrentMonth && "bg-slate-50/30 text-slate-400",
                                         isTodayDate && "bg-indigo-50/30"
                                     )}
                                 >
-                                    <div className="flex justify-end">
+                                    <div className="flex justify-between items-start">
+                                        {availableCount !== null && (
+                                            <span className={cn(
+                                                "text-[9px] md:text-[10px] font-bold px-1.5 py-0.5 rounded-full",
+                                                availableCount > 0
+                                                    ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                                    : "bg-red-100 text-red-600 border border-red-200"
+                                            )}>
+                                                {availableCount} dispo
+                                            </span>
+                                        )}
                                         <span className={cn(
-                                            "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full",
+                                            "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ml-auto",
                                             isTodayDate ? "bg-indigo-600 text-white shadow-sm" :
                                                 !isCurrentMonth ? "text-slate-300" : "text-slate-700"
                                         )}>

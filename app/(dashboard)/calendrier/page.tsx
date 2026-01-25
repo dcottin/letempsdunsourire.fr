@@ -244,6 +244,8 @@ export default function CalendarPage() {
                             onEventClick={handleEventClick}
                             onMoreLinkClick={handleMoreLinkClick}
                             onDateClick={handleDateClick}
+                            materiels={materiels}
+                            bookings={[...devisList, ...contratsList]}
                         />
                     </div>
                 </CardContent>
