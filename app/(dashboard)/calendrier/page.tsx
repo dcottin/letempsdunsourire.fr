@@ -149,7 +149,13 @@ export default function CalendarPage() {
                 const end = new Date(b.date_fin)
                 endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime()
             }
-            return checkTime >= startTime && checkTime <= endTime
+
+            // If start < end, we assume end is the retrieval date (exclusive)
+            if (startTime < endTime) {
+                return checkTime >= startTime && checkTime < endTime
+            }
+            // If start == end (1 day event), we include it
+            return checkTime === startTime
         }
 
         // 1. Aiblity & Reserved (Contracts Only) - Logic requested: Avail = Machines - Contracts

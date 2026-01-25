@@ -91,7 +91,10 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                 endTime = new Date(end.getFullYear(), end.getMonth(), end.getDate()).getTime()
             }
 
-            return checkTime >= startTime && checkTime <= endTime
+            if (startTime < endTime) {
+                return checkTime >= startTime && checkTime < endTime
+            }
+            return checkTime >= startTime && checkTime <= endTime // Fallback for equal or other cases (though strictly checkTime === startTime is enough if start==end)
         })
 
         // Count bookings with assigned equipment (unique machines blocked)
