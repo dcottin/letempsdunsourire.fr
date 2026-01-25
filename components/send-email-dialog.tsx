@@ -113,25 +113,23 @@ export function SendEmailDialog({
     const content = (
         <div className="bg-white w-full h-full flex flex-col overflow-hidden">
             <DialogHeader className={cn(
-                "p-4 pb-3 shrink-0 border-b flex flex-row items-center justify-between bg-white z-20",
-                isIOS && "pt-[max(1rem,env(safe-area-inset-top))]"
+                "px-6 py-4 shrink-0 border-b flex flex-row items-center justify-between bg-white z-20",
+                isIOS && "pt-[max(1.25rem,env(safe-area-inset-top))]"
             )}>
                 <div className="space-y-1">
-                    <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+                    <DialogTitle className="flex items-center gap-2 text-base sm:text-lg font-bold">
                         <MailIcon className="size-5 text-indigo-600 shrink-0" /> <span className="truncate">Envoyer par Email</span>
                     </DialogTitle>
                     <DialogDescription className="text-[10px] sm:text-xs">
                         Le document sera envoyé en pièce jointe (PDF).
                     </DialogDescription>
                 </div>
-                {isIOS && (
-                    <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="shrink-0 -mt-2">
-                        <XIcon className="size-5 text-slate-400" />
-                    </Button>
-                )}
+                <Button variant="ghost" size="icon" onClick={() => onOpenChange(false)} className="shrink-0 -mr-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full">
+                    <XIcon className="size-5" />
+                </Button>
             </DialogHeader>
 
-            <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto px-6 py-6 flex flex-col gap-6">
                 <div className="shrink-0 space-y-3">
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
@@ -211,8 +209,8 @@ export function SendEmailDialog({
             </div>
 
             <DialogFooter className={cn(
-                "p-4 pt-3 border-t bg-slate-50/50 flex flex-row items-center justify-end gap-3 shrink-0 z-20",
-                isIOS && "pb-[max(1rem,env(safe-area-inset-bottom))]"
+                "px-6 py-6 border-t bg-slate-50/50 flex flex-row items-center justify-end gap-3 shrink-0 z-20",
+                isIOS && "pb-[max(1.5rem,env(safe-area-inset-bottom))]"
             )}>
                 <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="flex-1 sm:flex-none uppercase text-[10px] sm:text-xs font-bold tracking-wider h-10 px-3">
                     Annuler
