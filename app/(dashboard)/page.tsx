@@ -62,8 +62,10 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Loader2Icon } from "lucide-react"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 export default function DashboardPage() {
+    const isMobile = useIsMobile()
     const [weekOffset, setWeekOffset] = React.useState(0)
     const [events, setEvents] = React.useState<any[]>([])
     const [settings, setSettings] = React.useState<any>(null)
@@ -489,7 +491,7 @@ export default function DashboardPage() {
             </div>
 
             <div className={`grid gap-6`} style={{
-                gridTemplateColumns: `repeat(${columnsCount}, minmax(0, 1fr))`
+                gridTemplateColumns: `repeat(${isMobile ? 1 : columnsCount}, minmax(0, 1fr))`
             }}>
                 {displayedWeeks.map((week, idx) => (
                     <div key={idx} className="space-y-4">
@@ -641,7 +643,8 @@ export default function DashboardPage() {
                                     <Button
                                         key={num}
                                         variant={columnsCount === num ? "default" : "outline"}
-                                        className={`h-10 w-full ${columnsCount === num ? 'bg-indigo-600 hover:bg-indigo-700' : ''}`}
+                                        disabled={isMobile}
+                                        className={`h-10 w-full ${columnsCount === num ? 'bg-indigo-600 hover:bg-indigo-700' : ''} ${isMobile ? 'opacity-40 grayscale pointer-events-none' : ''}`}
                                         onClick={() => {
                                             setColumnsCount(num)
                                             localStorage.setItem('dashboard_columns', num.toString())
@@ -651,7 +654,15 @@ export default function DashboardPage() {
                                     </Button>
                                 ))}
                             </div>
-                            <p className="text-[10px] text-slate-400 italic">Note: Sur mobile, l'affichage passera automatiquement en 1 colonne pour plus de lisibilité.</p>
+                            <p className={cn(
+                                "text-[10px] italic transition-colors",
+                                isMobile ? "text-indigo-600 font-bold" : "text-slate-400"
+                            )}>
+                                {isMobile
+                                    ? "L'affichage est verrouillé sur 1 colonne sur mobile pour une lisibilité optimale."
+                                    : "Note: Sur mobile, l'affichage passera automatiquement en 1 colonne pour plus de lisibilité."
+                                }
+                            </p>
                         </div>
                     </div>
                     <DialogFooter>
