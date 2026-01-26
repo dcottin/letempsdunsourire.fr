@@ -248,7 +248,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                         : "bg-red-100 text-red-600 border border-red-200",
                                                 !isCurrentMonth && "opacity-30 grayscale"
                                             )}>
-                                                {availability.hasUnassigned && "⚠️ "}{availability.count} <Camera className="size-2 md:size-3" />
+                                                {availability.hasUnassigned && "⚠️ "}{availability.count} <Camera className="size-3 md:size-4" />
                                             </span>
                                         )}
                                         <span className={cn(
