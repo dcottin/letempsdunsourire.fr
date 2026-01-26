@@ -269,11 +269,10 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                         ))}
                                     </div>
 
-                                    {/* Events and Availability Section (Bottom) */}
                                     <div className="mt-auto space-y-1">
                                         {availability && dayEvents.length > 0 && (
                                             <div className={cn(
-                                                "w-full text-[8px] md:text-[10px] font-bold px-1 py-0.5 rounded flex items-center justify-center gap-1",
+                                                "w-full text-[10px] md:text-xs font-bold px-1 py-0.5 rounded flex items-center justify-center gap-1.5",
                                                 availability.hasUnassigned
                                                     ? "bg-amber-100 text-amber-700 border border-amber-200"
                                                     : availability.count > 0
@@ -281,32 +280,31 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                         : "bg-red-100 text-red-600 border border-red-200",
                                                 !isCurrentMonth && "opacity-30 grayscale"
                                             )}>
-                                                {availability.hasUnassigned && "⚠️ "}{availability.count} <Camera className="size-3 md:size-4" />
+                                                <span>{availability.hasUnassigned && "⚠️ "}{availability.count}</span>
+                                                <Camera className="size-3.5 md:size-4" />
                                             </div>
                                         )}
 
-                                        {isOverflow && (
+                                        {dayEvents.length > 0 && isOverflow && (
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation()
-                                                    // Mimic FullCalendar args structure for compatibility
-                                                    onMoreLinkClick({
-                                                        date: day,
-                                                        allSegs: dayEvents.map(evt => ({
-                                                            event: {
-                                                                ...evt,
-                                                                extendedProps: evt.extendedProps,
-                                                                title: evt.title,
-                                                                start: evt.start,
-                                                                backgroundColor: evt.color || evt.backgroundColor
-                                                            }
+                                                    setDialogState({
+                                                        isOpen: true,
+                                                        title: `Réservations du ${format(day, "d MMMM", { locale: fr })}`,
+                                                        events: dayEvents.map(ev => ({
+                                                            id: ev.id,
+                                                            client: ev.nom_client,
+                                                            type: ev.type,
+                                                            status: ev.etat,
+                                                            original: ev
                                                         }))
                                                     })
                                                 }}
-                                                className="mt-auto text-[10px] md:text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1 py-0.5 text-center w-full transition-colors flex items-center justify-center gap-1.5"
+                                                className="text-[10px] md:text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1 py-0.5 text-center w-full transition-colors flex items-center justify-center gap-1.5"
                                             >
                                                 <span>{dayEvents.length}</span>
-                                                <ScrollText className="size-3.5" />
+                                                <ScrollText className="size-3.5 md:size-4" />
                                             </button>
                                         )}
                                     </div>
