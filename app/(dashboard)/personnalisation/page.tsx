@@ -65,7 +65,7 @@ type Settings = {
     rib_url?: string
 
     // Catalogue
-    offres: { name: string; price: string }[]
+    offres: { name: string; price: string; public: boolean }[]
     options: { name: string; price: string; public: boolean }[]
     label_livraison: string
 
@@ -123,9 +123,9 @@ const defaultSettings: Settings = {
     annexe_titre: "ANNEXE",
     annexe_texte: "",
     offres: [
-        { name: "Basic", price: "150" },
-        { name: "Eclat", price: "250" },
-        { name: "Prestige", price: "350" }
+        { name: "Basic", price: "150", public: true },
+        { name: "Eclat", price: "250", public: true },
+        { name: "Prestige", price: "350", public: true }
     ],
     options: [],
     label_livraison: "Frais de déplacement",
@@ -256,7 +256,7 @@ export default function PersonnalisationPage() {
     const addOffer = () => {
         setSettings(prev => ({
             ...prev,
-            offres: [...prev.offres, { name: "", price: "" }]
+            offres: [...prev.offres, { name: "", price: "", public: true }]
         }))
     }
 
@@ -267,7 +267,7 @@ export default function PersonnalisationPage() {
         }))
     }
 
-    const handleOfferChange = (index: number, field: "name" | "price", value: string) => {
+    const handleOfferChange = (index: number, field: "name" | "price" | "public", value: any) => {
         const newOffres = [...settings.offres]
         newOffres[index] = { ...newOffres[index], [field]: value }
         setSettings(prev => ({ ...prev, offres: newOffres }))
@@ -1388,18 +1388,29 @@ export default function PersonnalisationPage() {
                                     </CardHeader>
                                     <CardContent className="space-y-4">
                                         {settings.offres.map((offre, index) => (
-                                            <div key={index} className="flex gap-2 items-end p-3 bg-slate-50 rounded-lg border border-slate-100 group">
-                                                <div className="flex-1 space-y-1.5">
-                                                    <Label className="text-xs">Nom du pack</Label>
-                                                    <Input value={offre.name} onChange={(e) => handleOfferChange(index, "name", e.target.value)} placeholder="Ex: Pack Mariage" />
+                                            <div key={index} className="space-y-3 p-3 bg-slate-50 rounded-lg border border-slate-100 group">
+                                                <div className="flex gap-2 items-end">
+                                                    <div className="flex-1 space-y-1.5">
+                                                        <Label className="text-xs">Nom du pack</Label>
+                                                        <Input value={offre.name} onChange={(e) => handleOfferChange(index, "name", e.target.value)} placeholder="Ex: Pack Mariage" />
+                                                    </div>
+                                                    <div className="w-24 space-y-1.5">
+                                                        <Label className="text-xs">Prix (€)</Label>
+                                                        <Input type="number" value={offre.price} onChange={(e) => handleOfferChange(index, "price", e.target.value)} placeholder="0" />
+                                                    </div>
+                                                    <Button variant="ghost" size="icon" className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeOffer(index)}>
+                                                        <TrashIcon className="size-4" />
+                                                    </Button>
                                                 </div>
-                                                <div className="w-24 space-y-1.5">
-                                                    <Label className="text-xs">Prix (€)</Label>
-                                                    <Input type="number" value={offre.price} onChange={(e) => handleOfferChange(index, "price", e.target.value)} placeholder="0" />
+                                                <div className="flex items-center gap-2 px-1">
+                                                    <Switch
+                                                        id={`public-offer-${index}`}
+                                                        checked={offre.public !== false} // Default to true if undefined
+                                                        onCheckedChange={(val) => handleOfferChange(index, "public", val)}
+                                                        className="scale-75"
+                                                    />
+                                                    <Label htmlFor={`public-offer-${index}`} className="text-[11px] text-muted-foreground cursor-pointer">Visible sur le questionnaire client</Label>
                                                 </div>
-                                                <Button variant="ghost" size="icon" className="text-red-500 opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeOffer(index)}>
-                                                    <TrashIcon className="size-4" />
-                                                </Button>
                                             </div>
                                         ))}
                                     </CardContent>

@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import {
     CalendarIcon, UserIcon, CalendarDaysIcon, EuroIcon, FileTextIcon, CameraIcon, Bot, Loader2Icon, RefreshCw,
-    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon, PenTool, InfoIcon, Palette, Circle
+    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon, PenTool, InfoIcon, Palette, Circle, X
 } from "lucide-react"
 import { format, addDays } from "date-fns"
 
@@ -1674,9 +1674,26 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                             <FormItem className="md:col-span-2 xl:col-span-2">
                                                 <div className="flex items-center justify-between">
                                                     <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-indigo-600">Offre / Formule</FormLabel>
-                                                    <Button type="button" variant="ghost" size="icon" className="size-6 text-slate-400 hover:text-indigo-600" onClick={fetchSettings} disabled={isLoadingSettings} title="Actualiser le catalogue">
-                                                        <RefreshCw className={`size-3 ${isLoadingSettings ? "animate-spin" : ""}`} />
-                                                    </Button>
+                                                    <div className="flex items-center gap-1">
+                                                        {field.value && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="size-6 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                                onClick={() => {
+                                                                    field.onChange("")
+                                                                    quickSaveField("offre", "")
+                                                                }}
+                                                                title="Supprimer la formule"
+                                                            >
+                                                                <X className="size-3" />
+                                                            </Button>
+                                                        )}
+                                                        <Button type="button" variant="ghost" size="icon" className="size-6 text-slate-400 hover:text-indigo-600" onClick={fetchSettings} disabled={isLoadingSettings} title="Actualiser le catalogue">
+                                                            <RefreshCw className={`size-3 ${isLoadingSettings ? "animate-spin" : ""}`} />
+                                                        </Button>
+                                                    </div>
                                                 </div>
                                                 <Select onValueChange={field.onChange} value={field.value || ""}>
                                                     <FormControl>
@@ -1795,9 +1812,26 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                     ) : (
                                         <div className="md:col-span-2 xl:col-span-4 space-y-3 pt-2">
                                             <div className="flex items-center justify-between">
-                                                <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-pink-600 flex items-center gap-1">
-                                                    <CameraIcon className="size-3" /> Options du catalogue
-                                                </FormLabel>
+                                                <div className="flex items-center gap-2">
+                                                    <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground text-pink-600 flex items-center gap-1">
+                                                        <CameraIcon className="size-3" /> Options du catalogue
+                                                    </FormLabel>
+                                                    {(watchedOptions || []).length > 0 && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="size-6 text-red-500 hover:text-red-700 hover:bg-red-50"
+                                                            onClick={() => {
+                                                                form.setValue("selected_options", [])
+                                                                quickSaveField("selected_options", [])
+                                                            }}
+                                                            title="Supprimer toutes les options"
+                                                        >
+                                                            <X className="size-3" />
+                                                        </Button>
+                                                    )}
+                                                </div>
                                                 <Button type="button" variant="ghost" size="icon" className="size-6 text-slate-400 hover:text-pink-600" onClick={fetchSettings} disabled={isLoadingSettings} title="Actualiser le catalogue">
                                                     <RefreshCw className={`size-3 ${isLoadingSettings ? "animate-spin" : ""}`} />
                                                 </Button>
@@ -1815,11 +1849,14 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                                         checked={isSelected}
                                                                         onCheckedChange={(checked) => {
                                                                             const current = form.getValues("selected_options") || [];
+                                                                            let next;
                                                                             if (checked) {
-                                                                                form.setValue("selected_options", [...current, { name: opt.name, price: opt.price }]);
+                                                                                next = [...current, { name: opt.name, price: opt.price }];
                                                                             } else {
-                                                                                form.setValue("selected_options", current.filter((so: any) => so.name !== opt.name));
+                                                                                next = current.filter((so: any) => so.name !== opt.name);
                                                                             }
+                                                                            form.setValue("selected_options", next);
+                                                                            quickSaveField("selected_options", next);
                                                                         }}
                                                                     />
                                                                     <label

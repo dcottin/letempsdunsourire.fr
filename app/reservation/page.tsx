@@ -29,7 +29,7 @@ type ReservationForm = {
 type Settings = {
     nom_societe: string
     logo_base64?: string
-    offres: { name: string; price: string }[]
+    offres: { name: string; price: string; public: boolean }[]
     options: { name: string; price: string; public: boolean }[]
     email_contact: string
     telephone_contact: string
@@ -40,9 +40,9 @@ const DEFAULT_SETTINGS: Settings = {
     email_contact: "",
     telephone_contact: "",
     offres: [
-        { name: "Basic", price: "150" },
-        { name: "Eclat", price: "250" },
-        { name: "Prestige", price: "350" }
+        { name: "Basic", price: "150", public: true },
+        { name: "Eclat", price: "250", public: true },
+        { name: "Prestige", price: "350", public: true }
     ],
     options: []
 }
@@ -117,12 +117,17 @@ export default function ReservationPage() {
             }
 
             if (data && data.data) {
-                console.log("Full DB Data:", data.data) // DEBUG
-                console.log("Options from DB:", data.data.options) // DEBUG
-                setSettings({
+                const loadedSettings = {
                     ...DEFAULT_SETTINGS,
                     ...data.data
-                })
+                }
+                setSettings(loadedSettings)
+
+                // If the default 'Basic' offer is not public, select the first public one
+                const publicOffres = loadedSettings.offres.filter((o: any) => o.public !== false)
+                if (publicOffres.length > 0 && !publicOffres.some((o: any) => o.name === "Basic")) {
+                    setValue("offre", publicOffres[0].name)
+                }
             }
         } catch (error) {
             console.error("Error fetching settings:", error)
@@ -396,7 +401,7 @@ export default function ReservationPage() {
                         <div className="mb-8 space-y-4">
                             <label className="text-xs font-bold text-slate-700 uppercase tracking-widest pl-1">Choisir votre Formule</label>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                                {settings?.offres?.map((off, idx) => (
+                                {settings?.offres?.filter(off => off.public !== false).map((off, idx) => (
                                     <div
                                         key={idx}
                                         onClick={() => setValue("offre", off.name)}

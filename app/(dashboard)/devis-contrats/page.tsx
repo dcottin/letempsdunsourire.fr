@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus, XIcon, Zap, Wallet2, BadgeCheck, FileSignature } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus, XIcon, Zap, Wallet2, BadgeCheck, FileSignature } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -1217,30 +1217,6 @@ END:VCARD`
                                                         <div title="Design Validé" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'design_valide', 'contrats')}>
                                                             {(contrat.design_valide || contrat.data?.design_valide) ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />}
                                                         </div>
-                                                        {/* Dynamic steps from index 3 onwards */}
-                                                        {(statusSettings?.workflow_steps || []).slice(3).map((stepName: string, idx: number) => {
-                                                            const stepIndex = idx + 3
-                                                            const stepKey = String(stepIndex)
-                                                            const isChecked = contrat.data?.workflow_status?.[stepKey] === true
-                                                            const isDesignStep = stepName.toLowerCase().includes('design') || stepName.toLowerCase().includes('maquette') || stepName.toLowerCase().includes('template')
-
-                                                            return (
-                                                                <div key={stepKey} title={stepName} className="cursor-pointer" onClick={() => {
-                                                                    const currentStatus = contrat.data?.workflow_status || {}
-                                                                    const newStatus = { ...currentStatus, [stepKey]: !isChecked }
-                                                                    // Update via supabase directly
-                                                                    supabase.from('contrats').update({ data: { ...contrat.data, workflow_status: newStatus } }).eq('id', contrat.id).then(() => {
-                                                                        setContratsList(prev => prev.map(c => c.id === contrat.id ? { ...c, data: { ...c.data, workflow_status: newStatus } } : c))
-                                                                    })
-                                                                }}>
-                                                                    {isDesignStep ? (
-                                                                        isChecked ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />
-                                                                    ) : (
-                                                                        isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />
-                                                                    )}
-                                                                </div>
-                                                            )
-                                                        })}
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="text-center">

@@ -19,8 +19,6 @@ import {
     ChevronLeft,
     ChevronRight,
     UserPlus,
-    Circle,
-    CheckCircleIcon,
     PencilIcon,
     GripVertical,
     FileSignature,
@@ -856,22 +854,6 @@ END:VCARD`
                             <div title="Design Validé" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, 'design_valide')}>
                                 {(event.design_valide || event.data?.design_valide) ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />}
                             </div>
-                            {/* Dynamic workflow steps */}
-                            {(settings?.workflow_steps || []).slice(3).map((stepName: string, idx: number) => {
-                                const stepKey = String(idx + 3)
-                                const isChecked = event.data?.workflow_status?.[stepKey] === true
-                                const isDesignStep = stepName.toLowerCase().includes('design') || stepName.toLowerCase().includes('maquette') || stepName.toLowerCase().includes('template')
-
-                                return (
-                                    <div key={stepKey} title={stepName} className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, stepKey)}>
-                                        {isDesignStep ? (
-                                            isChecked ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />
-                                        ) : (
-                                            isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />
-                                        )}
-                                    </div>
-                                )
-                            })}
                         </div>
                     </div>
                 </div>
