@@ -297,9 +297,13 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                         }))
                                                     })
                                                 }}
-                                                className="mt-auto text-[10px] md:text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1.5 py-0.5 text-center w-fit mx-auto transition-colors whitespace-nowrap"
+                                                className="mt-auto text-[10px] md:text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1.5 py-0.5 text-center w-fit mx-auto transition-colors whitespace-nowrap flex items-center justify-center gap-1"
                                             >
-                                                + {dayEvents.length}
+                                                <span className="md:hidden">+ {dayEvents.length}</span>
+                                                <div className="hidden md:flex items-center gap-1.5">
+                                                    <Eye className="size-3.5" />
+                                                    <span>{dayEvents.length} réservations</span>
+                                                </div>
                                             </button>
                                         )}
                                     </div>
