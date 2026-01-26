@@ -89,7 +89,6 @@ function LoginContent() {
                             placeholder="votre@email.com"
                             required
                             className="h-12 border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                            defaultValue="contact@letempsdunsourire.fr"
                         />
                     </div>
 
