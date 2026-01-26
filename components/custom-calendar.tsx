@@ -237,26 +237,15 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                         isTodayDate && "bg-indigo-50 hover:bg-indigo-100/50"
                                     )}
                                 >
-                                    <div className="flex justify-between items-start">
-                                        {availability && dayEvents.length > 0 && (
-                                            <span className={cn(
-                                                "whitespace-nowrap text-[8px] md:text-[10px] font-bold px-1 md:px-1.5 py-0.5 rounded-full flex items-center gap-0.5 md:gap-1",
-                                                availability.hasUnassigned
-                                                    ? "bg-amber-100 text-amber-700 border border-amber-200"
-                                                    : availability.count > 0
-                                                        ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                                                        : "bg-red-100 text-red-600 border border-red-200",
-                                                !isCurrentMonth && "opacity-30 grayscale"
-                                            )}>
-                                                {availability.hasUnassigned && "⚠️ "}{availability.count} <Camera className="size-3 md:size-4" />
-                                            </span>
-                                        )}
-                                        <span className={cn(
-                                            "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ml-auto",
-                                            isTodayDate ? "bg-indigo-600 text-white shadow-sm" :
-                                                !isCurrentMonth ? "text-slate-300" : "text-slate-700"
-                                        )}>
-                                            {format(day, 'd')}
+                                    <div className="flex justify-start items-start">
+                                        <span
+                                            className={cn(
+                                                "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full",
+                                                isTodayDate ? "bg-indigo-600 text-white shadow-sm" :
+                                                    !isCurrentMonth ? "text-slate-300" : "text-slate-700"
+                                            )}
+                                        >
+                                            {format(day, "d")}
                                         </span>
                                     </div>
 
@@ -278,6 +267,23 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                 {event.title}
                                             </div>
                                         ))}
+                                    </div>
+
+                                    {/* Events and Availability Section (Bottom) */}
+                                    <div className="mt-auto space-y-1">
+                                        {availability && dayEvents.length > 0 && (
+                                            <div className={cn(
+                                                "w-full text-[8px] md:text-[10px] font-bold px-1 py-0.5 rounded flex items-center justify-center gap-1",
+                                                availability.hasUnassigned
+                                                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                                                    : availability.count > 0
+                                                        ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                                        : "bg-red-100 text-red-600 border border-red-200",
+                                                !isCurrentMonth && "opacity-30 grayscale"
+                                            )}>
+                                                {availability.hasUnassigned && "⚠️ "}{availability.count} <Camera className="size-3 md:size-4" />
+                                            </div>
+                                        )}
 
                                         {isOverflow && (
                                             <button
