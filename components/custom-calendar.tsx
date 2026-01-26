@@ -289,15 +289,10 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                             <button
                                                 onClick={(e) => {
                                                     e.stopPropagation()
-                                                    setDialogState({
-                                                        isOpen: true,
-                                                        title: `Réservations du ${format(day, "d MMMM", { locale: fr })}`,
-                                                        events: dayEvents.map(ev => ({
-                                                            id: ev.id,
-                                                            client: ev.nom_client,
-                                                            type: ev.type,
-                                                            status: ev.etat,
-                                                            original: ev
+                                                    onMoreLinkClick({
+                                                        date: day,
+                                                        allSegs: dayEvents.map(evt => ({
+                                                            event: evt
                                                         }))
                                                     })
                                                 }}
