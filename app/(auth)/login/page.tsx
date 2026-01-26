@@ -53,15 +53,13 @@ function LoginContent() {
         <div className="min-h-screen flex items-center justify-center bg-white p-4 font-sans">
             <div className="w-full max-w-[500px]">
                 {/* Logo Section */}
-                <div className="text-center mb-8">
-                    {logoSrc ? (
+                <div className="text-center mb-8 h-32 flex items-center justify-center">
+                    {logoSrc && (
                         <img
                             src={logoSrc}
                             alt={companyName}
                             className="w-3/4 mx-auto object-contain max-h-32"
                         />
-                    ) : (
-                        <h1 className="text-3xl font-bold text-indigo-600">{companyName}</h1>
                     )}
                 </div>
 
