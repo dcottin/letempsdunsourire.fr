@@ -220,7 +220,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
 
                             // Show individual events only if they fit. If there are too many, show just the summary button.
                             const MAX_EVENTS = 0
-                            const isOverflow = dayEvents.length > MAX_EVENTS
+                            const isOverflow = true // Force overflow for consistent summary-only behavior
 
                             // If overflow, show NO events, just the button. Otherwise show all (up to max).
                             const visibleEvents = isOverflow ? [] : dayEvents
