@@ -131,9 +131,22 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             ...initialData,
             ...data,
             prix_total: (initialData.prix_total || data.prix_total || "0").toString(),
-            selected_options: data.selected_options || initialData.selected_options || []
+            selected_options: data.selected_options || initialData.selected_options || [],
+            // Ensure logistics dates are empty if not explicitly set to avoid auto-fills
+            date_installation: data.date_installation || initialData.date_installation || null,
+            heure_debut: data.heure_debut || initialData.heure_debut || "",
+            date_fin: data.date_fin || initialData.date_fin || null,
+            heure_fin: data.heure_fin || initialData.heure_fin || "",
         }
     }, [initialData])
+
+    // Debug form values on mount
+    React.useEffect(() => {
+        console.log("Form initialized. Status of logistics dates:", {
+            date_installation: form.getValues("date_installation"),
+            date_fin: form.getValues("date_fin")
+        });
+    }, []);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema) as any,
@@ -158,9 +171,9 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             nom_evenement: "",
             date_debut: "",
             heure_debut: "",
-            date_fin: "",
+            date_fin: null,
             heure_fin: "",
-            date_installation: "",
+            date_installation: null,
             lieu: "",
             texte_libre: "",
             equipment_id: "",
@@ -1593,7 +1606,25 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                             <FormItem>
                                                 <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-primary">Date de l&apos;évènement</FormLabel>
                                                 <FormControl>
-                                                    <Input type="date" {...field} />
+                                                    <Input
+                                                        type={field.value ? "date" : "text"}
+                                                        {...field}
+                                                        value={field.value || ""}
+                                                        onFocus={(e) => {
+                                                            e.target.type = "date";
+                                                            try {
+                                                                if (e.target.showPicker) e.target.showPicker();
+                                                            } catch (err) {
+                                                                console.error(err);
+                                                            }
+                                                        }}
+                                                        onBlur={(e) => {
+                                                            field.onBlur();
+                                                            if (!e.target.value) e.target.type = "text";
+                                                        }}
+                                                        placeholder=""
+                                                        autoComplete="off"
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -1958,9 +1989,39 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                     name="date_installation"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Date d&apos;installation</FormLabel>
+                                                            <div className="flex items-center justify-between">
+                                                                <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Date d&apos;installation</FormLabel>
+                                                                {field.value && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => form.setValue("date_installation", "", { shouldDirty: true, shouldValidate: true })}
+                                                                        className="text-slate-400 hover:text-red-500 transition-colors"
+                                                                    >
+                                                                        <Trash2 className="size-2.5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                             <FormControl>
-                                                                <Input type="date" {...field} value={field.value || ""} className="bg-white border-emerald-100 h-10 text-xs" />
+                                                                <Input
+                                                                    type={field.value ? "date" : "text"}
+                                                                    {...field}
+                                                                    value={field.value || ""}
+                                                                    onFocus={(e) => {
+                                                                        e.target.type = "date";
+                                                                        try {
+                                                                            if (e.target.showPicker) e.target.showPicker();
+                                                                        } catch (err) {
+                                                                            console.error(err);
+                                                                        }
+                                                                    }}
+                                                                    onBlur={(e) => {
+                                                                        field.onBlur();
+                                                                        if (!e.target.value) e.target.type = "text";
+                                                                    }}
+                                                                    placeholder=""
+                                                                    autoComplete="off"
+                                                                    className="bg-white border-emerald-100 h-10 text-xs"
+                                                                />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -1974,12 +2035,23 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                         const [h, m] = val.includes(":") ? val.split(":") : ["", ""]
                                                         return (
                                                             <FormItem className="flex flex-col">
-                                                                <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Heure d&apos;arrivée</FormLabel>
+                                                                <div className="flex items-center justify-between">
+                                                                    <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Heure d&apos;arrivée</FormLabel>
+                                                                    {field.value && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => form.setValue("heure_debut", "", { shouldDirty: true, shouldValidate: true })}
+                                                                            className="text-slate-400 hover:text-red-500 transition-colors"
+                                                                        >
+                                                                            <Trash2 className="size-2.5" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                                 <div className="flex items-center gap-1 mt-1">
                                                                     <Select onValueChange={(val) => field.onChange(`${val}:${m}`)} value={h}>
                                                                         <FormControl>
                                                                             <SelectTrigger className="bg-white h-10 font-bold border-emerald-100 text-xs">
-                                                                                <SelectValue placeholder="HH" />
+                                                                                <SelectValue placeholder="" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
                                                                         <SelectContent className="max-h-[200px]">
@@ -1993,7 +2065,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                                     <Select onValueChange={(val) => field.onChange(`${h}:${val}`)} value={m}>
                                                                         <FormControl>
                                                                             <SelectTrigger className="bg-white h-10 font-bold border-emerald-100 text-xs">
-                                                                                <SelectValue placeholder="mm" />
+                                                                                <SelectValue placeholder="" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
                                                                         <SelectContent>
@@ -2039,9 +2111,39 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                     name="date_fin"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Date de retrait</FormLabel>
+                                                            <div className="flex items-center justify-between">
+                                                                <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Date de retrait</FormLabel>
+                                                                {field.value && (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() => form.setValue("date_fin", "", { shouldDirty: true, shouldValidate: true })}
+                                                                        className="text-slate-400 hover:text-red-500 transition-colors"
+                                                                    >
+                                                                        <Trash2 className="size-2.5" />
+                                                                    </button>
+                                                                )}
+                                                            </div>
                                                             <FormControl>
-                                                                <Input type="date" {...field} value={field.value || ""} className="bg-white border-red-100 h-10 text-xs" />
+                                                                <Input
+                                                                    type={field.value ? "date" : "text"}
+                                                                    {...field}
+                                                                    value={field.value || ""}
+                                                                    onFocus={(e) => {
+                                                                        e.target.type = "date";
+                                                                        try {
+                                                                            if (e.target.showPicker) e.target.showPicker();
+                                                                        } catch (err) {
+                                                                            console.error(err);
+                                                                        }
+                                                                    }}
+                                                                    onBlur={(e) => {
+                                                                        field.onBlur();
+                                                                        if (!e.target.value) e.target.type = "text";
+                                                                    }}
+                                                                    placeholder=""
+                                                                    autoComplete="off"
+                                                                    className="bg-white border-red-100 h-10 text-xs"
+                                                                />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -2055,12 +2157,23 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                         const [h, m] = val.includes(":") ? val.split(":") : ["", ""]
                                                         return (
                                                             <FormItem className="flex flex-col">
-                                                                <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Heure de retrait</FormLabel>
+                                                                <div className="flex items-center justify-between">
+                                                                    <FormLabel className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap">Heure de retrait</FormLabel>
+                                                                    {field.value && (
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => form.setValue("heure_fin", "", { shouldDirty: true, shouldValidate: true })}
+                                                                            className="text-slate-400 hover:text-red-500 transition-colors"
+                                                                        >
+                                                                            <Trash2 className="size-2.5" />
+                                                                        </button>
+                                                                    )}
+                                                                </div>
                                                                 <div className="flex items-center gap-1 mt-1">
                                                                     <Select onValueChange={(val) => field.onChange(`${val}:${m}`)} value={h}>
                                                                         <FormControl>
                                                                             <SelectTrigger className="bg-white h-10 font-bold border-red-100 text-xs">
-                                                                                <SelectValue placeholder="HH" />
+                                                                                <SelectValue placeholder="" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
                                                                         <SelectContent className="max-h-[200px]">
@@ -2074,7 +2187,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                                     <Select onValueChange={(val) => field.onChange(`${h}:${val}`)} value={m}>
                                                                         <FormControl>
                                                                             <SelectTrigger className="bg-white h-10 font-bold border-red-100 text-xs">
-                                                                                <SelectValue placeholder="mm" />
+                                                                                <SelectValue placeholder="" />
                                                                             </SelectTrigger>
                                                                         </FormControl>
                                                                         <SelectContent>

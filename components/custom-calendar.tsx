@@ -209,7 +209,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
 
                     {/* Days Grid */}
                     <div
-                        className="grid grid-cols-7 flex-1 min-h-0"
+                        className="grid grid-cols-7 flex-1 min-h-0 overflow-hidden"
                         style={{ gridTemplateRows: `repeat(${calendarDays.length / 7}, minmax(0, 1fr))` }}
                     >
                         {calendarDays.map((day, dayIdx) => {
@@ -232,21 +232,36 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                     key={day.toString()}
                                     onClick={() => onDateClick?.(day)}
                                     className={cn(
-                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors cursor-pointer relative group",
+                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors cursor-pointer relative group overflow-hidden",
                                         isCurrentMonth ? "bg-white hover:bg-slate-50" : "bg-slate-100/80 text-slate-400",
                                         isTodayDate && "bg-indigo-50 hover:bg-indigo-100/50"
                                     )}
                                 >
-                                    <div className="flex justify-start items-start">
+                                    <div className="flex justify-between items-start w-full gap-0.5 md:gap-1">
                                         <span
                                             className={cn(
-                                                "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full",
+                                                "text-[10px] md:text-xs font-medium w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full shrink-0",
                                                 isTodayDate ? "bg-indigo-600 text-white shadow-sm" :
                                                     !isCurrentMonth ? "text-slate-300" : "text-slate-700"
                                             )}
                                         >
                                             {format(day, "d")}
                                         </span>
+                                        {availability && dayEvents.length > 0 && (
+                                            <div className={cn(
+                                                "px-1 md:px-1.5 py-0.5 rounded-full flex items-center justify-center gap-0.5 md:gap-1 transition-all shrink-0",
+                                                "text-[8px] md:text-[10px] font-bold h-4 md:h-5 sm:h-6",
+                                                availability.hasUnassigned
+                                                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                                                    : availability.count > 0
+                                                        ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                                        : "bg-red-100 text-red-600 border border-red-200",
+                                                !isCurrentMonth && "opacity-30 grayscale"
+                                            )} title="Disponibilité">
+                                                <span className="truncate max-w-[30px] md:max-w-[40px] leading-none">{availability.hasUnassigned && "!"} {availability.count}</span>
+                                                <Camera className="size-2 md:size-2.5" />
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex-1 flex flex-col gap-1 overflow-hidden">
@@ -269,21 +284,8 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                         ))}
                                     </div>
 
-                                    <div className="mt-auto space-y-1">
-                                        {availability && dayEvents.length > 0 && (
-                                            <div className={cn(
-                                                "w-full text-[10px] md:text-xs font-bold px-1 py-0.5 rounded flex items-center justify-center gap-1.5",
-                                                availability.hasUnassigned
-                                                    ? "bg-amber-100 text-amber-700 border border-amber-200"
-                                                    : availability.count > 0
-                                                        ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
-                                                        : "bg-red-100 text-red-600 border border-red-200",
-                                                !isCurrentMonth && "opacity-30 grayscale"
-                                            )}>
-                                                <span>{availability.hasUnassigned && "⚠️ "}{availability.count}</span>
-                                                <Camera className="size-3.5 md:size-4" />
-                                            </div>
-                                        )}
+                                    <div className="mt-auto flex flex-col justify-end gap-1 min-h-0 overflow-hidden pb-1 w-full">
+
 
                                         {dayEvents.length > 0 && isOverflow && (
                                             <button
@@ -296,10 +298,14 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                         }))
                                                     })
                                                 }}
-                                                className="text-[10px] md:text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1 py-0.5 text-center w-full transition-colors flex items-center justify-center gap-1.5"
+                                                className={cn(
+                                                    "w-full text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1.5 text-center transition-colors flex items-center justify-center gap-1.5 overflow-hidden",
+                                                    "flex-1 min-h-[18px] max-h-[28px] text-[10px] sm:text-xs font-bold"
+                                                )}
+                                                title="Voir les événements"
                                             >
-                                                <span>{dayEvents.length}</span>
-                                                <ScrollText className="size-3.5 md:size-4" />
+                                                <span className="truncate">{dayEvents.length}</span>
+                                                <ScrollText className="size-3 sm:size-3.5 flex-shrink-0" />
                                             </button>
                                         )}
                                     </div>
