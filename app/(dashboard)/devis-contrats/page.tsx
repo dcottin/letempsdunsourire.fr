@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus, XIcon } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, CheckCircleIcon, Circle, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus, XIcon, Zap, Wallet2, BadgeCheck, FileSignature } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -1034,7 +1034,7 @@ END:VCARD`
                                                                 {validatingDevisId === devis.id ? (
                                                                     <div className="size-3 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
                                                                 ) : (
-                                                                    <CheckCircleIcon className="size-4 transition-transform group-hover:scale-110" />
+                                                                    <Zap className="size-4 transition-transform group-hover:scale-110" />
                                                                 )}
                                                             </Button>
                                                         </div>
@@ -1119,7 +1119,7 @@ END:VCARD`
                                             <TableHead onClick={() => handleSort('prix_total', 'contrat')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
                                             <TableHead onClick={() => handleSort('encaisse', 'contrat')} className="cursor-pointer hover:bg-slate-100">ENCAISSÉ</TableHead>
                                             <TableHead className="text-center cursor-pointer hover:bg-slate-100" onClick={() => handleSort('reste', 'contrat')}>SOLDE</TableHead>
-                                            <TableHead className="text-center">SUIVI</TableHead>
+                                            <TableHead className="text-center min-w-[120px]">SUIVI</TableHead>
                                             <TableHead className="w-[50px]"></TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -1192,21 +1192,23 @@ END:VCARD`
                                                     {(parseFloat(contrat.prix_total || "0") - (contrat.solde_paye ? parseFloat(contrat.prix_total || "0") : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0))).toFixed(2)}€
                                                 </TableCell>
                                                 <TableCell>
-                                                    <div className="flex gap-1 justify-center flex-wrap">
+                                                    <div className="flex gap-1.5 justify-center flex-nowrap whitespace-nowrap">
                                                         {/* Fixed step 0: Contrat Signé */}
                                                         <div title={statusSettings?.workflow_steps?.[0] || "Contrat Signé"} className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'contrat_signe', 'contrats')}>
-                                                            {(contrat.contrat_signe || contrat.data?.contrat_signe) ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                                            {(contrat.contrat_signe || contrat.data?.contrat_signe) ? <FileSignature className="size-4 text-emerald-500" /> : <FileSignature className="size-4 text-slate-200" />}
                                                         </div>
                                                         {/* Fixed step 1: Acompte */}
-                                                        <div title={`${statusSettings?.workflow_steps?.[1] || "Acompte Reçu"} ${contrat.data?.acompte_methode ? `(${contrat.data.acompte_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'acompte_paye', 'contrats')}>
-                                                            {contrat.acompte_paye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
-                                                            {contrat.acompte_paye && contrat.data?.acompte_methode && (
-                                                                <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.acompte_methode.substring(0, 3)}</span>
-                                                            )}
-                                                        </div>
+                                                        {parseFloat(contrat.acompte_recu || "0") > 0 && (
+                                                            <div title={`${statusSettings?.workflow_steps?.[1] || "Acompte Reçu"} ${contrat.data?.acompte_methode ? `(${contrat.data.acompte_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'acompte_paye', 'contrats')}>
+                                                                {contrat.acompte_paye ? <Wallet2 className="size-4 text-emerald-500" /> : <Wallet2 className="size-4 text-slate-200" />}
+                                                                {contrat.acompte_paye && contrat.data?.acompte_methode && (
+                                                                    <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.acompte_methode.substring(0, 3)}</span>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                         {/* Fixed step 2: Solde */}
                                                         <div title={`${statusSettings?.workflow_steps?.[2] || "Solde Reçu"} ${contrat.data?.solde_methode ? `(${contrat.data.solde_methode})` : ""}`} className="cursor-pointer flex flex-col items-center gap-0.5 group" onClick={() => handleToggleChecklist(contrat, 'solde_paye', 'contrats')}>
-                                                            {contrat.solde_paye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                                            {contrat.solde_paye ? <BadgeCheck className="size-4 text-emerald-500" /> : <BadgeCheck className="size-4 text-slate-200" />}
                                                             {contrat.solde_paye && contrat.data?.solde_methode && (
                                                                 <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.solde_methode.substring(0, 3)}</span>
                                                             )}
@@ -1216,6 +1218,8 @@ END:VCARD`
                                                             const stepIndex = idx + 3
                                                             const stepKey = String(stepIndex)
                                                             const isChecked = contrat.data?.workflow_status?.[stepKey] === true
+                                                            const isDesignStep = stepName.toLowerCase().includes('design') || stepName.toLowerCase().includes('maquette') || stepName.toLowerCase().includes('template')
+
                                                             return (
                                                                 <div key={stepKey} title={stepName} className="cursor-pointer" onClick={() => {
                                                                     const currentStatus = contrat.data?.workflow_status || {}
@@ -1225,7 +1229,11 @@ END:VCARD`
                                                                         setContratsList(prev => prev.map(c => c.id === contrat.id ? { ...c, data: { ...c.data, workflow_status: newStatus } } : c))
                                                                     })
                                                                 }}>
-                                                                    {isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                                                    {isDesignStep ? (
+                                                                        isChecked ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />
+                                                                    ) : (
+                                                                        isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />
+                                                                    )}
                                                                 </div>
                                                             )
                                                         })}
@@ -1339,10 +1347,12 @@ END:VCARD`
                                                         {(parseFloat(contrat.prix_total || "0") - (contrat.solde_paye ? parseFloat(contrat.prix_total || "0") : (contrat.acompte_paye ? parseFloat(contrat.acompte_recu || "0") : 0))).toFixed(2)}€
                                                     </TableCell>
                                                     <TableCell>
-                                                        <div className="flex gap-1 justify-center scale-90 opacity-60">
-                                                            <div>{(contrat.contrat_signe || contrat.data?.contrat_signe) ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
-                                                            <div>{contrat.acompte_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
-                                                            <div>{contrat.solde_paye ? <CheckCircleIcon className="size-3.5 text-emerald-500" /> : <Circle className="size-3.5 text-slate-200" />}</div>
+                                                        <div className="flex gap-1 justify-center flex-nowrap whitespace-nowrap scale-90 opacity-60">
+                                                            <div>{(contrat.contrat_signe || contrat.data?.contrat_signe) ? <FileSignature className="size-3.5 text-emerald-500" /> : <FileSignature className="size-3.5 text-slate-200" />}</div>
+                                                            {parseFloat(contrat.acompte_recu || "0") > 0 && (
+                                                                <div>{contrat.acompte_paye ? <Wallet2 className="size-3.5 text-emerald-500" /> : <Wallet2 className="size-3.5 text-slate-200" />}</div>
+                                                            )}
+                                                            <div>{contrat.solde_paye ? <BadgeCheck className="size-3.5 text-emerald-500" /> : <BadgeCheck className="size-3.5 text-slate-200" />}</div>
                                                             {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
                                                                 <div>{contrat.design_valide ? <Palette className="size-3.5 text-emerald-500" /> : <Palette className="size-3.5 text-slate-200" />}</div>
                                                             )}

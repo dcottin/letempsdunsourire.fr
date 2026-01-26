@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import {
     CalendarIcon, UserIcon, CalendarDaysIcon, EuroIcon, FileTextIcon, CameraIcon, Bot, Loader2Icon, RefreshCw,
-    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon, PenTool, InfoIcon
+    EyeIcon, SendIcon, CheckCircleIcon, ScrollTextIcon, DownloadIcon, AlertCircleIcon, LinkIcon, TruckIcon, Trash2, SaveIcon, PenTool, InfoIcon, Palette, Circle
 } from "lucide-react"
 import { format, addDays } from "date-fns"
 
@@ -1454,63 +1454,65 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         />
 
                                         {/* Switch 2: Acompte Reçu (Fixed - with payment method) */}
-                                        <div className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm">
-                                            <FormField
-                                                control={form.control}
-                                                name="acompte_paye"
-                                                render={({ field }) => (
-                                                    <FormItem className="flex flex-row items-center justify-between space-y-0">
-                                                        <FormLabel className="text-xs font-medium">{statusSettings?.workflow_steps?.[1] || "Acompte Reçu"}</FormLabel>
-                                                        <FormControl>
-                                                            <Switch
-                                                                checked={field.value}
-                                                                onCheckedChange={(checked) => {
-                                                                    field.onChange(checked)
-                                                                    quickSaveField("acompte_paye", checked)
-                                                                }}
-                                                            />
-                                                        </FormControl>
-                                                    </FormItem>
-                                                )}
-                                            />
-                                            {form.watch("acompte_paye") && (
-                                                <>
-                                                    <FormField
-                                                        control={form.control}
-                                                        name="acompte_methode"
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <Select onValueChange={field.onChange} value={field.value || undefined}>
+                                        {parseFloat(form.watch("acompte_recu") || "0") > 0 && (
+                                            <div className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm">
+                                                <FormField
+                                                    control={form.control}
+                                                    name="acompte_paye"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex flex-row items-center justify-between space-y-0">
+                                                            <FormLabel className="text-xs font-medium">{statusSettings?.workflow_steps?.[1] || "Acompte Reçu"}</FormLabel>
+                                                            <FormControl>
+                                                                <Switch
+                                                                    checked={field.value}
+                                                                    onCheckedChange={(checked) => {
+                                                                        field.onChange(checked)
+                                                                        quickSaveField("acompte_paye", checked)
+                                                                    }}
+                                                                />
+                                                            </FormControl>
+                                                        </FormItem>
+                                                    )}
+                                                />
+                                                {form.watch("acompte_paye") && (
+                                                    <>
+                                                        <FormField
+                                                            control={form.control}
+                                                            name="acompte_methode"
+                                                            render={({ field }) => (
+                                                                <FormItem>
+                                                                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                                                                        <FormControl>
+                                                                            <SelectTrigger className="h-8 text-xs w-full">
+                                                                                <SelectValue placeholder="Mode de paiement" />
+                                                                            </SelectTrigger>
+                                                                        </FormControl>
+                                                                        <SelectContent>
+                                                                            <SelectItem value="Especes">Espèces</SelectItem>
+                                                                            <SelectItem value="Virement">Virement</SelectItem>
+                                                                            <SelectItem value="Cheque">Chèque</SelectItem>
+                                                                            <SelectItem value="PayPal">PayPal</SelectItem>
+                                                                            <SelectItem value="CB">Mettle / CB</SelectItem>
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                        <FormField
+                                                            control={form.control}
+                                                            name="acompte_date"
+                                                            render={({ field }) => (
+                                                                <FormItem>
                                                                     <FormControl>
-                                                                        <SelectTrigger className="h-8 text-xs w-full">
-                                                                            <SelectValue placeholder="Mode de paiement" />
-                                                                        </SelectTrigger>
+                                                                        <Input type="datetime-local" className="h-8 text-xs" {...field} value={field.value || ""} />
                                                                     </FormControl>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="Especes">Espèces</SelectItem>
-                                                                        <SelectItem value="Virement">Virement</SelectItem>
-                                                                        <SelectItem value="Cheque">Chèque</SelectItem>
-                                                                        <SelectItem value="PayPal">PayPal</SelectItem>
-                                                                        <SelectItem value="CB">Mettle / CB</SelectItem>
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                    <FormField
-                                                        control={form.control}
-                                                        name="acompte_date"
-                                                        render={({ field }) => (
-                                                            <FormItem>
-                                                                <FormControl>
-                                                                    <Input type="datetime-local" className="h-8 text-xs" {...field} value={field.value || ""} />
-                                                                </FormControl>
-                                                            </FormItem>
-                                                        )}
-                                                    />
-                                                </>
-                                            )}
-                                        </div>
+                                                                </FormItem>
+                                                            )}
+                                                        />
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
 
                                         {/* Switch 3: Solde Reçu (Fixed - with payment method) */}
                                         <div className="flex flex-col gap-2 rounded-lg border bg-white p-3 shadow-sm">
@@ -1580,7 +1582,14 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                                             return (
                                                 <div key={stepKey} className="flex flex-row items-center justify-between rounded-lg border bg-white p-3 shadow-sm">
-                                                    <span className="text-xs font-medium">{stepName}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        {(stepName.toLowerCase().includes('design') || stepName.toLowerCase().includes('maquette') || stepName.toLowerCase().includes('template')) ? (
+                                                            <Palette className={`size-4 ${isChecked ? "text-emerald-500" : "text-slate-200"}`} />
+                                                        ) : (
+                                                            isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />
+                                                        )}
+                                                        <span className="text-xs font-medium">{stepName}</span>
+                                                    </div>
                                                     <Switch
                                                         checked={isChecked}
                                                         onCheckedChange={(checked) => {

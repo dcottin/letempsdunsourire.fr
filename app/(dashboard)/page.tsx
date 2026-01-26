@@ -23,7 +23,13 @@ import {
     CheckCircleIcon,
     PencilIcon,
     GripVertical,
+    FileSignature,
+    Wallet2,
+    BadgeCheck,
+    Zap,
     Settings2,
+    ScrollText,
+    Palette,
 } from "lucide-react"
 
 import {
@@ -825,24 +831,32 @@ END:VCARD`
                                 {remainingBalance}€
                             </button>
                         )}
-                        <div className="flex gap-1.5 items-center bg-slate-50/50 px-2 py-1 rounded-full border border-slate-100">
+                        <div className="flex gap-1.5 items-center bg-slate-50/50 px-2 py-1 rounded-full border border-slate-100 flex-nowrap whitespace-nowrap">
                             {/* Workflow dots similar to "suivi" */}
                             <div title="Contrat Signé" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '0')}>
-                                {isSigned ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                {isSigned ? <FileSignature className="size-4 text-emerald-500" /> : <FileSignature className="size-4 text-slate-200" />}
                             </div>
-                            <div title="Acompte Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '1')}>
-                                {depositPaye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
-                            </div>
+                            {depositRecu > 0 && (
+                                <div title="Acompte Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '1')}>
+                                    {depositPaye ? <Wallet2 className="size-4 text-emerald-500" /> : <Wallet2 className="size-4 text-slate-200" />}
+                                </div>
+                            )}
                             <div title="Solde Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '2')}>
-                                {soldePaye ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                {soldePaye ? <BadgeCheck className="size-4 text-emerald-500" /> : <BadgeCheck className="size-4 text-slate-200" />}
                             </div>
                             {/* Dynamic workflow steps */}
                             {(settings?.workflow_steps || []).slice(3).map((stepName: string, idx: number) => {
                                 const stepKey = String(idx + 3)
                                 const isChecked = event.data?.workflow_status?.[stepKey] === true
+                                const isDesignStep = stepName.toLowerCase().includes('design') || stepName.toLowerCase().includes('maquette') || stepName.toLowerCase().includes('template')
+
                                 return (
                                     <div key={stepKey} title={stepName} className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, stepKey)}>
-                                        {isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />}
+                                        {isDesignStep ? (
+                                            isChecked ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />
+                                        ) : (
+                                            isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />
+                                        )}
                                     </div>
                                 )
                             })}
