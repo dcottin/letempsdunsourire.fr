@@ -17,7 +17,7 @@ import {
     parseISO
 } from "date-fns"
 import { fr } from "date-fns/locale"
-import { ChevronLeft, ChevronRight, ScrollText } from "lucide-react"
+import { ChevronLeft, ChevronRight, Camera, ScrollText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -248,7 +248,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                         : "bg-red-100 text-red-600 border border-red-200",
                                                 !isCurrentMonth && "opacity-30 grayscale"
                                             )}>
-                                                {availability.hasUnassigned && "⚠️ "}{availability.count}
+                                                {availability.hasUnassigned && "⚠️ "}<Camera className="size-2 md:size-3" /> {availability.count}
                                             </span>
                                         )}
                                         <span className={cn(
