@@ -302,7 +302,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                 <span className="md:hidden">+ {dayEvents.length}</span>
                                                 <div className="hidden md:flex items-center gap-1.5">
                                                     <Eye className="size-3.5" />
-                                                    <span>{dayEvents.length} réservations</span>
+                                                    <span>{dayEvents.length} résa</span>
                                                 </div>
                                             </button>
                                         )}
