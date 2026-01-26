@@ -238,7 +238,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                     )}
                                 >
                                     <div className="flex justify-between items-start">
-                                        {availability && isWeekendDay && (
+                                        {availability && dayEvents.length > 0 && (
                                             <span className={cn(
                                                 "whitespace-nowrap text-[8px] md:text-[10px] font-bold px-1 md:px-1.5 py-0.5 rounded-full flex items-center gap-0.5 md:gap-1",
                                                 availability.hasUnassigned
