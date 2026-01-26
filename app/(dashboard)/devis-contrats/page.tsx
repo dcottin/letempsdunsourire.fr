@@ -1002,8 +1002,8 @@ END:VCARD`
                                                 <TableHead className="w-[80px]"></TableHead>
                                                 <TableHead onClick={() => handleSort('id', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
                                                 <TableHead onClick={() => handleSort('date_debut', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
-                                                <TableHead className="whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
-                                                <TableHead onClick={() => handleSort('nom_client', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">CLIENT</TableHead>
+                                                <TableHead className="whitespace-nowrap w-[140px] min-w-[140px]">LIVRAISON</TableHead>
+                                                <TableHead onClick={() => handleSort('nom_client', 'devis')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap min-w-[180px]">CLIENT</TableHead>
                                                 <TableHead className="whitespace-nowrap">OFFRE</TableHead>
                                                 <TableHead>MATÉRIEL</TableHead>
                                                 <TableHead onClick={() => handleSort('prix_total', 'devis')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
@@ -1041,7 +1041,7 @@ END:VCARD`
                                                     </TableCell>
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(devis, "devis")}</TableCell>
                                                     <TableCell className="text-xs">{devis.date_debut ? format(new Date(devis.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                    <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
+                                                    <TableCell className="text-xs leading-tight w-[110px] min-w-[110px] sm:w-[140px] sm:min-w-[140px] whitespace-normal group">
                                                         <div className="flex flex-col items-start w-full">
                                                             <div className="flex items-center gap-1 whitespace-nowrap">
                                                                 {devis.date_installation ? (
@@ -1112,8 +1112,8 @@ END:VCARD`
                                             <TableHead className="w-[60px]"></TableHead>
                                             <TableHead onClick={() => handleSort('id', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
                                             <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
-                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
-                                            <TableHead onClick={() => handleSort('nom_client', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">CLIENT</TableHead>
+                                            <TableHead onClick={() => handleSort('date_debut', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[140px] min-w-[140px]">LIVRAISON</TableHead>
+                                            <TableHead onClick={() => handleSort('nom_client', 'contrat')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap min-w-[180px]">CLIENT</TableHead>
                                             <TableHead className="whitespace-nowrap">OFFRE</TableHead>
                                             <TableHead className="whitespace-nowrap">MATÉRIEL</TableHead>
                                             <TableHead onClick={() => handleSort('prix_total', 'contrat')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
@@ -1139,7 +1139,7 @@ END:VCARD`
                                                 </TableCell>
                                                 <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                 <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
+                                                <TableCell className="text-xs leading-tight w-[110px] min-w-[110px] sm:w-[140px] sm:min-w-[140px] whitespace-normal group">
                                                     <div className="flex flex-col items-start w-full">
                                                         <div className="flex items-center gap-1 whitespace-nowrap">
                                                             {contrat.date_installation ? (
@@ -1259,8 +1259,8 @@ END:VCARD`
                                                 <TableHead className="w-[60px]"></TableHead>
                                                 <TableHead onClick={() => handleSort('id', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">N°</TableHead>
                                                 <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">DATE</TableHead>
-                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[120px] min-w-[120px]">LIVRAISON</TableHead>
-                                                <TableHead onClick={() => handleSort('nom_client', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap">CLIENT</TableHead>
+                                                <TableHead onClick={() => handleSort('date_debut', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap w-[140px] min-w-[140px]">LIVRAISON</TableHead>
+                                                <TableHead onClick={() => handleSort('nom_client', 'archive')} className="cursor-pointer hover:bg-slate-100 whitespace-nowrap min-w-[180px]">CLIENT</TableHead>
                                                 <TableHead className="whitespace-nowrap">OFFRE</TableHead>
                                                 <TableHead className="whitespace-nowrap">MATÉRIEL</TableHead>
                                                 <TableHead onClick={() => handleSort('prix_total', 'archive')} className="cursor-pointer hover:bg-slate-100">TOTAL</TableHead>
@@ -1286,7 +1286,7 @@ END:VCARD`
                                                     </TableCell>
                                                     <TableCell className="font-mono text-[10px]">{getDisplayReference(contrat, "contrat")}</TableCell>
                                                     <TableCell className="text-xs">{contrat.date_debut ? format(new Date(contrat.date_debut), 'dd/MM/yy') : "-"}</TableCell>
-                                                    <TableCell className="text-xs leading-tight w-[120px] min-w-[120px] max-w-[120px] whitespace-normal group">
+                                                    <TableCell className="text-xs leading-tight w-[110px] min-w-[110px] sm:w-[140px] sm:min-w-[140px] whitespace-normal group">
                                                         <div className="flex flex-col items-start w-full">
                                                             <div className="flex items-center gap-1 whitespace-nowrap">
                                                                 {contrat.date_installation ? (

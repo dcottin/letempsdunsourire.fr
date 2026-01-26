@@ -116,70 +116,41 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
     return (
         <div className="flex flex-col h-full w-full">
             {/* Header */}
-            <div className="flex flex-col gap-2 md:flex-row md:items-center justify-between p-3 md:p-4 border-b border-slate-200">
-                <div className="flex items-center justify-between md:justify-start gap-2 w-full md:w-auto">
-                    <div className="flex items-center gap-1 md:gap-2">
-                        <Button
-                            size="icon"
-                            onClick={prevMonth}
-                            className="h-7 w-7 md:h-8 md:w-8 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-sm border-0"
-                        >
-                            <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
-                        </Button>
-                        <Button
-                            size="icon"
-                            onClick={nextMonth}
-                            className="h-7 w-7 md:h-8 md:w-8 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-sm border-0"
-                        >
-                            <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />
-                        </Button>
-                        <Button
-                            size="sm"
-                            onClick={goToToday}
-                            className="ml-1 md:ml-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-sm border-0 px-2 md:px-3 h-7 md:h-8 text-xs md:text-sm font-medium capitalize"
-                        >
-                            Auj.
-                        </Button>
-                    </div>
-
-                    <h2 className="block md:hidden text-lg font-bold text-slate-800 capitalize">
-                        {format(currentDate, 'MMMM yyyy', { locale: fr })}
-                    </h2>
-
-                    {/* View Switcher Mobile */}
-                    <div className="flex md:hidden bg-slate-100 p-1 rounded-xl">
-                        <button
-                            onClick={() => setView('month')}
-                            className={cn(
-                                "px-2 py-1 text-[10px] font-semibold rounded-lg transition-all",
-                                view === 'month' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                            )}
-                        >
-                            Mois
-                        </button>
-                        <button
-                            onClick={() => setView('list')}
-                            className={cn(
-                                "px-2 py-1 text-[10px] font-semibold rounded-lg transition-all",
-                                view === 'list' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
-                            )}
-                        >
-                            Liste
-                        </button>
-                    </div>
+            <div className="flex items-center justify-between p-1.5 md:p-3 border-b border-slate-200 shrink-0">
+                <div className="flex items-center gap-1">
+                    <Button
+                        size="icon"
+                        onClick={prevMonth}
+                        className="h-6 w-6 md:h-8 md:w-8 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm"
+                    >
+                        <ChevronLeft className="h-3 w-3 md:h-4 md:w-4" />
+                    </Button>
+                    <Button
+                        size="icon"
+                        onClick={nextMonth}
+                        className="h-6 w-6 md:h-8 md:w-8 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm"
+                    >
+                        <ChevronRight className="h-3 w-3 md:h-4 md:w-4" />
+                    </Button>
+                    <Button
+                        size="sm"
+                        onClick={goToToday}
+                        className="hidden md:flex ml-1 bg-indigo-600 text-white hover:bg-indigo-700 rounded-lg shadow-sm px-2 h-7 md:h-8 text-xs font-medium"
+                    >
+                        Auj.
+                    </Button>
                 </div>
 
-                <h2 className="hidden md:block text-xl font-bold text-slate-800 capitalize">
+                <h2 className="text-sm md:text-xl font-bold text-slate-800 capitalize">
                     {format(currentDate, 'MMMM yyyy', { locale: fr })}
                 </h2>
 
-                {/* View Switcher Desktop */}
-                <div className="hidden md:flex bg-slate-100 p-1 rounded-xl">
+                <div className="flex bg-slate-100 p-0.5 rounded-lg">
                     <button
                         onClick={() => setView('month')}
                         className={cn(
-                            "px-3 py-1.5 text-xs font-semibold rounded-lg transition-all",
-                            view === 'month' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                            "px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
+                            view === 'month' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500"
                         )}
                     >
                         Mois
@@ -187,8 +158,8 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                     <button
                         onClick={() => setView('list')}
                         className={cn(
-                            "px-3 py-1.5 text-xs font-semibold rounded-lg transition-all",
-                            view === 'list' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                            "px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold rounded-md transition-all",
+                            view === 'list' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500"
                         )}
                     >
                         Liste
@@ -209,8 +180,8 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
 
                     {/* Days Grid */}
                     <div
-                        className="grid grid-cols-7 flex-1 min-h-0 overflow-hidden"
-                        style={{ gridTemplateRows: `repeat(${calendarDays.length / 7}, minmax(0, 1fr))` }}
+                        className="grid grid-cols-7 flex-1 w-full min-h-0"
+                        style={{ gridTemplateRows: `repeat(${calendarDays.length / 7}, 1fr)` }}
                     >
                         {calendarDays.map((day, dayIdx) => {
                             const dayEvents = getEventsForDay(day)
@@ -232,60 +203,42 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                     key={day.toString()}
                                     onClick={() => onDateClick?.(day)}
                                     className={cn(
-                                        "min-h-0 border-b border-r border-slate-200 p-1 md:p-2 flex flex-col gap-1 transition-colors cursor-pointer relative group overflow-hidden",
+                                        "h-full min-h-0 border-b border-r border-slate-200 p-0.5 md:p-1 flex flex-col justify-between transition-colors cursor-pointer relative group overflow-hidden",
                                         isCurrentMonth ? "bg-white hover:bg-slate-50" : "bg-slate-100/80 text-slate-400",
                                         isTodayDate && "bg-indigo-50 hover:bg-indigo-100/50"
                                     )}
                                 >
-                                    <div className="flex justify-between items-start w-full gap-0.5 md:gap-1">
+                                    <div className="flex justify-start">
                                         <span
                                             className={cn(
-                                                "text-[10px] md:text-xs font-medium w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full shrink-0",
+                                                "text-[10px] md:text-xs font-bold w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full",
                                                 isTodayDate ? "bg-indigo-600 text-white shadow-sm" :
                                                     !isCurrentMonth ? "text-slate-300" : "text-slate-700"
                                             )}
                                         >
                                             {format(day, "d")}
                                         </span>
+                                    </div>
+
+                                    <div className="flex-1 min-h-0">
+                                        {/* Container for events if we wanted them visible in month view */}
+                                    </div>
+
+                                    <div className="flex flex-col gap-0.5 w-full mt-auto">
                                         {availability && dayEvents.length > 0 && (
                                             <div className={cn(
-                                                "px-1 md:px-1.5 py-0.5 rounded-full flex items-center justify-center gap-0.5 md:gap-1 transition-all shrink-0",
-                                                "text-[8px] md:text-[10px] font-bold h-4 md:h-5 sm:h-6",
+                                                "w-full text-[8px] md:text-[10px] font-bold px-1 py-1 rounded flex items-center justify-center gap-1",
                                                 availability.hasUnassigned
                                                     ? "bg-amber-100 text-amber-700 border border-amber-200"
                                                     : availability.count > 0
                                                         ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
                                                         : "bg-red-100 text-red-600 border border-red-200",
                                                 !isCurrentMonth && "opacity-30 grayscale"
-                                            )} title="Disponibilité">
-                                                <span className="truncate max-w-[30px] md:max-w-[40px] leading-none">{availability.hasUnassigned && "!"} {availability.count}</span>
-                                                <Camera className="size-2 md:size-2.5" />
+                                            )}>
+                                                <span>{availability.hasUnassigned && "⚠️"}{availability.count}</span>
+                                                <Camera className="size-2.5 md:size-3" />
                                             </div>
                                         )}
-                                    </div>
-
-                                    <div className="flex-1 flex flex-col gap-1 overflow-hidden">
-                                        {visibleEvents.map(event => (
-                                            <div
-                                                key={event.id}
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    onEventClick({ event })
-                                                }}
-                                                className={cn(
-                                                    "text-[10px] md:text-xs truncate px-1.5 py-0.5 rounded cursor-pointer text-white font-medium hover:opacity-80 transition-opacity",
-                                                    !isCurrentMonth && "opacity-40"
-                                                )}
-                                                style={{ backgroundColor: event.color || event.backgroundColor || '#6366f1' }}
-                                                title={event.title}
-                                            >
-                                                {event.title}
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="mt-auto flex flex-col justify-end gap-1 min-h-0 overflow-hidden pb-1 w-full">
-
 
                                         {dayEvents.length > 0 && isOverflow && (
                                             <button
@@ -298,14 +251,10 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                         }))
                                                     })
                                                 }}
-                                                className={cn(
-                                                    "w-full text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1.5 text-center transition-colors flex items-center justify-center gap-1.5 overflow-hidden",
-                                                    "flex-1 min-h-[18px] max-h-[28px] text-[10px] sm:text-xs font-bold"
-                                                )}
-                                                title="Voir les événements"
+                                                className="text-[8px] md:text-[10px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 rounded px-1 py-1 text-center w-full transition-colors flex items-center justify-center gap-1"
                                             >
-                                                <span className="truncate">{dayEvents.length}</span>
-                                                <ScrollText className="size-3 sm:size-3.5 flex-shrink-0" />
+                                                <span>{dayEvents.length}</span>
+                                                <ScrollText className="size-2.5 md:size-3" />
                                             </button>
                                         )}
                                     </div>

@@ -82,7 +82,7 @@ const formSchema = z.object({
     lieu: z.string().nullable().default(""),
     texte_libre: z.string().nullable().default(""),
     equipment_id: z.string().nullable().optional(),
-    offre: z.string().min(1, "L'offre est requise"),
+    offre: z.string().nullable().default(""),
     offre_impression: z.string().nullable().default(""),
     source_contact: z.string().nullable().default(""),
 
@@ -974,6 +974,14 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     return (
         <Form {...form}>
             <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
+                {Object.keys(form.formState.errors).length > 0 && (
+                    <div className="px-4 sm:px-6 pt-6">
+                        <div className="p-4 sm:p-6 bg-red-50 border-2 border-red-200 rounded-xl flex items-center gap-4 text-red-700 animate-in fade-in slide-in-from-top-2 shadow-sm">
+                            <AlertCircleIcon className="size-6 sm:size-8 shrink-0" />
+                            <span className="text-sm sm:text-xl font-black uppercase tracking-tight">Formulaire incomplet : Le Nom et la Date sont obligatoires pour enregistrer.</span>
+                        </div>
+                    </div>
+                )}
                 <Tabs defaultValue="infos" className="w-full !mt-0">
                     <div className="bg-white pt-0 pb-4 no-print px-4 sm:px-6 flex flex-col gap-2">
                         <div className="flex flex-col gap-1 relative">
@@ -1328,7 +1336,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                         <TabsContent value="infos" className="grid grid-cols-1 xl:grid-cols-2 gap-4 content-start">
                             {/* Client Info */}
-                            <Card className="border-l-4 border-l-primary/20">
+                            <Card className="border-l-4 border-l-primary/20 min-w-0">
                                 <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
                                     <CardTitle className="text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2">
                                         <UserIcon className="size-4 sm:size-5 text-primary" />
@@ -1340,7 +1348,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                         control={form.control}
                                         name="nom_client"
                                         render={({ field }: { field: any }) => (
-                                            <FormItem className="md:col-span-2">
+                                            <FormItem className="md:col-span-2 min-w-0">
                                                 <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-muted-foreground">Nom complet / Société</FormLabel>
                                                 <FormControl>
                                                     <Input placeholder="Ex: Jean Dupont" {...field} />
@@ -1400,7 +1408,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                             </Card>
 
                             {/* Section SUIVI */}
-                            <Card>
+                            <Card className="min-w-0">
                                 <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
                                     <CardTitle className="text-sm sm:text-base font-bold uppercase tracking-wider flex items-center gap-2">
                                         <ScrollTextIcon className="size-4 sm:size-5 text-primary" />
@@ -1589,7 +1597,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                             </Card>
                         </TabsContent>
 
-                        <TabsContent value="details" className="h-full">
+                        <TabsContent value="details" className="h-full space-y-6">
                             {/* Event & Material */}
                             <Card className="border-l-4 border-l-primary/50">
                                 <CardHeader className="px-3 sm:px-6 pb-1 sm:pb-1">
@@ -1607,23 +1615,10 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                 <FormLabel className="uppercase text-[10px] sm:text-xs font-bold text-primary">Date de l&apos;évènement</FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        type={field.value ? "date" : "text"}
+                                                        type="date"
                                                         {...field}
                                                         value={field.value || ""}
-                                                        onFocus={(e) => {
-                                                            e.target.type = "date";
-                                                            try {
-                                                                if (e.target.showPicker) e.target.showPicker();
-                                                            } catch (err) {
-                                                                console.error(err);
-                                                            }
-                                                        }}
-                                                        onBlur={(e) => {
-                                                            field.onBlur();
-                                                            if (!e.target.value) e.target.type = "text";
-                                                        }}
-                                                        placeholder=""
-                                                        autoComplete="off"
+                                                        className={`bg-white ${field.value ? "text-slate-900" : "text-slate-500"}`}
                                                     />
                                                 </FormControl>
                                                 <FormMessage />
@@ -1668,7 +1663,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                         <RefreshCw className={`size-3 ${isLoadingSettings ? "animate-spin" : ""}`} />
                                                     </Button>
                                                 </div>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                <Select onValueChange={field.onChange} value={field.value || ""}>
                                                     <FormControl>
                                                         <SelectTrigger className="border-indigo-100 focus:ring-indigo-500">
                                                             <SelectValue placeholder={isLoadingSettings ? "Chargement des formules..." : "-- Choisir une formule --"} />
@@ -2003,24 +1998,10 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                             </div>
                                                             <FormControl>
                                                                 <Input
-                                                                    type={field.value ? "date" : "text"}
+                                                                    type="date"
                                                                     {...field}
                                                                     value={field.value || ""}
-                                                                    onFocus={(e) => {
-                                                                        e.target.type = "date";
-                                                                        try {
-                                                                            if (e.target.showPicker) e.target.showPicker();
-                                                                        } catch (err) {
-                                                                            console.error(err);
-                                                                        }
-                                                                    }}
-                                                                    onBlur={(e) => {
-                                                                        field.onBlur();
-                                                                        if (!e.target.value) e.target.type = "text";
-                                                                    }}
-                                                                    placeholder=""
-                                                                    autoComplete="off"
-                                                                    className="bg-white border-emerald-100 h-10 text-xs"
+                                                                    className={`bg-white border-emerald-100 h-10 text-xs ${field.value ? "text-slate-900" : "text-slate-500"}`}
                                                                 />
                                                             </FormControl>
                                                             <FormMessage />
@@ -2125,24 +2106,10 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                             </div>
                                                             <FormControl>
                                                                 <Input
-                                                                    type={field.value ? "date" : "text"}
+                                                                    type="date"
                                                                     {...field}
                                                                     value={field.value || ""}
-                                                                    onFocus={(e) => {
-                                                                        e.target.type = "date";
-                                                                        try {
-                                                                            if (e.target.showPicker) e.target.showPicker();
-                                                                        } catch (err) {
-                                                                            console.error(err);
-                                                                        }
-                                                                    }}
-                                                                    onBlur={(e) => {
-                                                                        field.onBlur();
-                                                                        if (!e.target.value) e.target.type = "text";
-                                                                    }}
-                                                                    placeholder=""
-                                                                    autoComplete="off"
-                                                                    className="bg-white border-red-100 h-10 text-xs"
+                                                                    className={`bg-white border-red-100 h-10 text-xs ${field.value ? "text-slate-900" : "text-slate-500"}`}
                                                                 />
                                                             </FormControl>
                                                             <FormMessage />

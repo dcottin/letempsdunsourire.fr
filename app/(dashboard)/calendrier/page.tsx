@@ -201,14 +201,13 @@ export default function CalendarPage() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100dvh-var(--header-height))] space-y-2 px-3 py-2 md:p-4 md:space-y-3 overflow-hidden">
+        <div className="flex flex-col flex-1 min-h-0 w-full px-3 py-2 md:p-4 space-y-2 md:space-y-3 overflow-hidden">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-4 shrink-0">
                 <div>
-                    <h2 className="text-xl md:text-3xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
-                        <CalendarIcon className="size-6 md:size-8 text-indigo-600" />
+                    <h2 className="text-lg md:text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                        <CalendarIcon className="size-5 md:size-6 text-indigo-600" />
                         Calendrier
                     </h2>
-                    <p className="text-xs md:text-base text-slate-500 hidden md:block">Vue d'ensemble de vos réservations et options.</p>
                 </div>
                 <div className="flex gap-2 w-full md:w-auto">
                     <Button
@@ -228,25 +227,25 @@ export default function CalendarPage() {
                 </div>
             </div>
 
-            {/* Legend */}
-            <div className="flex gap-2 md:gap-4 p-2 md:p-3 bg-white rounded-lg md:rounded-xl border border-slate-200 shadow-sm overflow-x-auto no-scrollbar shrink-0">
-                <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
-                    <span className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></span>
-                    <span className="text-[10px] md:text-xs font-semibold text-slate-700 uppercase tracking-wider">Contrats</span>
+            {/* Legend - Responsive wrapping instead of scrolling */}
+            <div className="flex flex-wrap gap-x-3 gap-y-1.5 p-1.5 md:p-2 bg-white rounded-lg border border-slate-200 shadow-sm shrink-0">
+                <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-emerald-500"></span>
+                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Contrats</span>
                 </div>
-                <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
-                    <span className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-amber-500 shadow-sm shadow-amber-200"></span>
-                    <span className="text-[10px] md:text-xs font-semibold text-slate-700 uppercase tracking-wider">Devis</span>
+                <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-amber-500"></span>
+                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Devis</span>
                 </div>
-                <div className="flex items-center gap-1.5 md:gap-2 whitespace-nowrap">
-                    <span className="w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-slate-500 shadow-sm shadow-slate-200"></span>
-                    <span className="text-[10px] md:text-xs font-semibold text-slate-700 uppercase tracking-wider">Terminé</span>
+                <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-slate-500"></span>
+                    <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Terminé</span>
                 </div>
             </div>
 
             <Card className="border-slate-200 shadow-xl overflow-hidden rounded-xl md:rounded-2xl bg-white flex-1 min-h-0 flex flex-col">
                 <CardContent className="p-0 flex-1 min-h-0 flex flex-col">
-                    <div className="w-full flex-1 fc-custom-theme h-full">
+                    <div className="w-full flex-1 fc-custom-theme min-h-0">
                         <CustomCalendar
                             events={events}
                             onEventClick={handleEventClick}

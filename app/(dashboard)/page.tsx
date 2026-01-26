@@ -809,7 +809,6 @@ END:VCARD`
                 <div className="flex justify-between items-center mb-2">
                     <div className="flex items-center gap-2">
                         <h4 className="font-bold text-sm capitalize text-slate-900 leading-none">{dayName} <span className="text-slate-500 font-medium">{dayDate}</span></h4>
-                        {reference && <span className="text-[10px] text-slate-400 font-mono tracking-tighter bg-slate-50 px-1.5 rounded border border-slate-100">{reference}</span>}
                         {isSameDay(dateObj, new Date()) && <Badge className="bg-red-100 text-red-600 hover:bg-red-100 border-none text-[9px] px-1.5 h-5 font-bold">Auj.</Badge>}
                     </div>
                     <div className="flex items-center gap-1.5">
