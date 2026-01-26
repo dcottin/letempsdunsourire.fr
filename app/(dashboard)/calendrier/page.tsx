@@ -201,7 +201,7 @@ export default function CalendarPage() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-3.5rem)] md:h-full space-y-2 px-3 py-2 md:p-4 md:space-y-2 md:pt-4">
+        <div className="flex flex-col h-[calc(100dvh-var(--header-height))] md:h-full space-y-2 px-3 py-2 md:p-4 md:space-y-2 md:pt-4 overflow-hidden">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 md:gap-4 shrink-0">
                 <div>
                     <h2 className="text-xl md:text-3xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
