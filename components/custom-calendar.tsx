@@ -248,7 +248,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                         : "bg-red-100 text-red-600 border border-red-200",
                                                 !isCurrentMonth && "opacity-30 grayscale"
                                             )}>
-                                                {availability.hasUnassigned && "⚠️ "}<Camera className="size-2 md:size-3" /> {availability.count}
+                                                {availability.hasUnassigned && "⚠️ "}{availability.count} <Camera className="size-2 md:size-3" />
                                             </span>
                                         )}
                                         <span className={cn(
@@ -299,8 +299,8 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                 }}
                                                 className="mt-auto text-[10px] md:text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1 py-0.5 text-center w-full transition-colors flex items-center justify-center gap-1.5"
                                             >
-                                                <ScrollText className="size-3.5" />
                                                 <span>{dayEvents.length}</span>
+                                                <ScrollText className="size-3.5" />
                                             </button>
                                         )}
                                     </div>
