@@ -17,7 +17,7 @@ import {
     parseISO
 } from "date-fns"
 import { fr } from "date-fns/locale"
-import { ChevronLeft, ChevronRight, Camera } from "lucide-react"
+import { ChevronLeft, ChevronRight, ScrollText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
@@ -299,7 +299,7 @@ export function CustomCalendar({ events, onEventClick, onMoreLinkClick, onDateCl
                                                 }}
                                                 className="mt-auto text-[10px] md:text-xs font-bold text-indigo-700 bg-indigo-100 hover:bg-indigo-200 rounded px-1 py-0.5 text-center w-full transition-colors flex items-center justify-center gap-1.5"
                                             >
-                                                <Camera className="size-3.5" />
+                                                <ScrollText className="size-3.5" />
                                                 <span>{dayEvents.length}</span>
                                             </button>
                                         )}
