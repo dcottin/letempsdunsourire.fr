@@ -1578,12 +1578,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                             const stepIndex = idx + 3 // Actual index in workflow_steps
                                             const stepKey = String(stepIndex)
                                             const currentStatus = form.watch("workflow_status") || {}
-                                            const isChecked = currentStatus[stepKey] === true
+                                            const isDesignStep = stepName.toLowerCase().includes('design') || stepName.toLowerCase().includes('maquette') || stepName.toLowerCase().includes('template')
+                                            const isChecked = isDesignStep ? form.watch("design_valide") : currentStatus[stepKey] === true
 
                                             return (
                                                 <div key={stepKey} className="flex flex-row items-center justify-between rounded-lg border bg-white p-3 shadow-sm">
                                                     <div className="flex items-center gap-2">
-                                                        {(stepName.toLowerCase().includes('design') || stepName.toLowerCase().includes('maquette') || stepName.toLowerCase().includes('template')) ? (
+                                                        {isDesignStep ? (
                                                             <Palette className={`size-4 ${isChecked ? "text-emerald-500" : "text-slate-200"}`} />
                                                         ) : (
                                                             isChecked ? <CheckCircleIcon className="size-4 text-emerald-500" /> : <Circle className="size-4 text-slate-200" />
@@ -1593,9 +1594,14 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                     <Switch
                                                         checked={isChecked}
                                                         onCheckedChange={(checked) => {
-                                                            const newStatus = { ...currentStatus, [stepKey]: checked }
-                                                            form.setValue("workflow_status", newStatus)
-                                                            quickSaveData({ workflow_status: newStatus })
+                                                            if (isDesignStep) {
+                                                                form.setValue("design_valide", checked)
+                                                                quickSaveField("design_valide", checked)
+                                                            } else {
+                                                                const newStatus = { ...currentStatus, [stepKey]: checked }
+                                                                form.setValue("workflow_status", newStatus)
+                                                                quickSaveData({ workflow_status: newStatus })
+                                                            }
                                                         }}
                                                     />
                                                 </div>

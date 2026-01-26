@@ -324,6 +324,15 @@ export default function DashboardPage() {
             return
         }
 
+        // Design Validé
+        if (stepKey === 'design_valide') {
+            const newValue = !item.data?.design_valide
+            const updatedData = { ...item.data, design_valide: newValue }
+            setEvents(prev => prev.map(e => e.id === item.id ? { ...e, design_valide: newValue, data: updatedData } : e))
+            await supabase.from('contrats').update({ data: updatedData }).eq('id', item.id)
+            return
+        }
+
         // Dynamic steps
         const currentStatus = item.data?.workflow_status || {}
         const isChecked = currentStatus[stepKey] === true
@@ -843,6 +852,9 @@ END:VCARD`
                             )}
                             <div title="Solde Reçu" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, '2')}>
                                 {soldePaye ? <BadgeCheck className="size-4 text-emerald-500" /> : <BadgeCheck className="size-4 text-slate-200" />}
+                            </div>
+                            <div title="Design Validé" className="cursor-pointer hover:scale-110 transition-transform" onClick={() => onToggleStep(event, 'design_valide')}>
+                                {(event.design_valide || event.data?.design_valide) ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />}
                             </div>
                             {/* Dynamic workflow steps */}
                             {(settings?.workflow_steps || []).slice(3).map((stepName: string, idx: number) => {

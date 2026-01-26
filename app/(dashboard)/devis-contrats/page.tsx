@@ -1213,6 +1213,10 @@ END:VCARD`
                                                                 <span className="text-[8px] font-bold text-emerald-600 uppercase tracking-tighter leading-none">{contrat.data.solde_methode.substring(0, 3)}</span>
                                                             )}
                                                         </div>
+                                                        {/* Fixed step: Design Validé */}
+                                                        <div title="Design Validé" className="cursor-pointer" onClick={() => handleToggleChecklist(contrat, 'design_valide', 'contrats')}>
+                                                            {(contrat.design_valide || contrat.data?.design_valide) ? <Palette className="size-4 text-emerald-500" /> : <Palette className="size-4 text-slate-200" />}
+                                                        </div>
                                                         {/* Dynamic steps from index 3 onwards */}
                                                         {(statusSettings?.workflow_steps || []).slice(3).map((stepName: string, idx: number) => {
                                                             const stepIndex = idx + 3
@@ -1353,9 +1357,7 @@ END:VCARD`
                                                                 <div>{contrat.acompte_paye ? <Wallet2 className="size-3.5 text-emerald-500" /> : <Wallet2 className="size-3.5 text-slate-200" />}</div>
                                                             )}
                                                             <div>{contrat.solde_paye ? <BadgeCheck className="size-3.5 text-emerald-500" /> : <BadgeCheck className="size-3.5 text-slate-200" />}</div>
-                                                            {contrat.data?.selected_options?.some((opt: any) => opt.name.toLowerCase().includes("template")) && (
-                                                                <div>{contrat.design_valide ? <Palette className="size-3.5 text-emerald-500" /> : <Palette className="size-3.5 text-slate-200" />}</div>
-                                                            )}
+                                                            <div>{(contrat.design_valide || contrat.data?.design_valide) ? <Palette className="size-3.5 text-emerald-500" /> : <Palette className="size-3.5 text-slate-200" />}</div>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="text-center">
