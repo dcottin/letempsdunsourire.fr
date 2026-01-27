@@ -13,7 +13,7 @@ import {
     Badge
 } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus, XIcon, Zap, Wallet2, BadgeCheck, FileSignature } from "lucide-react"
+import { PlusIcon, FileTextIcon, ScrollTextIcon, PencilIcon, TrashIcon, ArrowUpDown, ChevronDown, ChevronUp, Archive, Search, CalendarIcon, X, Filter, Palette, Phone, Loader2Icon, SaveIcon, UserPlus, XIcon, Zap, Wallet2, BadgeCheck, FileSignature, FileUp } from "lucide-react"
 import {
     Dialog,
     DialogContent,
@@ -29,6 +29,7 @@ import { format, isWithinInterval, startOfYear, endOfYear, startOfMonth, endOfMo
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ImportExcelDialog } from "@/components/import-excel-dialog"
 
 // Define types for our data
 type Devis = {
@@ -57,6 +58,7 @@ type Contrat = {
 
 export default function DevisContratsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const [isImportDialogOpen, setIsImportDialogOpen] = useState(false)
     const [formMode, setFormMode] = useState<"devis" | "contrat">("devis")
     const [editingItem, setEditingItem] = useState<Devis | Contrat | null>(null)
     const [isFormSaving, setIsFormSaving] = useState(false)
@@ -565,6 +567,49 @@ END:VCARD`
         }
     }
 
+    const handleImportExcel = async (data: any[]) => {
+        try {
+            const genUUID = () => {
+                if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID()
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+                    const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8)
+                    return v.toString(16)
+                })
+            }
+
+            const dossiers = data.map(item => {
+                const datePart = item.date_debut ? format(new Date(item.date_debut), "yyyyMMdd") : format(new Date(), "yyyyMMdd")
+                const initials = item.nom_client ? item.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase() : "XX"
+                const id = `D-${datePart}-${initials}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`
+
+                return {
+                    id,
+                    nom_client: item.nom_client,
+                    prix_total: item.prix_total,
+                    date_debut: item.date_debut,
+                    data: {
+                        ...item,
+                        reference: id,
+                        access_token_devis: genUUID(),
+                        access_token_contrat: genUUID(),
+                        source_contact: "Import Excel",
+                        created_at: new Date().toISOString()
+                    }
+                }
+            })
+
+            // Batch insert into devis
+            const { error } = await supabase.from('devis').insert(dossiers)
+            if (error) throw error
+
+            // Refresh data
+            fetchData()
+        } catch (error: any) {
+            console.error("Batch import error technical details:", JSON.stringify(error, null, 2))
+            throw error
+        }
+    }
+
     const handleEquipmentChange = async (item: any, table: "devis" | "contrats", newEquipmentId: string) => {
         const currentId = item.data?.equipment_id || item.equipment_id || 'none'
         if (newEquipmentId === currentId) return
@@ -717,9 +762,14 @@ END:VCARD`
         <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold md:text-2xl">Contrats</h1>
-                <Button onClick={() => openCreateForm("contrat")} variant="default" className="gap-2 bg-indigo-600 hover:bg-indigo-700">
-                    <PlusIcon className="size-4" /> Créer un contrat
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button onClick={() => setIsImportDialogOpen(true)} variant="outline" className="gap-2 border-slate-200">
+                        <FileUp className="size-4" /> Importer Excel
+                    </Button>
+                    <Button onClick={() => openCreateForm("contrat")} variant="default" className="gap-2 bg-indigo-600 hover:bg-indigo-700">
+                        <PlusIcon className="size-4" /> Créer un contrat
+                    </Button>
+                </div>
             </div>
 
             {/* Sticky Filter Container */}
@@ -984,6 +1034,12 @@ END:VCARD`
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <ImportExcelDialog
+                isOpen={isImportDialogOpen}
+                onOpenChange={setIsImportDialogOpen}
+                onImport={handleImportExcel}
+            />
 
             <div className="w-full mt-4">
                 <div className="space-y-8">
