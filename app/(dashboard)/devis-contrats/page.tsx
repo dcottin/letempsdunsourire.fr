@@ -382,7 +382,8 @@ END:VCARD`
     const getDisplayReference = (item: any, type: "devis" | "contrat") => {
         const prefix = type === "contrat" ? "C" : "D"
         const ref = item.id || item.reference || item.data?.reference
-        if (ref && ref.match(/^[DCAF]-[0-9]{8}-[A-Z0-9]+$/)) return `${prefix}${ref.substring(1)}`
+        // Updated regex to allow for optional suffix like " (2)"
+        if (ref && ref.match(/^[DCAF]-[0-9]{8}-[A-Z0-9]+( \(\d+\))?$/)) return `${prefix}${ref.substring(1)}`
         return generateReference(item, type)
     }
 
