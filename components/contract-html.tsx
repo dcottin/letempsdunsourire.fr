@@ -235,10 +235,16 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                     )}
 
                     {data.acompte_recu && parseFloat(data.acompte_recu) > 0 && (
-                        <div className={`flex justify-between w-64 text-sm font-bold border-t-2 border-dashed pt-3 mt-3 ${data.acompte_paye ? 'text-emerald-600' : 'text-slate-500'}`}>
-                            <span>{data.acompte_paye ? "Acompte reçu" : "Acompte à régler"}</span>
-                            <span>{data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu).toFixed(2)} €</span>
-                        </div>
+                        <>
+                            <div className={`flex justify-between w-64 text-sm font-bold border-t-2 border-dashed pt-3 mt-3 ${data.acompte_paye ? 'text-emerald-600' : 'text-slate-500'}`}>
+                                <span>{data.acompte_paye ? "Acompte reçu" : "Acompte à régler"}</span>
+                                <span>{data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu).toFixed(2)} €</span>
+                            </div>
+                            <div className="flex justify-between w-64 text-lg font-black text-slate-900 border-t pt-2 mt-2">
+                                <span>Solde à payer</span>
+                                <span>{(totalTTC - (data.acompte_paye ? parseFloat(data.acompte_recu) : 0)).toFixed(2)} €</span>
+                            </div>
+                        </>
                     )}
                 </div>
 

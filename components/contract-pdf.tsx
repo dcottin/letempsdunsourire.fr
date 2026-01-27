@@ -574,14 +574,22 @@ export const ContractDocument = ({ data, settings, isInvoice, mode, displayMode 
                                 </>
                             )}
                             {data.acompte_recu && parseFloat(data.acompte_recu) > 0 && (
-                                <View style={styles.totalRow}>
-                                    <Text style={[styles.totalLabel, { color: data.acompte_paye ? "#059669" : "#64748b" }]}>
-                                        {data.acompte_paye ? "Acompte reçu" : "Acompte à régler"}
-                                    </Text>
-                                    <Text style={[styles.totalVal, { color: data.acompte_paye ? "#059669" : "#64748b" }]}>
-                                        {data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu).toFixed(2)} €
-                                    </Text>
-                                </View>
+                                <>
+                                    <View style={styles.totalRow}>
+                                        <Text style={[styles.totalLabel, { color: data.acompte_paye ? "#059669" : "#64748b" }]}>
+                                            {data.acompte_paye ? "Acompte reçu" : "Acompte à régler"}
+                                        </Text>
+                                        <Text style={[styles.totalVal, { color: data.acompte_paye ? "#059669" : "#64748b" }]}>
+                                            {data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu).toFixed(2)} €
+                                        </Text>
+                                    </View>
+                                    <View style={[styles.totalRow, styles.grandTotal, { marginTop: 4, paddingTop: 4 }]}>
+                                        <Text style={styles.grandTotalLabel}>Solde à payer</Text>
+                                        <Text style={styles.grandTotalVal}>
+                                            {(parseFloat(data.prix_total || "0") - (data.acompte_paye ? parseFloat(data.acompte_recu) : 0)).toFixed(2)} €
+                                        </Text>
+                                    </View>
+                                </>
                             )}
                         </View>
                     </View>
