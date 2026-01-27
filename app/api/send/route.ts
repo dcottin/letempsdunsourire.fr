@@ -66,21 +66,33 @@ export async function POST(req: Request) {
             subject: subject,
             attachments: attachments,
             html: `
-                <html>
+                <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+                <html xmlns="http://www.w3.org/1999/xhtml">
                     <head>
+                        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                        <title>${subject}</title>
                         <style>
-                            body, p, div, span, strong, b, ul, ol, li {
-                                color: #000000 !important;
-                                font-family: sans-serif;
-                                margin: 0 !important;
-                                padding: 0 !important;
+                            body { 
+                                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+                                font-size: 16px; 
+                                line-height: 1.5; 
+                                color: #1e293b; 
+                                margin: 0; 
+                                padding: 0; 
                             }
+                            p { margin: 0 !important; padding: 0 !important; min-height: 24px; }
+                            strong, b { font-weight: 700 !important; color: #000000 !important; }
+                            a { color: #4f46e5; text-decoration: underline; }
                         </style>
                     </head>
-                    <body>
-                        <div style="font-family: sans-serif; font-size: 16px; line-height: 1.5; color: #000000;">
-                            ${message}
-                        </div>
+                    <body style="margin: 0; padding: 0;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td style="padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.5; color: #1e293b;">
+                                    ${message}
+                                </td>
+                            </tr>
+                        </table>
                     </body>
                 </html>
             `,

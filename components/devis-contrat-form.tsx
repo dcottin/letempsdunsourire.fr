@@ -428,7 +428,27 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     async function onSubmit(values: z.infer<typeof formSchema>, keepOpen: boolean = false, forcedMode?: "devis" | "contrat", isAutoSave: boolean = false) {
         if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current)
 
-        // Availability check before manual save
+        if (isAutoSavingRef.current && isAutoSave) {
+            console.log("Auto-save already in progress, skipping...")
+            return
+        }
+
+        // START MANUAL SAVE LOGIC
+        if (!isAutoSave) {
+            setIsSaving(true) // Visual feedback immediately
+        }
+
+        // Wait for pending auto-save if necessary
+        if (isAutoSavingRef.current && !isAutoSave) {
+            console.warn("Manual save triggered while another save is in progress. Waiting...")
+            let retries = 0
+            while (isAutoSavingRef.current && retries < 10) {
+                await new Promise(r => setTimeout(r, 200))
+                retries++
+            }
+        }
+
+        // Availability Warning (Native Confirm)
         if (!isAutoSave && values.equipment_id && values.equipment_id !== 'none' && values.date_debut) {
             try {
                 const [devisRes, contratsRes] = await Promise.all([
@@ -450,7 +470,9 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                 if (busyDevis.length > 0 || busyContrats.length > 0) {
                     const conflict = busyContrats[0] || busyDevis[0]
                     const holder = conflict.nom_client || "un autre dossier"
+                    // If user cancels, we MUST abort and reset loading state
                     if (!confirm(`⚠️ Attention : Ce matériel est déjà réservé par "${holder}" pour cette date.\n\nEnregistrer quand même ?`)) {
+                        setIsSaving(false)
                         return
                     }
                 }
@@ -459,29 +481,12 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             }
         }
 
-        if (isAutoSavingRef.current && isAutoSave) {
-            console.log("Auto-save already in progress, skipping...")
-            return
-        }
-
-        // If a manual save is triggered while another is in progress, we might still want to proceed 
-        // but it's risky. Let's at least ensure we don't have multiple overlapping saves if possible.
-        // We'll wait up to 2 seconds for previous save to finish if this is a manual save.
-        if (isAutoSavingRef.current && !isAutoSave) {
-            console.warn("Manual save triggered while another save is in progress. Waiting...")
-            let retries = 0
-            while (isAutoSavingRef.current && retries < 10) {
-                await new Promise(r => setTimeout(r, 200))
-                retries++
-            }
-        }
-
         isAutoSavingRef.current = true
 
         if (isAutoSave) {
             setSaving()
         } else {
-            setIsSaving(true)
+            // Already set to true above, but updating context
             setSaving()
         }
         const currentMode = forcedMode || internalMode
@@ -533,94 +538,100 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         try {
             console.log(`Saving to ${table}...`, record)
 
+            let savedRecord: any;
 
-            let savedRecord
+            // 2. Insert/Update with a safety timeout (30s) to prevent infinite hanging
+            const dbOperation = async () => {
+                if (initialData?.id) {
+                    // Check if mode changed
+                    if (currentMode !== initialMode) {
+                        console.log(`Mode changed from ${initialMode} to ${currentMode}. Migrating record...`)
 
-            if (initialData?.id) {
-                // Check if mode changed
-                if (currentMode !== initialMode) {
-                    console.log(`Mode changed from ${initialMode} to ${currentMode}. Migrating record...`)
+                        // 1. Generate new ID
+                        const newId = generateReference(currentMode)
+                        const newItem = {
+                            id: newId,
+                            ...record,
+                            data: {
+                                ...record.data,
+                                reference: newId,
+                                // If migrating to contrat, mark as signed
+                                contrat_signe: currentMode === 'contrat' ? true : record.data?.contrat_signe,
+                                access_token_devis: preGeneratedTokens.devis,
+                                access_token_contrat: preGeneratedTokens.contrat,
+                                access_token: initialData?.data?.access_token || initialData?.access_token || preGeneratedTokens.contrat
+                            }
+                        }
 
-                    // 1. Generate new ID
-                    const newId = generateReference(currentMode)
+                        // 2. Insert into the new table
+                        const { data: insertData, error: insertError } = await supabase
+                            .from(currentMode === "devis" ? "devis" : "contrats")
+                            .insert([newItem])
+                            .select()
+                            .single()
+
+                        if (insertError) throw insertError
+
+                        // 3. Delete from the old table
+                        const { error: deleteError } = await supabase
+                            .from(initialMode === "devis" ? "devis" : "contrats")
+                            .delete()
+                            .eq('id', initialData.id)
+
+                        if (deleteError) {
+                            console.error("Migration delete error (insert succeeded):", deleteError)
+                        }
+
+                        return insertData
+                    } else {
+                        // Standard update
+                        const { data, error: updateError } = await supabase
+                            .from(table)
+                            .update(record)
+                            .eq('id', initialData.id)
+                            .select()
+                            .single()
+                        if (updateError) throw updateError
+                        return data
+                    }
+                } else {
+                    // Generate custom ID (Reference)
+                    const datePart = finalValues.date_debut ? format(new Date(finalValues.date_debut as string), "yyyyMMdd") : "00000000"
+                    const initials = finalValues.nom_client
+                        ? finalValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+                        : "XX"
+
+                    const prefix = currentMode === 'contrat' ? 'C' : 'D'
+                    const newId = `${prefix}-${datePart}-${initials}`
+
                     const newItem = {
                         id: newId,
                         ...record,
                         data: {
                             ...record.data,
                             reference: newId,
-                            // If migrating to contrat, mark as signed
-                            contrat_signe: currentMode === 'contrat' ? true : record.data?.contrat_signe,
                             access_token_devis: preGeneratedTokens.devis,
                             access_token_contrat: preGeneratedTokens.contrat,
-                            access_token: initialData?.data?.access_token || initialData?.access_token || preGeneratedTokens.contrat
+                            access_token: preGeneratedTokens.contrat // legacy
                         }
                     }
 
-                    // 2. Insert into the new table
-                    const { data: insertData, error: insertError } = await supabase
-                        .from(currentMode === "devis" ? "devis" : "contrats")
+                    const { data, error: insertError } = await supabase
+                        .from(table)
                         .insert([newItem])
                         .select()
                         .single()
-
                     if (insertError) throw insertError
-
-                    // 3. Delete from the old table
-                    const { error: deleteError } = await supabase
-                        .from(initialMode === "devis" ? "devis" : "contrats")
-                        .delete()
-                        .eq('id', initialData.id)
-
-                    if (deleteError) {
-                        console.error("Migration delete error (insert succeeded):", deleteError)
-                        // Note: insert succeeded but delete failed. We might have a duplicate across tables.
-                        // We continue anyway as the main goal (new record) is achieved.
-                    }
-
-                    savedRecord = insertData
-                } else {
-                    // Standard update
-                    const { data, error: updateError } = await supabase
-                        .from(table)
-                        .update(record)
-                        .eq('id', initialData.id)
-                        .select()
-                        .single()
-                    if (updateError) throw updateError
-                    savedRecord = data
+                    return data
                 }
-            } else {
-                // Generate custom ID (Reference)
-                const datePart = finalValues.date_debut ? format(new Date(finalValues.date_debut as string), "yyyyMMdd") : "00000000"
-                const initials = finalValues.nom_client
-                    ? finalValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
-                    : "XX"
-
-                const prefix = currentMode === 'contrat' ? 'C' : 'D'
-                const newId = `${prefix}-${datePart}-${initials}`
-
-                const newItem = {
-                    id: newId,
-                    ...record,
-                    // Store reference in data jsonb as well for redundancy
-                    data: {
-                        ...record.data,
-                        reference: newId,
-                        access_token_devis: preGeneratedTokens.devis,
-                        access_token_contrat: preGeneratedTokens.contrat,
-                        access_token: preGeneratedTokens.contrat // legacy
-                    }
-                }
-
-                const { data, error: insertError } = await supabase
-                    .from(table)
-                    .insert([newItem])
-                    .select()
-                    .single()
-                if (insertError) throw insertError
-                savedRecord = data
             }
+
+            // Race between DB op and a 30s timeout
+            const timeoutPromise = new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Délai d'attente dépassé (30s). Vérifiez votre connexion.")), 30000)
+            )
+
+            savedRecord = await Promise.race([dbOperation(), timeoutPromise])
 
             // Ensure parent knows whether to keep modal open or not
             if (onSuccess) onSuccess(savedRecord, keepOpen || isAutoSave)
@@ -642,12 +653,14 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                 })
             }
         } finally {
+            // ALWAYS release the lock, whether auto or manual
+            isAutoSavingRef.current = false
+
             if (isAutoSave) {
-                isAutoSavingRef.current = false
                 setSaved()
             } else {
                 setIsSaving(false)
-                setSaved() // Also update global indicator
+                setSaved()
             }
         }
     }
@@ -660,45 +673,74 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     const [showDevisPreview, setShowDevisPreview] = React.useState(false)
     const [showEmail, setShowEmail] = React.useState(false)
 
-    // Load settings from Supabase
+    // Load settings from Supabase with Retry Logic
     const fetchSettings = React.useCallback(async () => {
         setIsLoadingSettings(true)
-        console.log("Fetching settings (Discovery mode)...")
-        try {
-            const { data: records, error } = await supabase
-                .from('settings')
-                .select('*')
-                .limit(1)
+        let attempt = 1;
+        const maxAttempts = 3;
 
-            if (error) throw error
+        while (attempt <= maxAttempts) {
+            try {
+                // Add a small race timeout (5s) to catch "hanging" network requests quickly
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("Timeout")), 5000)
+                );
 
-            if (records && records.length > 0) {
-                const record = records[0]
-                console.log("Settings discovered (ID:", record.id, "):", record.data)
+                const fetchPromise = supabase
+                    .from('settings')
+                    .select('*')
+                    .limit(1);
 
-                const cleanData = { ...record.data }
-                if (cleanData.offres) {
-                    cleanData.offres = cleanData.offres.filter((o: any) => o.name && o.name.trim() !== "")
+                const result: any = await Promise.race([fetchPromise, timeoutPromise]);
+                const { data: records, error } = result;
+
+                if (error) throw error
+
+                if (records && records.length > 0) {
+                    const record = records[0]
+                    // console.log("Settings loaded successfully.")
+                    const cleanData = { ...record.data }
+
+                    if (cleanData.offres) {
+                        cleanData.offres = cleanData.offres.filter((o: any) => o.name && o.name.trim() !== "")
+                    } else {
+                        cleanData.offres = DEFAULT_SETTINGS.offres
+                    }
+
+                    if (cleanData.options) {
+                        cleanData.options = cleanData.options.filter((o: any) => o.name && o.name.trim() !== "")
+                    } else {
+                        cleanData.options = DEFAULT_SETTINGS.options
+                    }
+
+                    setStatusSettings({ ...DEFAULT_SETTINGS, ...cleanData })
                 } else {
-                    cleanData.offres = DEFAULT_SETTINGS.offres
+                    console.log("No customized settings found. Using defaults.")
+                    setStatusSettings(DEFAULT_SETTINGS)
                 }
 
-                if (cleanData.options) {
-                    cleanData.options = cleanData.options.filter((o: any) => o.name && o.name.trim() !== "")
-                } else {
-                    cleanData.options = DEFAULT_SETTINGS.options
-                }
+                // Success! Stop loading and exit loop
+                setIsLoadingSettings(false)
+                return;
 
-                setStatusSettings({ ...DEFAULT_SETTINGS, ...cleanData })
-            } else {
-                console.log("No settings record found in database. Using defaults.")
-                setStatusSettings(DEFAULT_SETTINGS)
+            } catch (e) {
+                console.warn(`Settings fetch failed (Attempt ${attempt}/${maxAttempts})`, e)
+                if (attempt === maxAttempts) {
+                    console.error("All settings fetch attempts failed.")
+                    toast({
+                        title: "Connexion instable",
+                        description: "Impossible de charger vos formules et options personnalisées. Les valeurs par défaut sont affichées.",
+                        variant: "destructive"
+                    })
+                    setStatusSettings(DEFAULT_SETTINGS)
+                } else {
+                    // Wait 500ms before retry
+                    await new Promise(r => setTimeout(r, 500));
+                }
+                attempt++;
             }
-        } catch (e) {
-            console.error("Failed to fetch settings from Supabase", e)
-        } finally {
-            setIsLoadingSettings(false)
         }
+        setIsLoadingSettings(false)
     }, [])
 
     React.useEffect(() => {
@@ -936,8 +978,8 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             })(),
             "{{balance_amount}}": (parseFloat(form.getValues("prix_total") || "0") - parseFloat(form.getValues("acompte_recu") || "0")).toFixed(2) + "€",
             "{{company_logo}}": (statusSettings as any)?.logo_url
-                ? `<img src="${(statusSettings as any).logo_url}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />`
-                : ((statusSettings as any)?.logo_base64 ? `<img src="${(statusSettings as any).logo_base64}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: inline-block;" alt="Logo" />` : ""),
+                ? `<img src="${(statusSettings as any).logo_url}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: block;" alt="Logo" />`
+                : ((statusSettings as any)?.logo_base64 ? `<img src="${(statusSettings as any).logo_base64}" width="${(statusSettings as any).logo_width || 100}" style="width: ${(statusSettings as any).logo_width || 100}px; height: auto; display: block;" alt="Logo" />` : ""),
             "{{signing_link}}": signingLink ? `<a href="${signingLink}" style="color: #4f46e5; text-decoration: underline;">${signingLink}</a>` : "",
             "{{signature_link}}": signingLink ? `<a href="${signingLink}" style="color: #4f46e5; text-decoration: underline;">${signingLink}</a>` : ""
         };
@@ -976,7 +1018,15 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
     return (
         <Form {...form}>
-            <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2)))} className="space-y-6">
+            <form id={id} onSubmit={form.handleSubmit((data) => onSubmit(data, true), (err) => {
+                console.error("Form Submit Validation Errors:", JSON.stringify(err, null, 2))
+                toast({
+                    title: "Formulaire incomplet",
+                    description: "Veuillez vérifier les champs obligatoires (Nom, Date de début, etc.) marqués en rouge.",
+                    variant: "destructive"
+                })
+            }
+            )} className="space-y-6">
                 {Object.keys(form.formState.errors).length > 0 && (
                     <div className="px-4 sm:px-6 pt-6">
                         <div className="p-4 sm:p-6 bg-red-50 border-2 border-red-200 rounded-xl flex items-center gap-4 text-red-700 animate-in fade-in slide-in-from-top-2 shadow-sm">
