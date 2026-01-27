@@ -197,7 +197,7 @@ export function FinanceView({ devis, contrats }: FinanceViewProps) {
             const total = parseCurrency(c.prix_total)
             const acompte = parseCurrency(c.acompte_recu)
 
-            if (!c.acompte_paye) {
+            if (!c.acompte_paye && acompte > 0) {
                 pending.push({
                     id: `${c.id}-acompte-pending`,
                     client: c.nom_client,
@@ -208,7 +208,7 @@ export function FinanceView({ devis, contrats }: FinanceViewProps) {
                 })
             }
 
-            if (!c.solde_paye) {
+            if (!c.solde_paye && (total - acompte) > 0) {
                 pending.push({
                     id: `${c.id}-solde-pending`,
                     client: c.nom_client,
@@ -473,7 +473,7 @@ export function FinanceView({ devis, contrats }: FinanceViewProps) {
                                                     const acompte = parseCurrency(contrat.acompte_recu)
                                                     const solde = total - acompte
 
-                                                    if (contrat.acompte_paye) {
+                                                    if (contrat.acompte_paye && acompte > 0) {
                                                         txs.push({
                                                             id: `${contrat.id}-acompte`,
                                                             date: contrat.acompte_date || contrat.date_debut,
@@ -485,7 +485,7 @@ export function FinanceView({ devis, contrats }: FinanceViewProps) {
                                                         })
                                                     }
 
-                                                    if (contrat.solde_paye) {
+                                                    if (contrat.solde_paye && solde > 0) {
                                                         txs.push({
                                                             id: `${contrat.id}-solde`,
                                                             date: contrat.solde_date || contrat.date_debut,
