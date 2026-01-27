@@ -355,12 +355,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
     React.useEffect(() => {
         const checkAvailability = async () => {
-            if (!watchedDateDebut) return
+            if (!watchedDateDebut) {
+                setUnavailableIds([])
+                return
+            }
             setIsCheckingAvailability(true)
 
             try {
-                console.log("Checking availability for:", watchedDateDebut)
-
                 // 1. Check Devis
                 let devisQuery = supabase
                     .from('devis')
@@ -371,9 +372,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                     devisQuery = devisQuery.neq('id', initialData.id)
                 }
                 const { data: rawDevisData, error: devisError } = await devisQuery
-
                 if (devisError) throw devisError
-                const devisData = (rawDevisData || []).filter(d => d.etat !== 'Annulé' && d.etat !== 'Refusé')
+
+                // Filter by etat: check both top-level and JSON data
+                const devisData = (rawDevisData || []).filter(d => {
+                    const status = d.data?.etat || d.etat
+                    return status !== 'Annulé' && status !== 'Refusé'
+                })
 
                 // 2. Check Contrats
                 let contratsQuery = supabase
@@ -385,26 +390,24 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                     contratsQuery = contratsQuery.neq('id', initialData.id)
                 }
                 const { data: rawContratsData, error: contratsError } = await contratsQuery
-
                 if (contratsError) throw contratsError
-                const contratsData = (rawContratsData || []).filter(c => c.etat !== 'Annulé' && c.etat !== 'Cancelled')
+
+                // Filter by etat: check both top-level and JSON data
+                const contratsData = (rawContratsData || []).filter(c => {
+                    const status = c.data?.etat || c.etat
+                    return status !== 'Annulé' && status !== 'Cancelled' && status !== 'Archivé'
+                })
 
                 // Merge results
-                const allOtherBookings = [...(devisData || []), ...(contratsData || [])]
+                const allOtherBookings = [...devisData, ...contratsData]
 
-                console.log("Found other dossiers for date:", allOtherBookings.length)
-
-                // IMPORTANT: Only count as "reserving" a machine if it's NOT just a lead
-                // unless we want to block leads too.
-                // Let's count everything that isn't cancelled, but maybe label it differently.
+                // Extract busy equipment IDs (checking both locations)
                 const busyIds = allOtherBookings
                     ?.map((d: any) => d.data?.equipment_id || d.equipment_id)
                     .filter(Boolean) || []
 
                 // Unique IDs only
                 const uniqueBusyIds = Array.from(new Set(busyIds))
-
-                console.log("Busy Equipment IDs:", uniqueBusyIds)
                 setUnavailableIds(uniqueBusyIds)
             } catch (err) {
                 console.error("Error checking availability", err)
@@ -414,7 +417,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         }
 
         checkAvailability()
-    }, [watchedDateDebut])
+    }, [watchedDateDebut, internalMode, initialData?.id])
 
     React.useEffect(() => {
         if (Object.keys(form.formState.errors).length > 0) {
@@ -435,13 +438,13 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                 const busyDevis = (devisRes.data || []).filter((d: any) =>
                     d.id !== initialData?.id &&
-                    d.etat !== 'Annulé' && d.etat !== 'Refusé' &&
-                    (d.data?.equipment_id === values.equipment_id)
+                    (d.data?.etat || d.etat) !== 'Annulé' && (d.data?.etat || d.etat) !== 'Refusé' &&
+                    ((d.data?.equipment_id === values.equipment_id) || (d.equipment_id === values.equipment_id))
                 )
                 const busyContrats = (contratsRes.data || []).filter((c: any) =>
                     c.id !== initialData?.id &&
-                    c.etat !== 'Annulé' && c.etat !== 'Archivé' &&
-                    (c.data?.equipment_id === values.equipment_id || c.equipment_id === values.equipment_id)
+                    (c.data?.etat || c.etat) !== 'Annulé' && (c.data?.etat || c.etat) !== 'Archivé' &&
+                    ((c.data?.equipment_id === values.equipment_id) || (c.equipment_id === values.equipment_id))
                 )
 
                 if (busyDevis.length > 0 || busyContrats.length > 0) {
@@ -1794,7 +1797,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                         </div>
                                                     ) : unavailableIds.length > 0 && watchedDateDebut && (
                                                         <FormDescription className="text-[10px] text-amber-600 font-medium">
-                                                            Certaines machines sont déjà réservées pour le {format(new Date(watchedDateDebut), 'dd/MM/yyyy')}.
+                                                            Attention des réservations sont déjà enregistrées pour le {format(new Date(watchedDateDebut), 'dd/MM/yyyy')}.
                                                         </FormDescription>
                                                     )}
                                                     <FormMessage />

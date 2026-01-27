@@ -266,6 +266,21 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         textTransform: "uppercase",
         textDecoration: "underline",
+    },
+    footer: {
+        position: 'absolute',
+        bottom: 20,
+        left: 20,
+        right: 20,
+        borderTopWidth: 1,
+        borderTopColor: "#f1f5f9",
+        paddingTop: 8,
+        textAlign: "center",
+    },
+    footerText: {
+        fontSize: 7,
+        color: "#94a3b8",
+        fontStyle: "italic",
     }
 })
 
@@ -523,6 +538,8 @@ export const ContractDocument = ({ data, settings, isInvoice, mode, displayMode 
                         </View>
                     </View>
 
+
+
                     {/* Totals */}
                     <View style={styles.totalsWrapper}>
                         <View style={styles.totals}>
@@ -566,31 +583,30 @@ export const ContractDocument = ({ data, settings, isInvoice, mode, displayMode 
                                         <Text style={styles.grandTotalLabel}>TOTAL</Text>
                                         <Text style={styles.grandTotalVal}>{parseFloat(data.prix_total || "0").toFixed(2)} €</Text>
                                     </View>
-                                    <View style={{ marginTop: 2, alignItems: "flex-end" }}>
-                                        <Text style={{ fontSize: 7, color: "#94a3b8", fontStyle: "italic" }}>
-                                            TVA non applicable, art. 293 B du CGI
-                                        </Text>
-                                    </View>
                                 </>
                             )}
-                            {data.acompte_recu && parseFloat(data.acompte_recu) > 0 && (
+                            {/* Deposit & Balance Logic */}
+                            {(data.acompte_recu && parseFloat(data.acompte_recu) > 0) || (data.solde_paye) ? (
                                 <>
                                     <View style={styles.totalRow}>
                                         <Text style={[styles.totalLabel, { color: data.acompte_paye ? "#059669" : "#64748b" }]}>
                                             {data.acompte_paye ? "Acompte reçu" : "Acompte à régler"}
                                         </Text>
                                         <Text style={[styles.totalVal, { color: data.acompte_paye ? "#059669" : "#64748b" }]}>
-                                            {data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu).toFixed(2)} €
+                                            {data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu || "0").toFixed(2)} €
                                         </Text>
                                     </View>
+
                                     <View style={[styles.totalRow, styles.grandTotal, { marginTop: 4, paddingTop: 4 }]}>
-                                        <Text style={styles.grandTotalLabel}>Solde à payer</Text>
+                                        <Text style={styles.grandTotalLabel}>
+                                            {data.solde_paye ? "Solde réglé" : "Solde à payer"}
+                                        </Text>
                                         <Text style={styles.grandTotalVal}>
-                                            {(parseFloat(data.prix_total || "0") - (data.acompte_paye ? parseFloat(data.acompte_recu) : 0)).toFixed(2)} €
+                                            {data.solde_paye ? "0.00" : (parseFloat(data.prix_total || "0") - (data.acompte_paye ? parseFloat(data.acompte_recu || "0") : 0)).toFixed(2)} €
                                         </Text>
                                     </View>
                                 </>
-                            )}
+                            ) : null}
                         </View>
                     </View>
 
@@ -620,6 +636,11 @@ export const ContractDocument = ({ data, settings, isInvoice, mode, displayMode 
                         </View>
                     )}
 
+                    {!settings?.tva_active && (
+                        <View style={styles.footer} fixed>
+                            <Text style={styles.footerText}>TVA non applicable, art. 293 B du CGI</Text>
+                        </View>
+                    )}
                 </Page>
             )}
 
@@ -651,6 +672,12 @@ export const ContractDocument = ({ data, settings, isInvoice, mode, displayMode 
                             )}
                         </View>
                     </View>
+
+                    {!settings?.tva_active && (
+                        <View style={styles.footer} fixed>
+                            <Text style={styles.footerText}>TVA non applicable, art. 293 B du CGI</Text>
+                        </View>
+                    )}
                 </Page>
             )}
         </Document>

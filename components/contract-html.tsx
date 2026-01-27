@@ -193,6 +193,8 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                     </div>
                 </div>
 
+
+
                 {/* Totals */}
                 <div className="flex flex-col items-end space-y-3 mt-4">
                     {data.remise && parseFloat(data.remise) > 0 && (
@@ -230,19 +232,18 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                                 <span>TOTAL</span>
                                 <span>{totalTTC.toFixed(2)} €</span>
                             </div>
-                            <p className="text-[10px] text-slate-400 italic">TVA non applicable, art. 293 B du CGI</p>
                         </>
                     )}
 
-                    {data.acompte_recu && parseFloat(data.acompte_recu) > 0 && (
+                    {((data.acompte_recu && parseFloat(data.acompte_recu) > 0) || data.solde_paye) && (
                         <>
                             <div className={`flex justify-between w-64 text-sm font-bold border-t-2 border-dashed pt-3 mt-3 ${data.acompte_paye ? 'text-emerald-600' : 'text-slate-500'}`}>
                                 <span>{data.acompte_paye ? "Acompte reçu" : "Acompte à régler"}</span>
-                                <span>{data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu).toFixed(2)} €</span>
+                                <span>{data.acompte_paye ? "- " : ""}{parseFloat(data.acompte_recu || "0").toFixed(2)} €</span>
                             </div>
                             <div className="flex justify-between w-64 text-lg font-black text-slate-900 border-t pt-2 mt-2">
-                                <span>Solde à payer</span>
-                                <span>{(totalTTC - (data.acompte_paye ? parseFloat(data.acompte_recu) : 0)).toFixed(2)} €</span>
+                                <span>{data.solde_paye ? "Solde réglé" : "Solde à payer"}</span>
+                                <span>{data.solde_paye ? "0.00" : (totalTTC - (data.acompte_paye ? parseFloat(data.acompte_recu || "0") : 0)).toFixed(2)} €</span>
                             </div>
                         </>
                     )}
@@ -276,6 +277,12 @@ export function ContractHtml({ data, settings, mode = "contrat", isInvoice = fal
                     </div>
                 )}
             </div>
+
+            {!settings?.tva_active && (
+                <div className="px-6 md:px-12 py-4 border-t bg-slate-50/50">
+                    <p className="text-[10px] text-slate-400 italic text-center">TVA non applicable, art. 293 B du CGI</p>
+                </div>
+            )}
 
             <style jsx>{`
                 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap');
