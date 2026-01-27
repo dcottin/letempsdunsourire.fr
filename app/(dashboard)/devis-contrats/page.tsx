@@ -521,15 +521,32 @@ END:VCARD`
     const handleValidateDevis = async (devis: Devis) => {
         setValidatingDevisId(devis.id)
         try {
-            const newId = generateReference(devis, "contrat")
+            const baseId = generateReference(devis, "contrat")
+            let finalId = baseId
+            let counter = 2
+
+            // Collision detection loop
+            while (true) {
+                const { data: existing } = await supabase
+                    .from('contrats')
+                    .select('id')
+                    .eq('id', finalId)
+                    .maybeSingle()
+
+                if (!existing) break // ID is unique
+
+                finalId = `${baseId} (${counter})`
+                counter++
+            }
+
             const newContract = {
-                id: newId,
+                id: finalId,
                 nom_client: devis.nom_client,
                 prix_total: devis.prix_total,
                 date_debut: devis.date_debut,
                 data: {
                     ...devis.data,
-                    reference: newId,
+                    reference: finalId,
                     etat: "Validé",
                     contrat_signe: true
                 }
