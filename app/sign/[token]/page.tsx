@@ -487,22 +487,25 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                                     )}
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-slate-50 p-4 flex flex-col md:flex-row justify-between items-center border-t gap-3 md:gap-0">
-                                <Button variant="outline" onClick={() => setStep(2)} className="w-full md:w-auto order-3 md:order-1">
-                                    Retour aux CGV
+                            <CardFooter className="bg-slate-50 p-4 flex justify-between items-center border-t gap-2">
+                                <Button variant="outline" onClick={() => setStep(2)} className="text-xs md:text-sm px-2 md:px-4 h-9 md:h-10">
+                                    <span className="md:hidden">Retour</span>
+                                    <span className="hidden md:inline">Retour aux CGV</span>
                                 </Button>
-                                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto order-1 md:order-2">
-                                    <Button variant="ghost" onClick={handleClear} size="sm" className="text-slate-500 hover:text-slate-700 w-full md:w-auto order-2 md:order-1 h-10 md:h-9">
+                                <div className="flex gap-2 flex-1 justify-end">
+                                    <Button variant="ghost" onClick={handleClear} size="sm" className="text-slate-500 hover:text-slate-700 text-xs md:text-sm h-9 md:h-10 px-2 md:px-3">
                                         Effacer
                                     </Button>
-                                    <Button onClick={handleSign} disabled={signing || !agreementChecked} className="bg-indigo-600 hover:bg-indigo-700 gap-2 w-full md:w-auto order-1 md:order-2">
+                                    <Button onClick={handleSign} disabled={signing || !agreementChecked} className="bg-indigo-600 hover:bg-indigo-700 gap-2 text-xs md:text-sm h-9 md:h-10 px-3 md:px-4 flex-1 md:flex-none">
                                         {signing ? (
                                             <>
-                                                <Loader2 className="size-4 animate-spin" /> Signature en cours...
+                                                <Loader2 className="size-3 md:size-4 animate-spin" />
+                                                <span className="md:inline">Signature...</span>
                                             </>
                                         ) : (
                                             <>
-                                                <PenTool className="size-4" /> Valider et Signer
+                                                <PenTool className="size-3 md:size-4" />
+                                                <span>Valider <span className="hidden sm:inline">et Signer</span></span>
                                             </>
                                         )}
                                     </Button>
