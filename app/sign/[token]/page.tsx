@@ -487,15 +487,15 @@ export default function SignPage({ params }: { params: Promise<{ token: string }
                                     )}
                                 </div>
                             </CardContent>
-                            <CardFooter className="bg-slate-50 p-4 flex justify-between items-center border-t">
-                                <Button variant="outline" onClick={() => setStep(2)}>
+                            <CardFooter className="bg-slate-50 p-4 flex flex-col md:flex-row justify-between items-center border-t gap-3 md:gap-0">
+                                <Button variant="outline" onClick={() => setStep(2)} className="w-full md:w-auto order-3 md:order-1">
                                     Retour aux CGV
                                 </Button>
-                                <div className="flex gap-2">
-                                    <Button variant="ghost" onClick={handleClear} size="sm" className="text-slate-500 hover:text-slate-700">
+                                <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto order-1 md:order-2">
+                                    <Button variant="ghost" onClick={handleClear} size="sm" className="text-slate-500 hover:text-slate-700 w-full md:w-auto order-2 md:order-1 h-10 md:h-9">
                                         Effacer
                                     </Button>
-                                    <Button onClick={handleSign} disabled={signing || !agreementChecked} className="bg-indigo-600 hover:bg-indigo-700 gap-2">
+                                    <Button onClick={handleSign} disabled={signing || !agreementChecked} className="bg-indigo-600 hover:bg-indigo-700 gap-2 w-full md:w-auto order-1 md:order-2">
                                         {signing ? (
                                             <>
                                                 <Loader2 className="size-4 animate-spin" /> Signature en cours...
