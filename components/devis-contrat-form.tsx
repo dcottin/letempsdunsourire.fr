@@ -428,6 +428,20 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     async function onSubmit(values: z.infer<typeof formSchema>, keepOpen: boolean = false, forcedMode?: "devis" | "contrat", isAutoSave: boolean = false) {
         if (autoSaveTimeoutRef.current) clearTimeout(autoSaveTimeoutRef.current)
 
+        // Helper to ensure unique ID by appending (2), (3) etc.
+        const ensureUniqueId = async (baseId: string, table: string): Promise<string> => {
+            const { data: existing } = await supabase.from(table).select('id').eq('id', baseId).maybeSingle()
+            if (!existing) return baseId
+
+            let counter = 2
+            while (true) {
+                const candidate = `${baseId} (${counter})`
+                const { data } = await supabase.from(table).select('id').eq('id', candidate).maybeSingle()
+                if (!data) return candidate
+                counter++
+            }
+        }
+
         if (isAutoSavingRef.current && isAutoSave) {
             console.log("Auto-save already in progress, skipping...")
             return
@@ -548,7 +562,8 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                         console.log(`Mode changed from ${initialMode} to ${currentMode}. Migrating record...`)
 
                         // 1. Generate new ID
-                        const newId = generateReference(currentMode)
+                        const baseId = generateReference(currentMode)
+                        const newId = await ensureUniqueId(baseId, currentMode === "devis" ? "devis" : "contrats")
                         const newItem = {
                             id: newId,
                             ...record,
@@ -596,13 +611,10 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                     }
                 } else {
                     // Generate custom ID (Reference)
-                    const datePart = finalValues.date_debut ? format(new Date(finalValues.date_debut as string), "yyyyMMdd") : "00000000"
-                    const initials = finalValues.nom_client
-                        ? finalValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
-                        : "XX"
-
                     const prefix = currentMode === 'contrat' ? 'C' : 'D'
-                    const newId = `${prefix}-${datePart}-${initials}`
+                    // Use standard generator + uniqueness check
+                    const baseId = generateReference(currentMode)
+                    const newId = await ensureUniqueId(baseId, table)
 
                     const newItem = {
                         id: newId,
@@ -817,10 +829,8 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             // If we just swap prefix (D->C), we might hit a pre-existing C ID if migration failed before/zombie state
             if (!ref.startsWith(prefix)) {
                 const core = ref.substring(1)
-                // Check if it already has a suffix? No easy way.
-                // We will append a random hex char to ensure uniqueness on migration retries
-                const suffix = Math.floor(Math.random() * 16).toString(16).toUpperCase()
-                return `${prefix}${core}-${suffix}`
+                // Remove random suffix logic, let ensureUniqueId handle collisions
+                return `${prefix}${core}`
             }
             return `${prefix}${ref.substring(1)}`
         }
