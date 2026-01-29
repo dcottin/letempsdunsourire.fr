@@ -245,6 +245,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     const autoSaveTimeoutRef = React.useRef<NodeJS.Timeout | null>(null)
 
     const [unavailableIds, setUnavailableIds] = React.useState<string[]>([])
+    const [hasOtherBookings, setHasOtherBookings] = React.useState(false)
     const [isCheckingAvailability, setIsCheckingAvailability] = React.useState(false)
     const watchedDateDebut = form.watch("date_debut")
 
@@ -357,6 +358,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         const checkAvailability = async () => {
             if (!watchedDateDebut) {
                 setUnavailableIds([])
+                setHasOtherBookings(false)
                 return
             }
             setIsCheckingAvailability(true)
@@ -400,6 +402,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
                 // Merge results
                 const allOtherBookings = [...devisData, ...contratsData]
+                setHasOtherBookings(allOtherBookings.length > 0)
 
                 // Extract busy equipment IDs (checking both locations)
                 const busyIds = allOtherBookings
@@ -1855,7 +1858,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                             <AlertCircleIcon className="size-4" />
                                                             <span className="font-bold">Attention : Toutes les machines sont réservées pour cette date !</span>
                                                         </div>
-                                                    ) : unavailableIds.length > 0 && watchedDateDebut && (
+                                                    ) : (unavailableIds.length > 0 || hasOtherBookings) && watchedDateDebut && (
                                                         <FormDescription className="text-[10px] text-amber-600 font-medium">
                                                             Attention des réservations sont déjà enregistrées pour le {format(new Date(watchedDateDebut), 'dd/MM/yyyy')}.
                                                         </FormDescription>
