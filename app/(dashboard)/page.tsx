@@ -983,8 +983,8 @@ function SortableEventCard({ id, children }: { id: string, children: React.React
     }
 
     return (
-        <div ref={setNodeRef} style={style} className="touch-none group/card flex items-center gap-3 mb-4">
-            <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-2 text-slate-300 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-colors shrink-0">
+        <div ref={setNodeRef} style={style} className="group/card flex items-center gap-3 mb-4">
+            <div {...attributes} {...listeners} className="touch-none cursor-grab active:cursor-grabbing p-2 text-slate-300 hover:text-indigo-600 hover:bg-slate-50 rounded-lg transition-colors shrink-0">
                 <GripVertical className="size-5" />
             </div>
             <div className="flex-1 min-w-0">
