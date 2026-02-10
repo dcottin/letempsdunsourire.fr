@@ -43,12 +43,22 @@ export function SendEmailDialog({
     defaultTemplateName = "Modèle par défaut",
 }: SendEmailDialogProps) {
     const isIOS = useIsIOS()
+    const [isAndroid, setIsAndroid] = useState(false)
     const [to, setTo] = useState(defaultEmail)
     const [subject, setSubject] = useState(defaultSubject)
     const [message, setMessage] = useState(defaultMessage || "")
     const [attachRIB, setAttachRIB] = useState(false)
     const [isSending, setIsSending] = useState(false)
     const [selectedTemplate, setSelectedTemplate] = useState("default")
+
+    useEffect(() => {
+        if (typeof navigator !== 'undefined') {
+            const ua = navigator.userAgent.toLowerCase()
+            setIsAndroid(ua.includes("android"))
+        }
+    }, [])
+
+    const isMobileMode = isIOS || isAndroid
 
     // Handle template change
     const handleTemplateChange = (templateId: string) => {
@@ -75,8 +85,8 @@ export function SendEmailDialog({
         }
 
         setSubject(newSubject)
-        // If on iOS, convert HTML body to plain text for the textarea
-        setMessage(isIOS ? stripHtml(newBody) : newBody)
+        // If on mobile (iOS/Android), convert HTML body to plain text for the textarea
+        setMessage(isMobileMode ? stripHtml(newBody) : newBody)
     }
 
     const [prevOpen, setPrevOpen] = useState(false)
@@ -84,21 +94,21 @@ export function SendEmailDialog({
         if (open && !prevOpen) {
             setTo(defaultEmail)
             setSubject(defaultSubject)
-            // If on iOS, convert default message to plain text for the textarea
-            setMessage(isIOS ? stripHtml(defaultMessage || "") : (defaultMessage || ""))
+            // If on mobile, convert default message to plain text for the textarea
+            setMessage(isMobileMode ? stripHtml(defaultMessage || "") : (defaultMessage || ""))
             setAttachRIB(hasRIB ? true : false)
             setSelectedTemplate("default")
         }
         setPrevOpen(open)
-    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen, isIOS])
+    }, [open, defaultEmail, defaultSubject, defaultMessage, hasRIB, prevOpen, isMobileMode])
 
     const handleSend = async () => {
         setIsSending(true)
         try {
             let finalMessage = message.trim()
 
-            // On iOS, we need to convert to HTML and manually bold the values
-            if (isIOS) {
+            // On mobile, we need to convert to HTML and manually bold the values
+            if (isMobileMode) {
                 // 1. Convert newlines
                 finalMessage = finalMessage.replace(/\n/g, "<br>")
 
@@ -122,7 +132,7 @@ export function SendEmailDialog({
                 }
             }
 
-            // 3. Late Logo Injection (for both iOS and Desktop)
+            // 3. Late Logo Injection (for both Mobile and Desktop)
             // This ensures the logo tag survives any text-only editing
             if (replacements && replacements["{{company_logo}}"]) {
                 const logoHtml = replacements["{{company_logo}}"]
@@ -154,7 +164,7 @@ export function SendEmailDialog({
         <div className="bg-white w-full h-full flex flex-col overflow-hidden">
             <DialogHeader className={cn(
                 "px-6 py-4 shrink-0 border-b flex flex-row items-center justify-between bg-white z-20",
-                isIOS && "pt-[max(1.25rem,env(safe-area-inset-top))]"
+                isMobileMode && "pt-[max(1.25rem,env(safe-area-inset-top))]"
             )}>
                 <div className="space-y-1">
                     <DialogTitle className="flex items-center gap-2 text-base sm:text-lg font-bold">
@@ -223,7 +233,7 @@ export function SendEmailDialog({
                 <div className="flex-1 min-h-0 flex flex-col space-y-2 pb-4 overflow-x-hidden">
                     <Label htmlFor="message" className="text-xs uppercase font-bold text-slate-500 shrink-0">Message</Label>
                     <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
-                        {isIOS ? (
+                        {isMobileMode ? (
                             <textarea
                                 id="message"
                                 value={stripHtml(message)}
@@ -249,7 +259,7 @@ export function SendEmailDialog({
 
             <DialogFooter className={cn(
                 "px-6 py-6 border-t bg-slate-50/50 flex flex-row items-center justify-end gap-3 shrink-0 z-20",
-                isIOS && "pb-[max(1.5rem,env(safe-area-inset-bottom))]"
+                isMobileMode && "pb-[max(1.5rem,env(safe-area-inset-bottom))]"
             )}>
                 <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSending} className="flex-1 sm:flex-none uppercase text-[10px] sm:text-xs font-bold tracking-wider h-10 px-3">
                     Annuler
@@ -265,7 +275,7 @@ export function SendEmailDialog({
         </div>
     )
 
-    if (isIOS && open) {
+    if (isMobileMode && open) {
         return (
             <div
                 className="fixed inset-0 z-[9999] bg-white h-[100dvh] w-screen overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200"
