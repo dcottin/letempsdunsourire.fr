@@ -1,8 +1,9 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import { ContractDocument } from "./contract-pdf"
+import { ContractHtml } from "./contract-html"
 
 // Dynamically import PDFViewer with no SSR to avoid server-side errors
 const PDFViewer = dynamic(
@@ -34,11 +35,40 @@ export function ContractPreview({
     className = "",
     height
 }: ContractPreviewProps) {
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const checkIsMobile = () => {
+            const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent
+            const mobile = Boolean(
+                userAgent.match(
+                    /Android|BlackBerry|iPhone|iPad|iPod|Opera Mini|IEMobile|WPDesktop/i
+                )
+            )
+            setIsMobile(mobile)
+        }
+        checkIsMobile()
+    }, [])
+
     if (!data) return null
 
     // Responsive height: smaller on mobile, larger on desktop
     // We use a wrapper to control this via Tailwind or the height prop
     const defaultHeightClass = displayMode === 'all' ? "h-[70vh] md:h-[850px]" : "h-[60vh] md:h-[600px]"
+
+    if (isMobile) {
+        return (
+            <div id={id} className={`w-full overflow-y-auto bg-slate-100/50 p-2 rounded-lg border border-slate-200 ${className} ${!height ? defaultHeightClass : ""}`} style={height ? { height } : {}}>
+                <ContractHtml
+                    data={data}
+                    settings={settings}
+                    mode={mode}
+                    isInvoice={isInvoice}
+                    showCgv={displayMode !== 'contract_only'}
+                />
+            </div>
+        )
+    }
 
     return (
         <div id={id} className={`w-full ${className} ${!height ? defaultHeightClass : ""}`} style={height ? { height } : {}}>
