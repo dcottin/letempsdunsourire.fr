@@ -778,14 +778,14 @@ END:VCARD`
 
     return (
         <div className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <h1 className="text-lg font-semibold md:text-2xl">Contrats</h1>
-                <div className="flex items-center gap-2">
-                    <Button onClick={() => setIsImportDialogOpen(true)} variant="outline" className="gap-2 border-slate-200">
-                        <FileUp className="size-4" /> Importer Excel
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <Button onClick={() => setIsImportDialogOpen(true)} variant="outline" className="flex-1 sm:flex-none gap-2 border-slate-200">
+                        <FileUp className="size-4" /> <span className="whitespace-nowrap">Importer Excel</span>
                     </Button>
-                    <Button onClick={() => openCreateForm("contrat")} variant="default" className="gap-2 bg-indigo-600 hover:bg-indigo-700">
-                        <PlusIcon className="size-4" /> Créer un contrat
+                    <Button onClick={() => openCreateForm("contrat")} variant="default" className="flex-1 sm:flex-none gap-2 bg-indigo-600 hover:bg-indigo-700">
+                        <PlusIcon className="size-4" /> <span className="whitespace-nowrap">Créer un contrat</span>
                     </Button>
                 </div>
             </div>
