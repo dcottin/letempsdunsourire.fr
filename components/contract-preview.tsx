@@ -60,7 +60,7 @@ export function ContractPreview({
         // Simple responsive width calculation
         const updateWidth = () => {
             if (typeof window !== 'undefined') {
-                setContainerWidth(Math.min(window.innerWidth - 32, 600)); // Max width 600px, otherwise full width minus padding
+                setContainerWidth(Math.min(window.innerWidth - 48, 600)); // Max width 600px, otherwise full width minus padding
             }
         }
 
@@ -78,7 +78,7 @@ export function ContractPreview({
     // Only fallback to React-PDF (Canvas rendering) for Android where PDF iframes are problematic
     if (isMobile) {
         return (
-            <div id={id} className={`w-full overflow-y-auto bg-slate-100/50 p-2 rounded-lg border border-slate-200 ${className} ${!height ? "h-[60vh]" : ""}`} style={height ? { height } : {}}>
+            <div id={id} className={`w-full overflow-y-auto bg-slate-100/50 pl-2 py-2 pr-6 rounded-lg border border-slate-200 ${className} ${!height ? "h-[60vh]" : ""}`} style={height ? { height } : {}}>
                 <BlobProvider document={
                     <ContractDocument
                         data={data}
