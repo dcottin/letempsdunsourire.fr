@@ -43,19 +43,19 @@ export function ContractPreview({
     className = "",
     height
 }: ContractPreviewProps) {
-    const [isAndroid, setIsAndroid] = useState(false)
+    const [isMobile, setIsMobile] = useState(false)
     const [numPages, setNumPages] = useState<number | null>(null);
     const [containerWidth, setContainerWidth] = useState<number>(0);
 
 
 
     useEffect(() => {
-        const checkIsAndroid = () => {
+        const checkIsMobile = () => {
             const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent
-            const android = Boolean(userAgent.match(/Android/i))
-            setIsAndroid(android)
+            const mobile = Boolean(userAgent.match(/Android|iPhone|iPad|iPod/i))
+            setIsMobile(mobile)
         }
-        checkIsAndroid()
+        checkIsMobile()
 
         // Simple responsive width calculation
         const updateWidth = () => {
@@ -76,7 +76,7 @@ export function ContractPreview({
     const defaultHeightClass = displayMode === 'all' ? "h-[70vh] md:h-[850px]" : "h-[60vh] md:h-[600px]"
 
     // Only fallback to React-PDF (Canvas rendering) for Android where PDF iframes are problematic
-    if (isAndroid) {
+    if (isMobile) {
         return (
             <div id={id} className={`w-full overflow-y-auto bg-slate-100/50 p-2 rounded-lg border border-slate-200 ${className} ${!height ? "h-[60vh]" : ""}`} style={height ? { height } : {}}>
                 <BlobProvider document={
