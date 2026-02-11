@@ -5,8 +5,7 @@ import dynamic from "next/dynamic"
 import { ContractDocument } from "./contract-pdf"
 import { ContractHtml } from "./contract-html"
 import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+
 
 // Set worker source for react-pdf
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
