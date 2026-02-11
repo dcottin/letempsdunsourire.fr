@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input"
 import { RichTextEditor } from "@/components/rich-text-editor"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { SendIcon, Loader2, MailIcon, XIcon } from "lucide-react"
+import { SendIcon, Loader2, MailIcon, XIcon, ChevronDown } from "lucide-react"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useIsIOS } from "@/hooks/use-ios"
 
@@ -184,17 +184,33 @@ export function SendEmailDialog({
                     {templates && templates.length > 0 && (
                         <div className="grid gap-1">
                             <Label className="text-xs uppercase font-bold text-slate-500">Modèle</Label>
-                            <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
-                                <SelectTrigger className="h-9">
-                                    <SelectValue placeholder="Sélectionner un modèle..." />
-                                </SelectTrigger>
-                                <SelectContent className="z-[10000]">
-                                    <SelectItem value="default">{stripHtml(defaultTemplateName)}</SelectItem>
-                                    {templates.map((t) => (
-                                        <SelectItem key={t.id} value={t.id}>{stripHtml(t.name)}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            {isMobileMode ? (
+                                <div className="relative">
+                                    <select
+                                        value={selectedTemplate}
+                                        onChange={(e) => handleTemplateChange(e.target.value)}
+                                        className="flex h-9 w-full items-center justify-between rounded-md border border-slate-200 bg-white pl-3 pr-8 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 disabled:cursor-not-allowed disabled:opacity-50 appearance-none"
+                                    >
+                                        <option value="default">{stripHtml(defaultTemplateName)}</option>
+                                        {templates.map((t) => (
+                                            <option key={t.id} value={t.id}>{stripHtml(t.name)}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-3 top-3 h-4 w-4 opacity-50 pointer-events-none" />
+                                </div>
+                            ) : (
+                                <Select value={selectedTemplate} onValueChange={handleTemplateChange}>
+                                    <SelectTrigger className="h-9">
+                                        <SelectValue placeholder="Sélectionner un modèle..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="z-[10000]">
+                                        <SelectItem value="default">{stripHtml(defaultTemplateName)}</SelectItem>
+                                        {templates.map((t) => (
+                                            <SelectItem key={t.id} value={t.id}>{stripHtml(t.name)}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
                         </div>
                     )}
 
