@@ -4,11 +4,10 @@ import React, { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import { ContractDocument } from "./contract-pdf"
 import { ContractHtml } from "./contract-html"
-import { Document, Page, pdfjs } from 'react-pdf';
-
-
-// Set worker source for react-pdf
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+const AndroidPdfViewer = dynamic(
+    () => import("@/components/android-pdf-viewer"),
+    { ssr: false }
+)
 
 // Dynamically import PDFViewer and BlobProvider with no SSR
 const PDFViewer = dynamic(
@@ -48,9 +47,7 @@ export function ContractPreview({
     const [numPages, setNumPages] = useState<number | null>(null);
     const [containerWidth, setContainerWidth] = useState<number>(0);
 
-    function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-        setNumPages(numPages);
-    }
+
 
     useEffect(() => {
         const checkIsAndroid = () => {
@@ -104,28 +101,12 @@ export function ContractPreview({
                         if (url) {
                             return (
                                 <div className="flex flex-col items-center w-full">
-                                    <Document
-                                        file={url}
-                                        onLoadSuccess={onDocumentLoadSuccess}
-                                        className="flex flex-col gap-4"
-                                        loading={
-                                            <div className="flex items-center justify-center p-8 text-slate-400">
-                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-400 mr-2"></div>
-                                                Chargement du rendu PDF...
-                                            </div>
-                                        }
-                                    >
-                                        {Array.from(new Array(numPages), (el, index) => (
-                                            <Page
-                                                key={`page_${index + 1}`}
-                                                pageNumber={index + 1}
-                                                width={containerWidth || 300}
-                                                className="shadow-sm border border-slate-200"
-                                                renderTextLayer={false}
-                                                renderAnnotationLayer={false}
-                                            />
-                                        ))}
-                                    </Document>
+                                    <AndroidPdfViewer
+                                        url={url}
+                                        numPages={numPages !== null ? numPages : 0}
+                                        setNumPages={setNumPages}
+                                        containerWidth={containerWidth}
+                                    />
                                 </div>
                             )
                         }
