@@ -459,9 +459,15 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         if (isAutoSavingRef.current && !isAutoSave) {
             console.warn("Manual save triggered while another save is in progress. Waiting...")
             let retries = 0
-            while (isAutoSavingRef.current && retries < 10) {
+            // Wait up to 5 seconds for auto-save to finish
+            while (isAutoSavingRef.current && retries < 25) {
                 await new Promise(r => setTimeout(r, 200))
                 retries++
+            }
+
+            // If still locked, we should probably abort or warn, but let's try to proceed carefully
+            if (isAutoSavingRef.current) {
+                console.error("Save lock stuck. Proceeding anyway, potential race condition.")
             }
         }
 
@@ -489,7 +495,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                     const holder = conflict.nom_client || "un autre dossier"
                     // If user cancels, we MUST abort and reset loading state
                     if (!confirm(`⚠️ Attention : Ce matériel est déjà réservé par "${holder}" pour cette date.\n\nEnregistrer quand même ?`)) {
-                        setIsSaving(false)
+                        if (isMounted.current) setIsSaving(false)
                         return
                     }
                 }
@@ -557,7 +563,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
 
             let savedRecord: any;
 
-            // 2. Insert/Update with a safety timeout (30s) to prevent infinite hanging
+            // 2. Insert/Update with a safety timeout (15s) to prevent infinite hanging
             const dbOperation = async () => {
                 if (initialData?.id) {
                     // Check if mode changed
@@ -641,9 +647,9 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                 }
             }
 
-            // Race between DB op and a 30s timeout
+            // Race between DB op and a 15s timeout (reduced from 30s)
             const timeoutPromise = new Promise((_, reject) =>
-                setTimeout(() => reject(new Error("Délai d'attente dépassé (30s). Vérifiez votre connexion.")), 30000)
+                setTimeout(() => reject(new Error("Délai d'attente dépassé (15s). Vérifiez votre connexion.")), 15000)
             )
 
             savedRecord = await Promise.race([dbOperation(), timeoutPromise])
@@ -674,7 +680,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             if (isAutoSave) {
                 setSaved()
             } else {
-                setIsSaving(false)
+                if (isMounted.current) setIsSaving(false)
                 setSaved()
             }
         }
@@ -808,6 +814,11 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
     }, [watchedOffre, watchedOptions, watchedLivraison, watchedRemise, statusSettings, form])
 
     const formValues = form.getValues()
+    const isMounted = React.useRef(true)
+
+    React.useEffect(() => {
+        return () => { isMounted.current = false }
+    }, [])
 
     // Helper to generate UUID with fallback
     const generateUUID = () => {
@@ -820,7 +831,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
         });
     }
 
-    const generateReference = (type: "devis" | "contrat" | "invoice" = internalMode as any) => {
+    function generateReference(type: "devis" | "contrat" | "invoice" = internalMode as any) {
         const prefix = type === "invoice" ? "F" : (type === "contrat" ? "C" : "D")
 
         const formValues = form.getValues()
@@ -838,7 +849,14 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
             return `${prefix}${ref.substring(1)}`
         }
 
-        const datePart = formValues.date_debut ? format(new Date(formValues.date_debut as string), "yyyyMMdd") : format(new Date(), "yyyyMMdd")
+        let datePart = format(new Date(), "yyyyMMdd")
+        if (formValues.date_debut) {
+            const date = new Date(formValues.date_debut as string)
+            if (!isNaN(date.getTime())) {
+                datePart = format(date, "yyyyMMdd")
+            }
+        }
+
         const initials = formValues.nom_client
             ? formValues.nom_client.split(' ').map((n: string) => n[0]).join('').toUpperCase()
             : "XX"
