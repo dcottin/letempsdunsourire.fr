@@ -54,8 +54,11 @@ export function ContractPreview({
     useEffect(() => {
         const checkIsMobile = () => {
             const userAgent = typeof window.navigator === "undefined" ? "" : navigator.userAgent
-            const mobile = Boolean(userAgent.match(/Android|iPhone|iPad|iPod/i))
+            const isTouch = (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0)
+            // Enhanced check: regex OR (touch screen AND width < 1300px) - covers iPads/Tablets requesting desktop site
+            const mobile = Boolean(userAgent.match(/Android|iPhone|iPad|iPod/i)) || (isTouch && window.innerWidth < 1300)
             setIsMobile(mobile)
+            // setContainerWidth will run after this
         }
         checkIsMobile()
 
