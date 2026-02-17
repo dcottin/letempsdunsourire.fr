@@ -5,7 +5,8 @@ import { Document, Page, pdfjs } from 'react-pdf';
 
 // Set worker source for react-pdf only on client
 if (typeof window !== 'undefined') {
-    pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+    // Use local worker to avoid version mismatches and CDN issues
+    pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 }
 
 interface AndroidPdfViewerProps {
