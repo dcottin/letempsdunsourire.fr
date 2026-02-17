@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
+import { DownloadIcon } from "lucide-react"
 import { ContractDocument } from "./contract-pdf"
 import { ContractHtml } from "./contract-html"
 const AndroidPdfViewer = dynamic(
@@ -119,7 +120,22 @@ export function ContractPreview({
 
                         if (url) {
                             return (
-                                <div className="flex flex-col items-center w-full">
+                                <div className="flex flex-col items-center w-full gap-4">
+                                    <Button
+                                        className="w-full max-w-[280px] gap-2 shadow-md bg-indigo-600 hover:bg-indigo-700 text-white mb-2"
+                                        onClick={() => {
+                                            // Force download/open
+                                            const link = document.createElement('a');
+                                            link.href = url;
+                                            link.download = `Document_${id || "contrat"}.pdf`;
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            document.body.removeChild(link);
+                                        }}
+                                    >
+                                        <DownloadIcon className="size-4" />
+                                        Ouvrir / Télécharger le PDF
+                                    </Button>
                                     <AndroidPdfViewer
                                         url={url}
                                         numPages={numPages !== null ? numPages : 0}
