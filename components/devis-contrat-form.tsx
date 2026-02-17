@@ -1844,7 +1844,7 @@ export function DevisContratForm({ id, mode: initialMode, initialData, onSuccess
                                                             </Badge>
                                                         )}
                                                     </div>
-                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <Select onValueChange={field.onChange} value={field.value}>
                                                         <FormControl>
                                                             <SelectTrigger className={`font-bold ${allReserved ? "text-red-600 bg-red-50 border-red-200" : "text-indigo-700 bg-indigo-50 border-indigo-200"}`}>
                                                                 <SelectValue placeholder="Choisir une machine..." />
