@@ -16,10 +16,26 @@ interface AndroidPdfViewerProps {
 }
 
 export default function AndroidPdfViewer({ url, numPages, setNumPages, containerWidth }: AndroidPdfViewerProps) {
+    const [error, setError] = useState<Error | null>(null);
+
     if (!url) return null;
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
+    }
+
+    function onDocumentLoadError(e: Error) {
+        console.error("PDF Load Error:", e);
+        setError(e);
+    }
+
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center p-8 text-red-500 text-center">
+                <p className="font-semibold">Impossible d'afficher le PDF</p>
+                <p className="text-xs mt-1 text-slate-500">{error.message}</p>
+            </div>
+        )
     }
 
     return (
@@ -27,6 +43,7 @@ export default function AndroidPdfViewer({ url, numPages, setNumPages, container
             <Document
                 file={url}
                 onLoadSuccess={onDocumentLoadSuccess}
+                onLoadError={onDocumentLoadError}
                 className="flex flex-col gap-4"
                 loading={
                     <div className="flex items-center justify-center p-8 text-slate-400">

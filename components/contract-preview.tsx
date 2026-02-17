@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
+import { Button } from "@/components/ui/button"
 import { ContractDocument } from "./contract-pdf"
 import { ContractHtml } from "./contract-html"
 const AndroidPdfViewer = dynamic(
@@ -98,6 +99,24 @@ export function ContractPreview({
                             )
                         }
 
+                        if (error) {
+                            console.error("BlobProvider Error:", error)
+                            return (
+                                <div className="flex flex-col items-center justify-center h-full gap-2 p-4 text-center">
+                                    <div className="text-red-500 font-semibold">Erreur de génération</div>
+                                    <div className="text-xs text-slate-500 max-w-xs break-words">{error.message || JSON.stringify(error) || "Erreur inconnue"}</div>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => window.location.reload()}
+                                        className="mt-2"
+                                    >
+                                        Recharger la page
+                                    </Button>
+                                </div>
+                            )
+                        }
+
                         if (url) {
                             return (
                                 <div className="flex flex-col items-center w-full">
@@ -111,7 +130,12 @@ export function ContractPreview({
                             )
                         }
 
-                        return <div className="text-center p-4 text-red-500">Erreur de chargement du PDF via Blob</div>;
+                        return (
+                            <div className="flex flex-col items-center justify-center h-full p-4 text-amber-500 gap-2">
+                                <span>Préparation de l'aperçu...</span>
+                                <div className="text-xs text-slate-400">(Si cela persiste, rechargez la page)</div>
+                            </div>
+                        )
                     }}
                 </BlobProvider>
             </div>
