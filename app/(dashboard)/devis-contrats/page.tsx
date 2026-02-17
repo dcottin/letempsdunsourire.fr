@@ -341,11 +341,11 @@ END:VCARD`
             .channel('dashboard-sync')
             .on('postgres_changes', { event: '*', table: 'devis', schema: 'public' }, () => {
                 console.log("Real-time: devis table changed, refreshing...")
-                fetchData()
+                fetchData(true)
             })
             .on('postgres_changes', { event: '*', table: 'contrats', schema: 'public' }, () => {
                 console.log("Real-time: contrats table changed, refreshing...")
-                fetchData()
+                fetchData(true)
             })
             .subscribe()
 
@@ -354,8 +354,8 @@ END:VCARD`
         }
     }, [])
 
-    async function fetchData() {
-        setIsLoading(true)
+    async function fetchData(isSilent = false) {
+        if (!isSilent) setIsLoading(true)
         try {
             const { data: settingsData } = await supabase.from('settings').select('*').single()
             if (settingsData?.data) setStatusSettings(settingsData.data)
@@ -368,7 +368,7 @@ END:VCARD`
         } catch (e) {
             console.error("Failed to fetch data", e)
         } finally {
-            setIsLoading(false)
+            if (!isSilent) setIsLoading(false)
         }
     }
 
