@@ -106,41 +106,59 @@ export default function DashboardPage() {
     const handleDragEnd = async (event: DragEndEvent) => {
         const { active, over } = event
 
-        if (active.id !== over?.id) {
-            setEvents((items) => {
-                const oldIndex = items.findIndex((item) => item.id === active.id)
-                const newIndex = items.findIndex((item) => item.id === over?.id)
+        if (active && over && active.id !== over.id) {
+            const oldIndex = events.findIndex((item) => item.id === active.id)
+            const newIndex = events.findIndex((item) => item.id === over.id)
 
-                const newItems = arrayMove(items, oldIndex, newIndex)
+            if (oldIndex === -1 || newIndex === -1) return
 
-                // Update rank based on new order
-                // We assign rank = index * 1000 to leave space for insertions
-                const updates = newItems.map((item, index) => ({
-                    id: item.id,
-                    rank: index * 1000,
-                    data: { ...item.data, dashboard_rank: index * 1000 }
-                }))
+            const newItems = arrayMove(events, oldIndex, newIndex)
 
-                // Optimistic update
-                const updatedState = newItems.map((item, index) => ({
-                    ...item,
-                    data: { ...item.data, dashboard_rank: index * 1000 }
-                }))
+            const itemsToSave: any[] = []
+            const updatedEvents = newItems.map((item, index) => {
+                const newRank = index * 1000
+                const currentRank = item.data?.dashboard_rank
 
-                // Background save
-                // We need to update specific tables based on ID prefix
-                const updatesPromise = async () => {
-                    for (const update of updates) {
-                        const table = update.id.startsWith('D') ? 'devis' : 'contrats'
-                        await supabase.from(table).update({
-                            data: update.data
-                        }).eq('id', update.id)
+                if (currentRank !== newRank) {
+                    const updatedItem = {
+                        ...item,
+                        data: { ...item.data, dashboard_rank: newRank }
                     }
+                    itemsToSave.push(updatedItem)
+                    return updatedItem
                 }
-                updatesPromise()
-
-                return updatedState
+                return item
             })
+
+            // 1. Optimistic UI update
+            setEvents(updatedEvents)
+
+            // 2. Persistent save of changed items only
+            if (itemsToSave.length > 0) {
+                const prepareUpdate = (e: any) => ({
+                    id: e.id,
+                    nom_client: e.nom_client,
+                    prix_total: e.prix_total || "0",
+                    date_debut: e.date_debut,
+                    data: e.data
+                })
+
+                const devisUpdates = itemsToSave.filter(e => e.id.toString().startsWith('D')).map(prepareUpdate)
+                const contractsUpdates = itemsToSave.filter(e => !e.id.toString().startsWith('D')).map(prepareUpdate)
+
+                try {
+                    if (devisUpdates.length > 0) {
+                        const { error } = await supabase.from('devis').upsert(devisUpdates)
+                        if (error) throw error
+                    }
+                    if (contractsUpdates.length > 0) {
+                        const { error } = await supabase.from('contrats').upsert(contractsUpdates)
+                        if (error) throw error
+                    }
+                } catch (err) {
+                    console.error("Error saving reorder:", err)
+                }
+            }
         }
     }
 
@@ -887,10 +905,11 @@ END:VCARD`
                             <MapPinIcon className="size-3 shrink-0" />
                             {location ? (
                                 <a
-                                    href={`https://waze.com/ul?q=${encodeURIComponent(location)}`}
+                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="truncate hover:underline hover:text-indigo-600"
+                                    title="Ouvrir dans Google Maps"
                                 >
                                     {location}
                                 </a>

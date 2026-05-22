@@ -1231,11 +1231,11 @@ END:VCARD`
                                                         </div>
                                                         {contrat.lieu && (
                                                             <a
-                                                                href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
+                                                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contrat.lieu)}`}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="text-[9px] text-slate-500 italic mt-0.5 hover:underline hover:text-indigo-600 whitespace-normal break-words block w-full"
-                                                                title="Ouvrir dans Waze"
+                                                                title="Ouvrir dans Google Maps"
                                                             >
                                                                 {contrat.lieu}
                                                             </a>
@@ -1366,11 +1366,11 @@ END:VCARD`
                                                             </div>
                                                             {contrat.lieu && (
                                                                 <a
-                                                                    href={`https://waze.com/ul?q=${encodeURIComponent(contrat.lieu)}`}
+                                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(contrat.lieu)}`}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
                                                                     className="text-[9px] text-slate-400 italic mt-0.5 hover:underline hover:text-indigo-400 whitespace-normal break-words block w-full"
-                                                                    title="Ouvrir dans Waze"
+                                                                    title="Ouvrir dans Google Maps"
                                                                 >
                                                                     {contrat.lieu}
                                                                 </a>
