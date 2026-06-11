@@ -336,22 +336,10 @@ END:VCARD`
     useEffect(() => {
         fetchData()
 
-        // Real-time subscription to auto-refresh when tables change
-        const channel = (supabase as any)
-            .channel('dashboard-sync')
-            .on('postgres_changes', { event: '*', table: 'devis', schema: 'public' }, () => {
-                console.log("Real-time: devis table changed, refreshing...")
-                fetchData(true)
-            })
-            .on('postgres_changes', { event: '*', table: 'contrats', schema: 'public' }, () => {
-                console.log("Real-time: contrats table changed, refreshing...")
-                fetchData(true)
-            })
-            .subscribe()
-
-        return () => {
-            supabase.removeChannel(channel)
-        }
+        // Sync silencieux quand l'utilisateur revient sur l'onglet
+        const onFocus = () => fetchData(true)
+        window.addEventListener('focus', onFocus)
+        return () => window.removeEventListener('focus', onFocus)
     }, [])
 
     async function fetchData(isSilent = false) {
