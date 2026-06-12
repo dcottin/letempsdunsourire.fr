@@ -44,15 +44,13 @@ export function NotificationBell() {
         setMounted(true)
         fetchNotifications()
 
-        // Real-time subscription for new notifications
+        // Channel Realtime stable — créé une seule fois au montage
         const channel = (supabase as any)
             .channel('notifications-sync')
             .on('postgres_changes',
                 { event: '*', table: 'notifications', schema: 'public' },
                 () => {
-                    console.log("Notification change received!")
                     fetchNotifications()
-                    if (isHistoryOpen) fetchAllNotifications()
                 }
             )
             .subscribe()
@@ -60,6 +58,11 @@ export function NotificationBell() {
         return () => {
             supabase.removeChannel(channel)
         }
+    }, [])
+
+    // Recharge l'historique uniquement quand le dialog est ouvert
+    useEffect(() => {
+        if (isHistoryOpen) fetchAllNotifications()
     }, [isHistoryOpen])
 
     const handleMarkAsRead = async (id: string) => {

@@ -62,8 +62,14 @@ export default function CalendarPage() {
     async function fetchData() {
         setIsLoading(true)
         try {
-            const { data: devisData } = await supabase.from('devis').select('*')
-            const { data: contratsData } = await supabase.from('contrats').select('*')
+            const { data: devisData } = await supabase
+                .from('devis')
+                .select('id, nom_client, prix_total, date_debut, date_fin, etat, data')
+                .limit(500)
+            const { data: contratsData } = await supabase
+                .from('contrats')
+                .select('id, nom_client, prix_total, date_debut, date_fin, etat, data')
+                .limit(500)
             const { data: settingsData } = await supabase.from('settings').select('data').single()
 
             setDevisList((devisData || []).map(item => ({ ...item, ...item.data, type: 'devis' })))

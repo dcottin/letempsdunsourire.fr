@@ -155,8 +155,8 @@ export default function PlanificationPage() {
             // 1. Fetch Contracts for the Date
             const { data: allContracts, error } = await supabase
                 .from('contrats')
-                .select('*')
-
+                .select('id, nom_client, date_debut, data')
+                .limit(500)
             if (error) throw error
 
             const rawContracts = allContracts?.filter(c =>

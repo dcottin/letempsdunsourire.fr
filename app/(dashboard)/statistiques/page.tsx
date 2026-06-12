@@ -44,22 +44,20 @@ export default function StatisticsPage() {
     const loadData = async () => {
         setIsLoading(true)
         try {
-            // Fetch Devis
             const { data: devisData, error: devisError } = await supabase
                 .from('devis')
-                .select('*')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
+                .limit(500)
 
             if (devisError) throw devisError
-
             setDevisList((devisData || []).map(item => ({ ...item, ...item.data })))
 
-            // Fetch Contrats
             const { data: contratsData, error: contratsError } = await supabase
                 .from('contrats')
-                .select('*')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
+                .limit(500)
 
             if (contratsError) throw contratsError
-
             setContratsList((contratsData || []).map(item => ({ ...item, ...item.data })))
         } catch (e) {
             console.error("Failed to fetch statistics data", e)
@@ -68,16 +66,8 @@ export default function StatisticsPage() {
         }
     }
 
-    // Load data from Supabase on mount and focus
     useEffect(() => {
         loadData()
-
-        const handleFocus = () => {
-            loadData()
-        }
-
-        window.addEventListener("focus", handleFocus)
-        return () => window.removeEventListener("focus", handleFocus)
     }, [])
 
     if (isLoading) {

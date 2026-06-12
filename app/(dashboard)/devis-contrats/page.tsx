@@ -345,13 +345,21 @@ END:VCARD`
     async function fetchData(isSilent = false) {
         if (!isSilent) setIsLoading(true)
         try {
-            const { data: settingsData } = await supabase.from('settings').select('*').single()
+            const { data: settingsData } = await supabase.from('settings').select('data').single()
             if (settingsData?.data) setStatusSettings(settingsData.data)
 
-            const { data: devisData } = await supabase.from('devis').select('*').order('created_at', { ascending: false })
+            const { data: devisData } = await supabase
+                .from('devis')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
+                .order('created_at', { ascending: false })
+                .limit(500)
             setDevisList((devisData || []).map(item => ({ ...item, ...item.data })))
 
-            const { data: contratsData } = await supabase.from('contrats').select('*').order('created_at', { ascending: false })
+            const { data: contratsData } = await supabase
+                .from('contrats')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
+                .order('created_at', { ascending: false })
+                .limit(500)
             setContratsList((contratsData || []).map(item => ({ ...item, ...item.data })))
         } catch (e) {
             console.error("Failed to fetch data", e)

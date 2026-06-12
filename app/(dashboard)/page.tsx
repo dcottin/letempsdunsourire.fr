@@ -168,14 +168,14 @@ export default function DashboardPage() {
         const [contractsRes, devisRes, settingsRes] = await Promise.all([
             supabase
                 .from('contrats')
-                .select('*')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
                 .order('date_debut', { ascending: true })
-                .limit(1000),
+                .limit(500),
             supabase
                 .from('devis')
-                .select('*')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
                 .order('date_debut', { ascending: true })
-                .limit(1000),
+                .limit(500),
             supabase
                 .from('settings')
                 .select('data')

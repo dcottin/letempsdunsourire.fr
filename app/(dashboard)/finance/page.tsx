@@ -40,26 +40,23 @@ export default function FinancePage() {
     const loadData = async () => {
         setIsLoading(true)
         try {
-            // Fetch Devis
             const { data: devisData, error: devisError } = await supabase
                 .from('devis')
-                .select('*')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
+                .limit(500)
 
             if (devisError) throw devisError
-
             setDevisList((devisData || []).map(item => ({ ...item, ...item.data })))
 
-            // Fetch Contrats
             const { data: contratsData, error: contratsError } = await supabase
                 .from('contrats')
-                .select('*')
+                .select('id, nom_client, prix_total, date_debut, etat, data')
+                .limit(500)
 
             if (contratsError) throw contratsError
-
             setContratsList((contratsData || []).map(item => ({
                 ...item,
                 ...item.data,
-                // Explicitly ensure date and method fields are grabbed from data JSON if present
                 acompte_date: item.data?.acompte_date || item.acompte_date,
                 solde_date: item.data?.solde_date || item.solde_date,
                 acompte_methode: item.data?.acompte_methode || item.acompte_methode,
@@ -72,16 +69,8 @@ export default function FinancePage() {
         }
     }
 
-    // Load data from Supabase on mount and focus
     useEffect(() => {
         loadData()
-
-        const handleFocus = () => {
-            loadData()
-        }
-
-        window.addEventListener("focus", handleFocus)
-        return () => window.removeEventListener("focus", handleFocus)
     }, [])
 
     if (isLoading) {
