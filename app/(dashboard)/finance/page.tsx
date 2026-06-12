@@ -54,7 +54,7 @@ export default function FinancePage() {
                 .limit(500)
 
             if (contratsError) throw contratsError
-            setContratsList((contratsData || []).map(item => ({
+            setContratsList((contratsData || []).map((item: any) => ({
                 ...item,
                 ...item.data,
                 acompte_date: item.data?.acompte_date || item.acompte_date,
